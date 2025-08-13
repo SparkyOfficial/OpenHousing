@@ -626,11 +626,13 @@ public class CodeEditorGUI implements InventoryHolder {
             case CALL_FUNCTION:
                 return new ru.openhousing.coding.blocks.functions.CallFunctionBlock();
             
-            // Управление
-            case REPEAT:
-                return new ru.openhousing.coding.blocks.control.RepeatBlock();
-            case ELSE:
-                return new ru.openhousing.coding.blocks.control.ElseBlock();
+                                    // Управление
+                        case REPEAT:
+                            return new ru.openhousing.coding.blocks.control.RepeatBlock();
+                        case ELSE:
+                            return new ru.openhousing.coding.blocks.control.ElseBlock();
+                        case TARGET:
+                            return new ru.openhousing.coding.blocks.control.TargetBlock();
             
             default:
                 return null;

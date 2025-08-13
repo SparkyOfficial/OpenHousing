@@ -234,11 +234,13 @@ public class ScriptSerializer {
                 case CALL_FUNCTION:
                     return new CallFunctionBlock();
                 
-                // Управление
-                case REPEAT:
-                    return new RepeatBlock();
-                case ELSE:
-                    return new ElseBlock();
+                                        // Управление
+                        case REPEAT:
+                            return new RepeatBlock();
+                        case ELSE:
+                            return new ElseBlock();
+                        case TARGET:
+                            return new ru.openhousing.coding.blocks.control.TargetBlock();
                 
                 default:
                     return null;

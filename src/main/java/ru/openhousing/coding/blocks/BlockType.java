@@ -46,10 +46,22 @@ public enum BlockType {
           "Повторяет код определенное количество раз"),
     TARGET("Цель", Material.TARGET, BlockCategory.CONTROL,
           "Определяет цель для действий"),
-    CODE_CONTROL("Контроль кода", Material.LEVER, BlockCategory.CONTROL,
-                "Управляет выполнением кода"),
-    ELSE("Иначе", Material.REDSTONE_TORCH, BlockCategory.CONTROL,
-        "Выполняется, если условие ложно");
+            CODE_CONTROL("Контроль кода", Material.LEVER, BlockCategory.CONTROL,
+                    "Управляет выполнением кода"),
+        ELSE("Иначе", Material.REDSTONE_TORCH, BlockCategory.CONTROL,
+            "Выполняется, если условие ложно"),
+        
+        // Математика и текст
+        MATH("Математика", Material.REDSTONE_BLOCK, BlockCategory.UTILITY,
+            "Выполняет математические операции"),
+        TEXT_OPERATION("Операции с текстом", Material.WRITABLE_BOOK, BlockCategory.UTILITY,
+                      "Операции с текстовыми строками"),
+        
+        // Инвентарь и предметы
+        INVENTORY_ACTION("Действие с инвентарем", Material.CHEST, BlockCategory.ACTION,
+                        "Работа с инвентарем игрока"),
+        ITEM_CHECK("Проверка предмета", Material.ITEM_FRAME, BlockCategory.CONDITION,
+                  "Проверяет предметы в инвентаре");
     
     private final String displayName;
     private final Material material;
@@ -87,7 +99,8 @@ public enum BlockType {
         CONDITION("Условия", Material.COMPARATOR, "Блоки условий"),
         ACTION("Действия", Material.PISTON, "Блоки действий"),
         FUNCTION("Функции", Material.COMMAND_BLOCK, "Блоки функций"),
-        CONTROL("Управление", Material.REDSTONE, "Блоки управления кодом");
+        CONTROL("Управление", Material.REDSTONE, "Блоки управления кодом"),
+        UTILITY("Утилиты", Material.CRAFTING_TABLE, "Вспомогательные блоки");
         
         private final String displayName;
         private final Material material;
