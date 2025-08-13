@@ -21,7 +21,7 @@ public class FunctionBlock extends CodeBlock {
     @Override
     public ExecutionResult execute(ExecutionContext context) {
         // Функции не выполняются напрямую, они регистрируются при загрузке скрипта
-        String functionName = (String) getParameter("name");
+        String functionName = (String) getParameter(ru.openhousing.coding.constants.BlockParams.FUNCTION_NAME);
         if (functionName != null && !functionName.isEmpty()) {
             context.setFunction(functionName, this);
         }
@@ -37,7 +37,7 @@ public class FunctionBlock extends CodeBlock {
         ExecutionContext functionContext = context.createChildContext();
         
         // Устанавливаем параметры функции
-        String parametersStr = (String) getParameter("parameters");
+        String parametersStr = (String) getParameter(ru.openhousing.coding.constants.BlockParams.ARGUMENTS);
         if (parametersStr != null && !parametersStr.isEmpty()) {
             String[] paramNames = parametersStr.split(",");
             for (int i = 0; i < paramNames.length && i < args.length; i++) {
@@ -66,7 +66,7 @@ public class FunctionBlock extends CodeBlock {
      * Получение количества параметров функции
      */
     public int getParameterCount() {
-        String parametersStr = (String) getParameter("parameters");
+        String parametersStr = (String) getParameter(ru.openhousing.coding.constants.BlockParams.ARGUMENTS);
         if (parametersStr == null || parametersStr.trim().isEmpty()) {
             return 0;
         }
@@ -85,7 +85,7 @@ public class FunctionBlock extends CodeBlock {
      * Получение имен параметров функции
      */
     public String[] getParameterNames() {
-        String parametersStr = (String) getParameter("parameters");
+        String parametersStr = (String) getParameter(ru.openhousing.coding.constants.BlockParams.ARGUMENTS);
         if (parametersStr == null || parametersStr.trim().isEmpty()) {
             return new String[0];
         }
@@ -99,15 +99,15 @@ public class FunctionBlock extends CodeBlock {
     
     @Override
     public boolean validate() {
-        String functionName = (String) getParameter("name");
+        String functionName = (String) getParameter(ru.openhousing.coding.constants.BlockParams.FUNCTION_NAME);
         return functionName != null && !functionName.trim().isEmpty();
     }
     
     @Override
     public List<String> getDescription() {
-        String functionName = (String) getParameter("name");
-        String description = (String) getParameter("description");
-        String parameters = (String) getParameter("parameters");
+        String functionName = (String) getParameter(ru.openhousing.coding.constants.BlockParams.FUNCTION_NAME);
+        String description = (String) getParameter(ru.openhousing.coding.constants.BlockParams.DESCRIPTION);
+        String parameters = (String) getParameter(ru.openhousing.coding.constants.BlockParams.ARGUMENTS);
         
         List<String> desc = Arrays.asList(
             "§6Функция",

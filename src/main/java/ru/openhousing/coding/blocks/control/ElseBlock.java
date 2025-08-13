@@ -34,7 +34,7 @@ public class ElseBlock extends CodeBlock {
     
     @Override
     public List<String> getDescription() {
-        String description = (String) getParameter("description");
+        String description = (String) getParameter(ru.openhousing.coding.constants.BlockParams.DESCRIPTION);
         
         return Arrays.asList(
             "§6Иначе",

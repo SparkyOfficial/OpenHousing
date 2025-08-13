@@ -106,10 +106,10 @@ public class EntityActionBlock extends CodeBlock {
     @Override
     public ExecutionResult execute(ExecutionContext context) {
         Object target = context.getTarget();
-        EntityActionType actionType = (EntityActionType) getParameter("actionType");
-        String value = replaceVariables((String) getParameter("value"), context);
-        String extra1 = replaceVariables((String) getParameter("extra1"), context);
-        String extra2 = replaceVariables((String) getParameter("extra2"), context);
+        EntityActionType actionType = (EntityActionType) getParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE);
+        String value = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE), context);
+        String extra1 = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.EXTRA1), context);
+        String extra2 = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.EXTRA2), context);
         
         if (actionType == null) {
             return ExecutionResult.error("Не указан тип действия");
@@ -582,18 +582,27 @@ public class EntityActionBlock extends CodeBlock {
                 particleCount = Integer.parseInt(count);
             } catch (NumberFormatException e) {
                 // Используем значение по умолчанию
+                if (entity instanceof Player) {
+                    ((Player) entity).sendMessage("§c[OpenHousing] Неверное количество частиц: '" + count + "'. Используется значение по умолчанию: 10");
+                }
             }
             
             try {
                 offsetValue = Double.parseDouble(offset);
             } catch (NumberFormatException e) {
                 // Используем значение по умолчанию
+                if (entity instanceof Player) {
+                    ((Player) entity).sendMessage("§c[OpenHousing] Неверное смещение частиц: '" + offset + "'. Используется значение по умолчанию: 0.5");
+                }
             }
             
             entity.getWorld().spawnParticle(particle, entity.getLocation(), particleCount, 
                                           offsetValue, offsetValue, offsetValue);
         } catch (IllegalArgumentException e) {
             // Неверное имя частицы
+            if (entity instanceof Player) {
+                ((Player) entity).sendMessage("§c[OpenHousing] Неверное имя частицы: '" + particleName + "'. Используйте одно из доступных значений частиц.");
+            }
         }
     }
     
@@ -603,10 +612,20 @@ public class EntityActionBlock extends CodeBlock {
     private Entity findNearestEntity(ExecutionContext context) {
         if (context.getPlayer() == null) return null;
         
+        // Используем оптимизированный поиск из CodeBlockUtils
+        List<Entity> nearbyEntities = ru.openhousing.utils.CodeBlockUtils.findNearestEntities(
+            context.getPlayer().getLocation(), 
+            10, 
+            Entity.class
+        );
+        
+        if (nearbyEntities.isEmpty()) return null;
+        
+        // Находим ближайшее существо
         Entity nearest = null;
         double nearestDistance = Double.MAX_VALUE;
         
-        for (Entity entity : context.getPlayer().getNearbyEntities(10, 10, 10)) {
+        for (Entity entity : nearbyEntities) {
             if (entity instanceof Player) continue;
             
             double distance = entity.getLocation().distance(context.getPlayer().getLocation());
@@ -623,56 +642,32 @@ public class EntityActionBlock extends CodeBlock {
      * Парсинг локации
      */
     private Location parseLocation(String locationString, ExecutionContext context) {
-        if (locationString == null || locationString.isEmpty()) {
-            return context.getPlayer() != null ? context.getPlayer().getLocation() : null;
-        }
-        
-        return parseLocationString(locationString, context.getPlayer().getWorld());
+        return ru.openhousing.utils.CodeBlockUtils.parseLocation(locationString, context.getPlayer().getWorld());
     }
     
     /**
-     * Парсинг строки локации
+     * Парсинг локации из строки
      */
     private Location parseLocationString(String locationString, World world) {
-        String[] parts = locationString.split(",");
-        if (parts.length >= 3) {
-            try {
-                double x = Double.parseDouble(parts[0].trim());
-                double y = Double.parseDouble(parts[1].trim());
-                double z = Double.parseDouble(parts[2].trim());
-                return new Location(world, x, y, z);
-            } catch (NumberFormatException e) {
-                return null;
-            }
-        }
-        return null;
+        return ru.openhousing.utils.CodeBlockUtils.parseLocation(locationString, world);
     }
     
     /**
      * Замена переменных в строке
      */
     private String replaceVariables(String text, ExecutionContext context) {
-        if (text == null) return "";
-        
-        for (String varName : context.getVariables().keySet()) {
-            Object value = context.getVariable(varName);
-            if (value != null) {
-                text = text.replace("{" + varName + "}", value.toString());
-            }
-        }
-        
-        return text;
+        return ru.openhousing.utils.CodeBlockUtils.replaceVariables(text, context);
     }
     
     @Override
     public boolean validate() {
-        return getParameter("actionType") != null;
+        return getParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE) != null;
     }
     
     @Override
     public List<String> getDescription() {
-        EntityActionType actionType = (EntityActionType) getParameter("actionType");
-        String value = (String) getParameter("value");
+        EntityActionType actionType = (EntityActionType) getParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE);
+        String value = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE);
         
         return Arrays.asList(
             "§6Действие существа",

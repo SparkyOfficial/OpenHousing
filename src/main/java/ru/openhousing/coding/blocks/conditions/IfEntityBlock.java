@@ -111,9 +111,9 @@ public class IfEntityBlock extends CodeBlock {
     }
     
     private boolean checkCondition(Entity entity, ExecutionContext context) {
-        EntityConditionType conditionType = (EntityConditionType) getParameter("conditionType");
-        String value = replaceVariables((String) getParameter("value"), context);
-        String compareValue = replaceVariables((String) getParameter("compareValue"), context);
+        EntityConditionType conditionType = (EntityConditionType) getParameter(ru.openhousing.coding.constants.BlockParams.CONDITION_TYPE);
+        String value = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE), context);
+        String compareValue = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.COMPARE_VALUE), context);
         
         if (conditionType == null) {
             return false;
@@ -349,11 +349,21 @@ public class IfEntityBlock extends CodeBlock {
             return null;
         }
         
+        // Используем оптимизированный поиск из CodeBlockUtils
+        List<Entity> nearbyEntities = ru.openhousing.utils.CodeBlockUtils.findNearestEntities(
+            context.getPlayer().getLocation(), 
+            10, 
+            Entity.class
+        );
+        
+        if (nearbyEntities.isEmpty()) return null;
+        
+        // Находим ближайшее существо
         Entity nearest = null;
         double nearestDistance = Double.MAX_VALUE;
         
-        for (Entity entity : context.getPlayer().getNearbyEntities(10, 10, 10)) {
-            if (entity instanceof Player) continue; // Игнорируем игроков
+        for (Entity entity : nearbyEntities) {
+            if (entity instanceof Player) continue;
             
             double distance = entity.getLocation().distance(context.getPlayer().getLocation());
             if (distance < nearestDistance) {
@@ -369,27 +379,18 @@ public class IfEntityBlock extends CodeBlock {
      * Замена переменных в строке
      */
     private String replaceVariables(String text, ExecutionContext context) {
-        if (text == null) return "";
-        
-        for (String varName : context.getVariables().keySet()) {
-            Object value = context.getVariable(varName);
-            if (value != null) {
-                text = text.replace("{" + varName + "}", value.toString());
-            }
-        }
-        
-        return text;
+        return ru.openhousing.utils.CodeBlockUtils.replaceVariables(text, context);
     }
     
     @Override
     public boolean validate() {
-        return getParameter("conditionType") != null;
+        return getParameter(ru.openhousing.coding.constants.BlockParams.CONDITION_TYPE) != null;
     }
     
     @Override
     public List<String> getDescription() {
-        EntityConditionType conditionType = (EntityConditionType) getParameter("conditionType");
-        String value = (String) getParameter("value");
+        EntityConditionType conditionType = (EntityConditionType) getParameter(ru.openhousing.coding.constants.BlockParams.CONDITION_TYPE);
+        String value = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE);
         
         return Arrays.asList(
             "§6Если существо",

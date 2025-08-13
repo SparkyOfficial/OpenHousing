@@ -19,8 +19,8 @@ public class CallFunctionBlock extends CodeBlock {
     
     @Override
     public ExecutionResult execute(ExecutionContext context) {
-        String functionName = (String) getParameter("functionName");
-        String argumentsStr = (String) getParameter("arguments");
+        String functionName = (String) getParameter(ru.openhousing.coding.constants.BlockParams.FUNCTION_NAME);
+        String argumentsStr = (String) getParameter(ru.openhousing.coding.constants.BlockParams.ARGUMENTS);
         
         if (functionName == null || functionName.isEmpty()) {
             return ExecutionResult.error("Не указано имя функции");
@@ -119,14 +119,14 @@ public class CallFunctionBlock extends CodeBlock {
     
     @Override
     public boolean validate() {
-        String functionName = (String) getParameter("functionName");
+        String functionName = (String) getParameter(ru.openhousing.coding.constants.BlockParams.FUNCTION_NAME);
         return functionName != null && !functionName.trim().isEmpty();
     }
     
     @Override
     public List<String> getDescription() {
-        String functionName = (String) getParameter("functionName");
-        String arguments = (String) getParameter("arguments");
+        String functionName = (String) getParameter(ru.openhousing.coding.constants.BlockParams.FUNCTION_NAME);
+        String arguments = (String) getParameter(ru.openhousing.coding.constants.BlockParams.ARGUMENTS);
         
         return Arrays.asList(
             "§6Вызвать функцию",

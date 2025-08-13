@@ -55,10 +55,10 @@ public class VariableActionBlock extends CodeBlock {
     
     @Override
     public ExecutionResult execute(ExecutionContext context) {
-        VariableActionType actionType = (VariableActionType) getParameter("actionType");
-        String variableName = (String) getParameter("variableName");
-        String value = replaceVariables((String) getParameter("value"), context);
-        String secondVariable = (String) getParameter("secondVariable");
+        VariableActionType actionType = (VariableActionType) getParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE);
+        String variableName = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VARIABLE_NAME);
+        String value = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE), context);
+        String secondVariable = (String) getParameter(ru.openhousing.coding.constants.BlockParams.SECOND_VARIABLE);
         
         if (actionType == null || variableName == null || variableName.isEmpty()) {
             return ExecutionResult.error("Не указано имя переменной");
@@ -283,30 +283,20 @@ public class VariableActionBlock extends CodeBlock {
      * Замена переменных в строке
      */
     private String replaceVariables(String text, ExecutionContext context) {
-        if (text == null) return "";
-        
-        // Замена переменных вида {variable_name}
-        for (String varName : context.getVariables().keySet()) {
-            Object value = context.getVariable(varName);
-            if (value != null) {
-                text = text.replace("{" + varName + "}", value.toString());
-            }
-        }
-        
-        return text;
+        return ru.openhousing.utils.CodeBlockUtils.replaceVariables(text, context);
     }
     
     @Override
     public boolean validate() {
-        String variableName = (String) getParameter("variableName");
+        String variableName = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VARIABLE_NAME);
         return variableName != null && !variableName.trim().isEmpty();
     }
     
     @Override
     public List<String> getDescription() {
-        VariableActionType actionType = (VariableActionType) getParameter("actionType");
-        String variableName = (String) getParameter("variableName");
-        String value = (String) getParameter("value");
+        VariableActionType actionType = (VariableActionType) getParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE);
+        String variableName = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VARIABLE_NAME);
+        String value = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE);
         
         return Arrays.asList(
             "§6Действие переменной",

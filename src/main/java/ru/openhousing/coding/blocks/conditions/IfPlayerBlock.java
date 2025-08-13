@@ -73,9 +73,9 @@ public class IfPlayerBlock extends CodeBlock {
     }
     
     private boolean checkCondition(Player player, ExecutionContext context) {
-        PlayerConditionType conditionType = (PlayerConditionType) getParameter("conditionType");
-        String value = (String) getParameter("value");
-        String compareValue = (String) getParameter("compareValue");
+        PlayerConditionType conditionType = (PlayerConditionType) getParameter(ru.openhousing.coding.constants.BlockParams.CONDITION_TYPE);
+        String value = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE);
+        String compareValue = (String) getParameter(ru.openhousing.coding.constants.BlockParams.COMPARE_VALUE);
         
         if (conditionType == null || value == null) {
             return false;
@@ -175,13 +175,13 @@ public class IfPlayerBlock extends CodeBlock {
     
     @Override
     public boolean validate() {
-        return getParameter("conditionType") != null && getParameter("value") != null;
+        return getParameter(ru.openhousing.coding.constants.BlockParams.CONDITION_TYPE) != null && getParameter(ru.openhousing.coding.constants.BlockParams.VALUE) != null;
     }
     
     @Override
     public List<String> getDescription() {
-        PlayerConditionType conditionType = (PlayerConditionType) getParameter("conditionType");
-        String value = (String) getParameter("value");
+        PlayerConditionType conditionType = (PlayerConditionType) getParameter(ru.openhousing.coding.constants.BlockParams.CONDITION_TYPE);
+        String value = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE);
         
         return Arrays.asList(
             "§6Если игрок",

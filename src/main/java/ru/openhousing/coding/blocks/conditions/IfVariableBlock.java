@@ -57,7 +57,7 @@ public class IfVariableBlock extends CodeBlock {
     
     @Override
     public ExecutionResult execute(ExecutionContext context) {
-        String variableName = (String) getParameter("variableName");
+        String variableName = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VARIABLE_NAME);
         
         if (variableName == null || variableName.isEmpty()) {
             return ExecutionResult.error("Не указано имя переменной");
@@ -73,9 +73,9 @@ public class IfVariableBlock extends CodeBlock {
     }
     
     private boolean checkCondition(ExecutionContext context, String variableName) {
-        VariableConditionType conditionType = (VariableConditionType) getParameter("conditionType");
-        String value = replaceVariables((String) getParameter("value"), context);
-        String secondValue = replaceVariables((String) getParameter("secondValue"), context);
+        VariableConditionType conditionType = (VariableConditionType) getParameter(ru.openhousing.coding.constants.BlockParams.CONDITION_TYPE);
+        String value = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE), context);
+        String secondValue = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.SECOND_VALUE), context);
         
         if (conditionType == null) {
             return false;
@@ -219,30 +219,20 @@ public class IfVariableBlock extends CodeBlock {
      * Замена переменных в строке
      */
     private String replaceVariables(String text, ExecutionContext context) {
-        if (text == null) return "";
-        
-        // Замена переменных вида {variable_name}
-        for (String varName : context.getVariables().keySet()) {
-            Object value = context.getVariable(varName);
-            if (value != null) {
-                text = text.replace("{" + varName + "}", value.toString());
-            }
-        }
-        
-        return text;
+        return ru.openhousing.utils.CodeBlockUtils.replaceVariables(text, context);
     }
     
     @Override
     public boolean validate() {
-        String variableName = (String) getParameter("variableName");
+        String variableName = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VARIABLE_NAME);
         return variableName != null && !variableName.trim().isEmpty();
     }
     
     @Override
     public List<String> getDescription() {
-        VariableConditionType conditionType = (VariableConditionType) getParameter("conditionType");
-        String variableName = (String) getParameter("variableName");
-        String value = (String) getParameter("value");
+        VariableConditionType conditionType = (VariableConditionType) getParameter(ru.openhousing.coding.constants.BlockParams.CONDITION_TYPE);
+        String variableName = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VARIABLE_NAME);
+        String value = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE);
         
         return Arrays.asList(
             "§6Если переменная",

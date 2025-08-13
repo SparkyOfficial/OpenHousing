@@ -69,12 +69,12 @@ public class PlayerEventBlock extends CodeBlock {
     
     @Override
     public boolean validate() {
-        return getParameter("eventType") != null;
+        return getParameter(ru.openhousing.coding.constants.BlockParams.EVENT_TYPE) != null;
     }
     
     @Override
     public List<String> getDescription() {
-        Object eventTypeParam = getParameter("eventType");
+        Object eventTypeParam = getParameter(ru.openhousing.coding.constants.BlockParams.EVENT_TYPE);
         PlayerEventType eventType = null;
         
         if (eventTypeParam instanceof PlayerEventType) {
@@ -100,7 +100,7 @@ public class PlayerEventBlock extends CodeBlock {
      * Проверка соответствия события
      */
     public boolean matchesEvent(Class<?> eventClass, Object... params) {
-        Object eventTypeParam = getParameter("eventType");
+        Object eventTypeParam = getParameter(ru.openhousing.coding.constants.BlockParams.EVENT_TYPE);
         PlayerEventType eventType = null;
         
         if (eventTypeParam instanceof PlayerEventType) {
@@ -163,7 +163,7 @@ public class PlayerEventBlock extends CodeBlock {
         ExecutionContext context = new ExecutionContext(player);
         
         // Добавляем переменные в зависимости от типа события
-        Object eventTypeParam = getParameter("eventType");
+        Object eventTypeParam = getParameter(ru.openhousing.coding.constants.BlockParams.EVENT_TYPE);
         PlayerEventType eventType = null;
         
         if (eventTypeParam instanceof PlayerEventType) {

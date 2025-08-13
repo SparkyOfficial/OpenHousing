@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import ru.openhousing.coding.blocks.BlockType;
 import ru.openhousing.coding.blocks.CodeBlock;
+import ru.openhousing.OpenHousing;
 
 import java.util.Arrays;
 import java.util.List;
@@ -118,10 +119,10 @@ public class WorldActionBlock extends CodeBlock {
     
     @Override
     public ExecutionResult execute(ExecutionContext context) {
-        WorldActionType actionType = (WorldActionType) getParameter("actionType");
-        String value = replaceVariables((String) getParameter("value"), context);
-        String location = replaceVariables((String) getParameter("location"), context);
-        String extra = replaceVariables((String) getParameter("extra"), context);
+        WorldActionType actionType = (WorldActionType) getParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE);
+        String value = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE), context);
+        String location = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.LOCATION), context);
+        String extra = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.EXTRA), context);
         
         if (actionType == null) {
             return ExecutionResult.error("Не указан тип действия");
@@ -350,6 +351,7 @@ public class WorldActionBlock extends CodeBlock {
                         player.setVelocity(new Vector(0, power, 0));
                     } catch (NumberFormatException e) {
                         player.setVelocity(new Vector(0, 1.0, 0));
+                        player.sendMessage("§c[OpenHousing] Неверная сила запуска: '" + value + "'. Используется значение по умолчанию: 1.0");
                     }
                 }
                 break;
@@ -364,7 +366,7 @@ public class WorldActionBlock extends CodeBlock {
                         int exp = Integer.parseInt(value);
                         player.giveExp(exp);
                     } catch (NumberFormatException e) {
-                        // Игнорируем ошибку
+                        player.sendMessage("§c[OpenHousing] Неверное количество опыта: '" + value + "'. Опыт не выдан.");
                     }
                 }
                 break;
@@ -388,7 +390,10 @@ public class WorldActionBlock extends CodeBlock {
                 Material material = Material.valueOf(blockType.toUpperCase());
                 loc.getBlock().setType(material);
             } catch (IllegalArgumentException e) {
-                // Неверный тип блока
+                // Неверный тип блока - логируем для администраторов
+                if (OpenHousing.getInstance() != null) {
+                    OpenHousing.getInstance().getLogger().warning("Неверный тип блока: " + blockType + " в локации " + location);
+                }
             }
         }
     }
@@ -421,9 +426,16 @@ public class WorldActionBlock extends CodeBlock {
             
             int sizeX = 3, sizeY = 3, sizeZ = 3;
             if (sizeParts.length >= 3) {
-                sizeX = Integer.parseInt(sizeParts[0].trim());
-                sizeY = Integer.parseInt(sizeParts[1].trim());
-                sizeZ = Integer.parseInt(sizeParts[2].trim());
+                try {
+                    sizeX = Integer.parseInt(sizeParts[0].trim());
+                    sizeY = Integer.parseInt(sizeParts[1].trim());
+                    sizeZ = Integer.parseInt(sizeParts[2].trim());
+                } catch (NumberFormatException e) {
+                    // Используем значения по умолчанию
+                    if (OpenHousing.getInstance() != null) {
+                        OpenHousing.getInstance().getLogger().warning("Неверные размеры области: " + size + ". Используются значения по умолчанию: 3x3x3");
+                    }
+                }
             }
             
             for (int x = 0; x < sizeX; x++) {
@@ -878,50 +890,26 @@ public class WorldActionBlock extends CodeBlock {
      * Парсинг локации
      */
     private Location parseLocation(String locationString, World world) {
-        if (locationString == null || locationString.isEmpty() || world == null) {
-            return null;
-        }
-        
-        String[] parts = locationString.split(",");
-        if (parts.length >= 3) {
-            try {
-                double x = Double.parseDouble(parts[0].trim());
-                double y = Double.parseDouble(parts[1].trim());
-                double z = Double.parseDouble(parts[2].trim());
-                return new Location(world, x, y, z);
-            } catch (NumberFormatException e) {
-                return null;
-            }
-        }
-        return null;
+        return ru.openhousing.utils.CodeBlockUtils.parseLocation(locationString, world);
     }
     
     /**
      * Замена переменных в строке
      */
     private String replaceVariables(String text, ExecutionContext context) {
-        if (text == null) return "";
-        
-        for (String varName : context.getVariables().keySet()) {
-            Object value = context.getVariable(varName);
-            if (value != null) {
-                text = text.replace("{" + varName + "}", value.toString());
-            }
-        }
-        
-        return text;
+        return ru.openhousing.utils.CodeBlockUtils.replaceVariables(text, context);
     }
     
     @Override
     public boolean validate() {
-        return getParameter("actionType") != null;
+        return getParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE) != null;
     }
     
     @Override
     public List<String> getDescription() {
-        WorldActionType actionType = (WorldActionType) getParameter("actionType");
-        String value = (String) getParameter("value");
-        String location = (String) getParameter("location");
+        WorldActionType actionType = (WorldActionType) getParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE);
+        String value = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE);
+        String location = (String) getParameter(ru.openhousing.coding.constants.BlockParams.LOCATION);
         
         return Arrays.asList(
             "§6Действие мира",

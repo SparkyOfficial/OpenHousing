@@ -44,8 +44,8 @@ public class RepeatBlock extends CodeBlock {
     
     @Override
     public ExecutionResult execute(ExecutionContext context) {
-        RepeatType repeatType = (RepeatType) getParameter("repeatType");
-        String value = replaceVariables((String) getParameter("value"), context);
+        RepeatType repeatType = (RepeatType) getParameter(ru.openhousing.coding.constants.BlockParams.REPEAT_TYPE);
+        String value = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE), context);
         int maxIterations = getMaxIterations();
         
         if (repeatType == null) {
@@ -296,7 +296,7 @@ public class RepeatBlock extends CodeBlock {
      * Получение максимального количества итераций
      */
     private int getMaxIterations() {
-        String maxIterStr = (String) getParameter("maxIterations");
+        String maxIterStr = (String) getParameter(ru.openhousing.coding.constants.BlockParams.MAX_ITERATIONS);
         try {
             return Integer.parseInt(maxIterStr);
         } catch (NumberFormatException e) {
@@ -308,22 +308,13 @@ public class RepeatBlock extends CodeBlock {
      * Замена переменных в строке
      */
     private String replaceVariables(String text, ExecutionContext context) {
-        if (text == null) return "";
-        
-        for (String varName : context.getVariables().keySet()) {
-            Object value = context.getVariable(varName);
-            if (value != null) {
-                text = text.replace("{" + varName + "}", value.toString());
-            }
-        }
-        
-        return text;
+        return ru.openhousing.utils.CodeBlockUtils.replaceVariables(text, context);
     }
     
     @Override
     public boolean validate() {
-        String value = (String) getParameter("value");
-        RepeatType repeatType = (RepeatType) getParameter("repeatType");
+        String value = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE);
+        RepeatType repeatType = (RepeatType) getParameter(ru.openhousing.coding.constants.BlockParams.REPEAT_TYPE);
         
         if (repeatType == null) {
             return false;
@@ -343,8 +334,8 @@ public class RepeatBlock extends CodeBlock {
     
     @Override
     public List<String> getDescription() {
-        RepeatType repeatType = (RepeatType) getParameter("repeatType");
-        String value = (String) getParameter("value");
+        RepeatType repeatType = (RepeatType) getParameter(ru.openhousing.coding.constants.BlockParams.REPEAT_TYPE);
+        String value = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE);
         
         return Arrays.asList(
             "§6Повторение",

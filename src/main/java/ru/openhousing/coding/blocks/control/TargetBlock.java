@@ -84,14 +84,14 @@ public class TargetBlock extends CodeBlock {
                 return org.bukkit.Bukkit.getOnlinePlayers();
                 
             case PLAYERS_IN_HOUSE:
-                // Получаем всех игроков в текущем доме
-                // Это требует интеграции с HousingManager
-                return org.bukkit.Bukkit.getOnlinePlayers().stream()
-                    .filter(p -> p.getWorld().equals(player.getWorld()))
+                // Оптимизированный поиск игроков в том же мире
+                return player.getWorld().getPlayers().stream()
+                    .filter(p -> !p.equals(player))
                     .toArray();
                 
             case NEAREST_PLAYER:
-                return org.bukkit.Bukkit.getOnlinePlayers().stream()
+                // Оптимизированный поиск ближайшего игрока в том же мире
+                return player.getWorld().getPlayers().stream()
                     .filter(p -> !p.equals(player))
                     .filter(p -> p.getLocation().distance(player.getLocation()) <= radius)
                     .min((p1, p2) -> Double.compare(
@@ -101,11 +101,13 @@ public class TargetBlock extends CodeBlock {
                     .orElse(null);
                 
             case RANDOM_PLAYER:
-                List<? extends Player> onlinePlayers = (List<? extends Player>) org.bukkit.Bukkit.getOnlinePlayers();
-                if (onlinePlayers.isEmpty()) return null;
-                return onlinePlayers.get((int) (Math.random() * onlinePlayers.size()));
+                // Оптимизированный поиск случайного игрока в том же мире
+                List<? extends Player> worldPlayers = player.getWorld().getPlayers();
+                if (worldPlayers.isEmpty()) return null;
+                return worldPlayers.get((int) (Math.random() * worldPlayers.size()));
                 
             case NEAREST_ENTITY:
+                // Оптимизированный поиск ближайшего существа
                 return player.getNearbyEntities(radius, radius, radius).stream()
                     .filter(entity -> !(entity instanceof Player))
                     .min((e1, e2) -> Double.compare(
@@ -115,6 +117,7 @@ public class TargetBlock extends CodeBlock {
                     .orElse(null);
                 
             case ALL_ENTITIES:
+                // Оптимизированный поиск всех существ
                 return player.getNearbyEntities(radius, radius, radius).stream()
                     .filter(entity -> !(entity instanceof Player))
                     .toArray();

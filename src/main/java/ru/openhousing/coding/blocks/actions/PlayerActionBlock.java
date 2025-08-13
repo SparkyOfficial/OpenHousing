@@ -87,10 +87,10 @@ public class PlayerActionBlock extends CodeBlock {
     }
     
     private void executeAction(Player player, ExecutionContext context) {
-        PlayerActionType actionType = (PlayerActionType) getParameter("actionType");
-        String value = replaceVariables((String) getParameter("value"), context);
-        String extra1 = replaceVariables((String) getParameter("extra1"), context);
-        String extra2 = replaceVariables((String) getParameter("extra2"), context);
+        PlayerActionType actionType = (PlayerActionType) getParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE);
+        String value = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE), context);
+        String extra1 = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.EXTRA1), context);
+        String extra2 = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.EXTRA2), context);
         
         if (actionType == null) return;
         
@@ -117,41 +117,136 @@ public class PlayerActionBlock extends CodeBlock {
                 
             case GIVE_ITEM:
                 // Формат: MATERIAL:количество или MATERIAL
-                String[] itemParts = value.split(":");
-                Material material = Material.valueOf(itemParts[0].toUpperCase());
-                int amount = itemParts.length > 1 ? Integer.parseInt(itemParts[1]) : 1;
-                player.getInventory().addItem(new ItemStack(material, amount));
+                try {
+                    String[] itemParts = value.split(":");
+                    if (itemParts.length == 0 || itemParts[0].trim().isEmpty()) {
+                        throw new IllegalArgumentException("Не указан материал предмета");
+                    }
+                    
+                    Material material;
+                    try {
+                        material = Material.valueOf(itemParts[0].toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("Неверный материал: '" + itemParts[0] + "'. Примеры: DIAMOND, STONE, APPLE");
+                    }
+                    
+                    int amount = 1;
+                    if (itemParts.length > 1) {
+                        try {
+                            amount = Integer.parseInt(itemParts[1].trim());
+                            if (amount <= 0) {
+                                throw new IllegalArgumentException("Количество должно быть больше 0");
+                            }
+                            if (amount > 64) {
+                                throw new IllegalArgumentException("Количество не может быть больше 64");
+                            }
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException("Неверное количество: '" + itemParts[1] + "'. Ожидается число");
+                        }
+                    }
+                    
+                    player.getInventory().addItem(new ItemStack(material, amount));
+                } catch (IllegalArgumentException e) {
+                    throw new RuntimeException("Ошибка в GIVE_ITEM: " + e.getMessage());
+                }
                 break;
                 
             case TAKE_ITEM:
-                String[] takeParts = value.split(":");
-                Material takeMaterial = Material.valueOf(takeParts[0].toUpperCase());
-                int takeAmount = takeParts.length > 1 ? Integer.parseInt(takeParts[1]) : 1;
-                ItemStack takeItem = new ItemStack(takeMaterial, takeAmount);
-                player.getInventory().removeItem(takeItem);
+                try {
+                    String[] takeParts = value.split(":");
+                    if (takeParts.length == 0 || takeParts[0].trim().isEmpty()) {
+                        throw new IllegalArgumentException("Не указан материал предмета");
+                    }
+                    
+                    Material takeMaterial;
+                    try {
+                        takeMaterial = Material.valueOf(takeParts[0].toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("Неверный материал: '" + takeParts[0] + "'. Примеры: DIAMOND, STONE, APPLE");
+                    }
+                    
+                    int takeAmount = 1;
+                    if (takeParts.length > 1) {
+                        try {
+                            takeAmount = Integer.parseInt(takeParts[1].trim());
+                            if (takeAmount <= 0) {
+                                throw new IllegalArgumentException("Количество должно быть больше 0");
+                            }
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException("Неверное количество: '" + takeParts[1] + "'. Ожидается число");
+                        }
+                    }
+                    
+                    ItemStack takeItem = new ItemStack(takeMaterial, takeAmount);
+                    player.getInventory().removeItem(takeItem);
+                } catch (IllegalArgumentException e) {
+                    throw new RuntimeException("Ошибка в TAKE_ITEM: " + e.getMessage());
+                }
                 break;
                 
             case SET_HEALTH:
-                double health = Math.min(20.0, Math.max(0.0, Double.parseDouble(value)));
-                player.setHealth(health);
+                try {
+                    double health = Double.parseDouble(value);
+                    if (health < 0 || health > 20) {
+                        throw new IllegalArgumentException("Здоровье должно быть от 0 до 20");
+                    }
+                    player.setHealth(health);
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Ошибка в SET_HEALTH: '" + value + "' не является числом");
+                } catch (IllegalArgumentException e) {
+                    throw new RuntimeException("Ошибка в SET_HEALTH: " + e.getMessage());
+                }
                 break;
                 
             case SET_FOOD:
-                int food = Math.min(20, Math.max(0, Integer.parseInt(value)));
-                player.setFoodLevel(food);
+                try {
+                    int food = Integer.parseInt(value);
+                    if (food < 0 || food > 20) {
+                        throw new IllegalArgumentException("Уровень еды должен быть от 0 до 20");
+                    }
+                    player.setFoodLevel(food);
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Ошибка в SET_FOOD: '" + value + "' не является числом");
+                } catch (IllegalArgumentException e) {
+                    throw new RuntimeException("Ошибка в SET_FOOD: " + e.getMessage());
+                }
                 break;
                 
             case SET_LEVEL:
-                player.setLevel(Integer.parseInt(value));
+                try {
+                    int level = Integer.parseInt(value);
+                    if (level < 0) {
+                        throw new IllegalArgumentException("Уровень не может быть отрицательным");
+                    }
+                    player.setLevel(level);
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Ошибка в SET_LEVEL: '" + value + "' не является числом");
+                } catch (IllegalArgumentException e) {
+                    throw new RuntimeException("Ошибка в SET_LEVEL: " + e.getMessage());
+                }
                 break;
                 
             case ADD_EXPERIENCE:
-                player.giveExp(Integer.parseInt(value));
+                try {
+                    int exp = Integer.parseInt(value);
+                    if (exp < 0) {
+                        throw new IllegalArgumentException("Опыт не может быть отрицательным");
+                    }
+                    player.giveExp(exp);
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Ошибка в ADD_EXPERIENCE: '" + value + "' не является числом");
+                } catch (IllegalArgumentException e) {
+                    throw new RuntimeException("Ошибка в ADD_EXPERIENCE: " + e.getMessage());
+                }
                 break;
                 
             case SET_GAMEMODE:
-                GameMode gameMode = GameMode.valueOf(value.toUpperCase());
-                player.setGameMode(gameMode);
+                try {
+                    GameMode gameMode = GameMode.valueOf(value.toUpperCase());
+                    player.setGameMode(gameMode);
+                } catch (IllegalArgumentException e) {
+                    throw new RuntimeException("Ошибка в SET_GAMEMODE: '" + value + "' не является допустимым режимом игры. Допустимые: SURVIVAL, CREATIVE, ADVENTURE, SPECTATOR");
+                }
                 break;
                 
             case PLAY_SOUND:
@@ -290,41 +385,18 @@ public class PlayerActionBlock extends CodeBlock {
      * Замена переменных в строке
      */
     private String replaceVariables(String text, ExecutionContext context) {
-        if (text == null) return "";
-        
-        // Замена переменных вида {variable_name}
-        for (String varName : context.getVariables().keySet()) {
-            Object value = context.getVariable(varName);
-            if (value != null) {
-                text = text.replace("{" + varName + "}", value.toString());
-            }
-        }
-        
-        // Замена основных плейсхолдеров
-        Player player = context.getPlayer();
-        if (player != null) {
-            text = text.replace("{player}", player.getName());
-            text = text.replace("{world}", player.getWorld().getName());
-            text = text.replace("{x}", String.valueOf(player.getLocation().getBlockX()));
-            text = text.replace("{y}", String.valueOf(player.getLocation().getBlockY()));
-            text = text.replace("{z}", String.valueOf(player.getLocation().getBlockZ()));
-            text = text.replace("{health}", String.valueOf(player.getHealth()));
-            text = text.replace("{food}", String.valueOf(player.getFoodLevel()));
-            text = text.replace("{level}", String.valueOf(player.getLevel()));
-        }
-        
-        return text;
+        return ru.openhousing.utils.CodeBlockUtils.replaceVariables(text, context);
     }
     
     @Override
     public boolean validate() {
-        return getParameter("actionType") != null && getParameter("value") != null;
+        return getParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE) != null && getParameter(ru.openhousing.coding.constants.BlockParams.VALUE) != null;
     }
     
     @Override
     public List<String> getDescription() {
-        PlayerActionType actionType = (PlayerActionType) getParameter("actionType");
-        String value = (String) getParameter("value");
+        PlayerActionType actionType = (PlayerActionType) getParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE);
+        String value = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE);
         
         return Arrays.asList(
             "§6Действие игрока",
