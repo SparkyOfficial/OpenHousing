@@ -45,7 +45,22 @@ public class HousingManager {
     public void initialize() {
         loadConfiguration();
         setupHousingWorld();
-        loadHousesFromDatabase();
+        
+        // Асинхронно загружаем дома из базы данных
+        plugin.getDatabaseManager().loadAllHousesAsync(loadedHouses -> {
+            for (House house : loadedHouses) {
+                houses.put(house.getId(), house);
+                housesByName.put(house.getName().toLowerCase(), house);
+                
+                playerHouses.computeIfAbsent(house.getOwnerId(), k -> new ArrayList<>()).add(house);
+                
+                if (house.getId() >= nextHouseId) {
+                    nextHouseId = house.getId() + 1;
+                }
+            }
+            
+            plugin.getLogger().info("Loaded " + houses.size() + " houses from database");
+        });
         
         plugin.getLogger().info("HousingManager initialized successfully!");
     }

@@ -834,11 +834,19 @@ public class WorldActionBlock extends CodeBlock {
      * Ожидание
      */
     private void waitAction(ExecutionContext context, String seconds) {
-        // В реальной реализации здесь должен быть асинхронный планировщик
         try {
             int delay = Integer.parseInt(seconds);
-            // Это упрощенная реализация - в реальности нужен Bukkit Scheduler
-            Thread.sleep(delay * 1000L);
+            // Используем Bukkit Scheduler вместо Thread.sleep
+            org.bukkit.Bukkit.getScheduler().runTaskLater(
+                ru.openhousing.OpenHousing.getInstance(),
+                () -> {
+                    // Здесь можно добавить логику, которая должна выполниться после задержки
+                    if (context.getPlayer() != null) {
+                        context.getPlayer().sendMessage("§aОжидание завершено!");
+                    }
+                },
+                delay * 20L // Конвертируем секунды в тики (20 тиков = 1 секунда)
+            );
         } catch (Exception e) {
             // Игнорируем ошибки
         }

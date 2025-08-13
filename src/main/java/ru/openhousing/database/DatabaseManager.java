@@ -265,6 +265,28 @@ public class DatabaseManager {
     }
     
     /**
+     * Асинхронная загрузка скрипта кода
+     */
+    public void loadCodeScriptAsync(UUID playerId, java.util.function.Consumer<CodeScript> callback) {
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            CodeScript script = loadCodeScript(playerId);
+            // Возвращаем результат в основной поток
+            org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> callback.accept(script));
+        });
+    }
+    
+    /**
+     * Асинхронное сохранение скрипта кода
+     */
+    public void saveCodeScriptAsync(CodeScript script, java.lang.Runnable callback) {
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            saveCodeScript(script);
+            // Вызываем callback в основном потоке
+            org.bukkit.Bukkit.getScheduler().runTask(plugin, callback);
+        });
+    }
+    
+    /**
      * Сохранение дома
      */
     public void saveHouse(ru.openhousing.housing.House house) {
@@ -300,6 +322,17 @@ public class DatabaseManager {
             plugin.getLogger().severe("Failed to save house: " + house.getName());
             e.printStackTrace();
         }
+    }
+    
+    /**
+     * Асинхронное сохранение дома
+     */
+    public void saveHouseAsync(ru.openhousing.housing.House house, java.lang.Runnable callback) {
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            saveHouse(house);
+            // Вызываем callback в основном потоке
+            org.bukkit.Bukkit.getScheduler().runTask(plugin, callback);
+        });
     }
     
     /**
@@ -355,6 +388,17 @@ public class DatabaseManager {
         }
         
         return houses;
+    }
+    
+    /**
+     * Асинхронная загрузка всех домов
+     */
+    public void loadAllHousesAsync(java.util.function.Consumer<java.util.List<ru.openhousing.housing.House>> callback) {
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            java.util.List<ru.openhousing.housing.House> houses = loadAllHouses();
+            // Возвращаем результат в основной поток
+            org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> callback.accept(houses));
+        });
     }
     
     /**

@@ -104,6 +104,14 @@ public class CodeManager {
     }
     
     /**
+     * Регистрация скрипта и его обработчиков событий
+     */
+    public void registerScript(Player player, CodeScript script) {
+        playerScripts.put(player.getUniqueId(), script);
+        registerEventHandlers(script);
+    }
+    
+    /**
      * Выполнение скрипта
      */
     public void executeScript(Player player) {
@@ -225,7 +233,27 @@ public class CodeManager {
             if (handler.matchesEvent(event.getClass())) {
                 // Создаем контекст и выполняем
                 CodeBlock.ExecutionContext context = handler.createContextFromEvent(player, event);
-                handler.execute(context);
+                
+                // Проверяем, является ли событие асинхронным
+                if (event.isAsynchronous()) {
+                    // Для асинхронных событий выполняем в основном потоке
+                    org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
+                        try {
+                            handler.execute(context);
+                        } catch (Exception e) {
+                            plugin.getLogger().severe("Error executing async event handler: " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                    });
+                } else {
+                    // Для синхронных событий выполняем сразу
+                    try {
+                        handler.execute(context);
+                    } catch (Exception e) {
+                        plugin.getLogger().severe("Error executing sync event handler: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
             }
         }
     }

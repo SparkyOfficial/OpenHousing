@@ -152,8 +152,21 @@ public class ScriptSerializer {
                     } else {
                         // Для сложных объектов (например, enum)
                         try {
-                            Object deserializedValue = context.deserialize(value, Object.class);
-                            block.setParameter(key, deserializedValue);
+                            // Специальная обработка для enum значений
+                            if (key.equals("actionType") || key.equals("eventType") || key.equals("conditionType") || 
+                                key.equals("operation") || key.equals("targetType") || key.equals("repeatType")) {
+                                // Определяем правильный enum тип на основе ключа и типа блока
+                                Object enumValue = deserializeEnumValue(key, value, blockType, context);
+                                if (enumValue != null) {
+                                    block.setParameter(key, enumValue);
+                                } else {
+                                    // Если не удалось десериализовать, сохраняем как строку
+                                    block.setParameter(key, value.getAsString());
+                                }
+                            } else {
+                                Object deserializedValue = context.deserialize(value, Object.class);
+                                block.setParameter(key, deserializedValue);
+                            }
                         } catch (Exception e) {
                             // Игнорируем ошибки десериализации параметров
                         }
@@ -253,6 +266,93 @@ public class ScriptSerializer {
                 default:
                     return null;
             }
+        }
+        
+        /**
+         * Десериализация enum значений на основе ключа и типа блока
+         */
+        private Object deserializeEnumValue(String key, JsonElement value, BlockType blockType, JsonDeserializationContext context) {
+            try {
+                String stringValue = value.getAsString();
+                
+                switch (blockType) {
+                    case PLAYER_ACTION:
+                        if (key.equals("actionType")) {
+                            return ru.openhousing.coding.blocks.actions.PlayerActionBlock.PlayerActionType.valueOf(stringValue);
+                        }
+                        break;
+                    case ENTITY_ACTION:
+                        if (key.equals("actionType")) {
+                            return ru.openhousing.coding.blocks.actions.EntityActionBlock.EntityActionType.valueOf(stringValue);
+                        }
+                        break;
+                    case WORLD_ACTION:
+                        if (key.equals("actionType")) {
+                            return ru.openhousing.coding.blocks.actions.WorldActionBlock.WorldActionType.valueOf(stringValue);
+                        }
+                        break;
+                    case PLAYER_EVENT:
+                        if (key.equals("eventType")) {
+                            return ru.openhousing.coding.blocks.events.PlayerEventBlock.PlayerEventType.valueOf(stringValue);
+                        }
+                        break;
+                    case ENTITY_EVENT:
+                        if (key.equals("eventType")) {
+                            return ru.openhousing.coding.blocks.events.EntityEventBlock.EntityEventType.valueOf(stringValue);
+                        }
+                        break;
+                    case WORLD_EVENT:
+                        if (key.equals("eventType")) {
+                            return ru.openhousing.coding.blocks.events.WorldEventBlock.WorldEventType.valueOf(stringValue);
+                        }
+                        break;
+                    case IF_PLAYER:
+                        if (key.equals("conditionType")) {
+                            return ru.openhousing.coding.blocks.conditions.IfPlayerBlock.PlayerConditionType.valueOf(stringValue);
+                        }
+                        break;
+                    case IF_ENTITY:
+                        if (key.equals("conditionType")) {
+                            return ru.openhousing.coding.blocks.conditions.IfEntityBlock.EntityConditionType.valueOf(stringValue);
+                        }
+                        break;
+                    case IF_VARIABLE:
+                        if (key.equals("conditionType")) {
+                            return ru.openhousing.coding.blocks.conditions.IfVariableBlock.VariableConditionType.valueOf(stringValue);
+                        }
+                        break;
+                    case MATH:
+                        if (key.equals("operation")) {
+                            return ru.openhousing.coding.blocks.math.MathBlock.MathOperation.valueOf(stringValue);
+                        }
+                        break;
+                    case TEXT_OPERATION:
+                        if (key.equals("operation")) {
+                            return ru.openhousing.coding.blocks.text.TextOperationBlock.TextOperation.valueOf(stringValue);
+                        }
+                        break;
+                    case REPEAT:
+                        if (key.equals("repeatType")) {
+                            return ru.openhousing.coding.blocks.control.RepeatBlock.RepeatType.valueOf(stringValue);
+                        }
+                        break;
+                    case TARGET:
+                        if (key.equals("targetType")) {
+                            return ru.openhousing.coding.blocks.control.TargetBlock.TargetType.valueOf(stringValue);
+                        }
+                        break;
+                    case VARIABLE_ACTION:
+                        if (key.equals("actionType")) {
+                            return ru.openhousing.coding.blocks.variables.VariableActionBlock.VariableActionType.valueOf(stringValue);
+                        }
+                        break;
+                }
+            } catch (IllegalArgumentException e) {
+                // Если enum значение не найдено, возвращаем null
+                return null;
+            }
+            
+            return null;
         }
     }
     
