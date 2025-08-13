@@ -1,12 +1,17 @@
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\api\OpenHousingAPI.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\actions\EntityActionBlock.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\actions\PlayerActionBlock.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\actions\WorldActionBlock.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\BlockType.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\CodeBlock.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\conditions\IfEntityBlock.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\conditions\IfPlayerBlock.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\conditions\IfVariableBlock.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\control\ElseBlock.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\control\RepeatBlock.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\events\EntityEventBlock.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\events\PlayerEventBlock.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\events\WorldEventBlock.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\functions\CallFunctionBlock.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\functions\FunctionBlock.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\variables\VariableActionBlock.java

@@ -2,10 +2,10 @@ package ru.openhousing.coding.serialization;
 
 import com.google.gson.*;
 import ru.openhousing.coding.blocks.*;
-import ru.openhousing.coding.blocks.actions.PlayerActionBlock;
+import ru.openhousing.coding.blocks.actions.*;
 import ru.openhousing.coding.blocks.conditions.*;
 import ru.openhousing.coding.blocks.control.*;
-import ru.openhousing.coding.blocks.events.PlayerEventBlock;
+import ru.openhousing.coding.blocks.events.*;
 import ru.openhousing.coding.blocks.functions.*;
 import ru.openhousing.coding.blocks.variables.*;
 import ru.openhousing.coding.script.CodeScript;
@@ -205,16 +205,26 @@ public class ScriptSerializer {
                 // События
                 case PLAYER_EVENT:
                     return new PlayerEventBlock();
+                case ENTITY_EVENT:
+                    return new EntityEventBlock();
+                case WORLD_EVENT:
+                    return new WorldEventBlock();
                 
                 // Условия
                 case IF_PLAYER:
                     return new IfPlayerBlock();
+                case IF_ENTITY:
+                    return new IfEntityBlock();
                 case IF_VARIABLE:
                     return new IfVariableBlock();
                 
                 // Действия
                 case PLAYER_ACTION:
                     return new PlayerActionBlock();
+                case ENTITY_ACTION:
+                    return new EntityActionBlock();
+                case WORLD_ACTION:
+                    return new WorldActionBlock();
                 case VARIABLE_ACTION:
                     return new VariableActionBlock();
                 

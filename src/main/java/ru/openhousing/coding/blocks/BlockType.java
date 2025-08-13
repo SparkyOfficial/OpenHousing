@@ -34,6 +34,8 @@ public enum BlockType {
                "Выполняет действие в игре"),
     VARIABLE_ACTION("Действие переменной", Material.WRITABLE_BOOK, BlockCategory.ACTION,
                    "Изменяет значение переменной"),
+    WORLD_ACTION("Действие мира", Material.GRASS_BLOCK, BlockCategory.ACTION,
+                "Выполняет действие в мире"),
     
     // Функции и управление
     FUNCTION("Функция", Material.COMMAND_BLOCK, BlockCategory.FUNCTION,

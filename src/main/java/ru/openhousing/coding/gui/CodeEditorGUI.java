@@ -597,16 +597,26 @@ public class CodeEditorGUI implements InventoryHolder {
             // События
             case PLAYER_EVENT:
                 return new ru.openhousing.coding.blocks.events.PlayerEventBlock();
+            case ENTITY_EVENT:
+                return new ru.openhousing.coding.blocks.events.EntityEventBlock();
+            case WORLD_EVENT:
+                return new ru.openhousing.coding.blocks.events.WorldEventBlock();
             
             // Условия
             case IF_PLAYER:
                 return new ru.openhousing.coding.blocks.conditions.IfPlayerBlock();
+            case IF_ENTITY:
+                return new ru.openhousing.coding.blocks.conditions.IfEntityBlock();
             case IF_VARIABLE:
                 return new ru.openhousing.coding.blocks.conditions.IfVariableBlock();
             
             // Действия
             case PLAYER_ACTION:
                 return new ru.openhousing.coding.blocks.actions.PlayerActionBlock();
+            case ENTITY_ACTION:
+                return new ru.openhousing.coding.blocks.actions.EntityActionBlock();
+            case WORLD_ACTION:
+                return new ru.openhousing.coding.blocks.actions.WorldActionBlock();
             case VARIABLE_ACTION:
                 return new ru.openhousing.coding.blocks.variables.VariableActionBlock();
             
