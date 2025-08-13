@@ -1,0 +1,124 @@
+name: OpenHousing
+version: 1.0.0
+main: ru.openhousing.OpenHousing
+api-version: '1.21'
+authors: [YourName]
+description: 'Hypixel Housing analog with visual coding and custom games'
+website: 'https://github.com/yourusername/OpenHousing'
+
+depend: [Vault]
+softdepend: [PlaceholderAPI, ReActions, WorldEdit, FAWE]
+
+commands:
+  housing:
+    description: 'Main housing command'
+    usage: '/housing [help|create|list|visit|settings]'
+    aliases: [h, house]
+  code:
+    description: 'Visual coding command'
+    usage: '/code [help|editor|blocks|functions]'
+    aliases: [coding, script]
+  ohgame:
+    description: 'Game management command'
+    usage: '/ohgame [help|create|start|stop|join|leave]'
+    aliases: [game, ohg]
+
+permissions:
+  openhousing.*:
+    description: 'All OpenHousing permissions'
+    children:
+      openhousing.housing.*: true
+      openhousing.code.*: true
+      openhousing.game.*: true
+      openhousing.admin.*: true
+    default: false
+  
+  openhousing.housing.*:
+    description: 'All housing permissions'
+    children:
+      openhousing.housing.create: true
+      openhousing.housing.visit: true
+      openhousing.housing.manage: true
+      openhousing.housing.invite: true
+    default: true
+  
+  openhousing.housing.create:
+    description: 'Create housing plots'
+    default: true
+  
+  openhousing.housing.visit:
+    description: 'Visit other housings'
+    default: true
+  
+  openhousing.housing.manage:
+    description: 'Manage own housing'
+    default: true
+  
+  openhousing.housing.invite:
+    description: 'Invite players to housing'
+    default: true
+  
+  openhousing.code.*:
+    description: 'All coding permissions'
+    children:
+      openhousing.code.editor: true
+      openhousing.code.execute: true
+      openhousing.code.share: true
+    default: true
+  
+  openhousing.code.editor:
+    description: 'Access visual code editor'
+    default: true
+  
+  openhousing.code.execute:
+    description: 'Execute code scripts'
+    default: true
+  
+  openhousing.code.share:
+    description: 'Share code with others'
+    default: true
+  
+  openhousing.game.*:
+    description: 'All game permissions'
+    children:
+      openhousing.game.create: true
+      openhousing.game.join: true
+      openhousing.game.manage: true
+    default: true
+  
+  openhousing.game.create:
+    description: 'Create custom games'
+    default: true
+  
+  openhousing.game.join:
+    description: 'Join games'
+    default: true
+  
+  openhousing.game.manage:
+    description: 'Manage own games'
+    default: true
+  
+  openhousing.admin.*:
+    description: 'All admin permissions'
+    children:
+      openhousing.admin.reload: true
+      openhousing.admin.delete: true
+      openhousing.admin.teleport: true
+      openhousing.admin.bypass: true
+    default: op
+  
+  openhousing.admin.reload:
+    description: 'Reload plugin configuration'
+    default: op
+  
+  openhousing.admin.delete:
+    description: 'Delete any housing'
+    default: op
+  
+  openhousing.admin.teleport:
+    description: 'Teleport to any housing'
+    default: op
+  
+  openhousing.admin.bypass:
+    description: 'Bypass all restrictions'
+    default: op

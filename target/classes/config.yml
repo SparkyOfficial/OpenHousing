@@ -1,0 +1,178 @@
+# OpenHousing Configuration
+# Конфигурация плагина OpenHousing
+
+# Основные настройки
+general:
+  # Префикс плагина в сообщениях
+  prefix: "&6[OpenHousing]&r"
+  
+  # Язык плагина (ru, en)
+  language: "ru"
+  
+  # Отладочный режим
+  debug: false
+  
+  # Автосохранение данных (в минутах)
+  auto-save-interval: 10
+
+# Настройки базы данных
+database:
+  # Тип базы данных (h2, mysql)
+  type: "h2"
+  
+  # Настройки H2 (локальная база)
+  h2:
+    file: "openhousing.db"
+  
+  # Настройки MySQL
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "openhousing"
+    username: "root"
+    password: ""
+    ssl: false
+    
+  # Настройки пула соединений
+  pool:
+    maximum-pool-size: 10
+    minimum-idle: 2
+    connection-timeout: 30000
+    idle-timeout: 600000
+    max-lifetime: 1800000
+
+# Настройки Housing системы
+housing:
+  # Максимальное количество домов на игрока
+  max-houses-per-player: 1
+  
+  # Размер дома по умолчанию
+  default-size:
+    width: 64
+    height: 64
+    length: 64
+  
+  # Минимальный размер дома
+  min-size:
+    width: 32
+    height: 32
+    length: 32
+  
+  # Максимальный размер дома
+  max-size:
+    width: 128
+    height: 128
+    length: 128
+  
+  # Стоимость создания дома
+  creation-cost: 10000.0
+  
+  # Стоимость расширения дома (за блок)
+  expansion-cost-per-block: 100.0
+  
+  # Мир для домов
+  world-name: "housing_world"
+  
+  # Автоматическое создание мира
+  auto-create-world: true
+  
+  # Расстояние между домами
+  house-spacing: 200
+
+# Настройки системы кода
+coding:
+  # Максимальное количество блоков в скрипте
+  max-blocks-per-script: 500
+  
+  # Максимальное время выполнения скрипта (в миллисекундах)
+  max-execution-time: 5000
+  
+  # Максимальная глубина вложенности блоков
+  max-nesting-depth: 20
+  
+  # Разрешенные события для обработки
+  allowed-events:
+    - "player_join"
+    - "player_quit"
+    - "player_chat"
+    - "player_move"
+    - "player_interact"
+    - "player_damage"
+    - "block_break"
+    - "block_place"
+  
+  # Автосохранение скриптов
+  auto-save-scripts: true
+  
+  # Интервал автосохранения (в секундах)
+  auto-save-interval: 30
+
+# Настройки игр
+games:
+  # Максимальное количество игр на игрока
+  max-games-per-player: 5
+  
+  # Максимальное количество игроков в игре
+  max-players-per-game: 20
+  
+  # Время ожидания начала игры (в секундах)
+  game-start-delay: 10
+  
+  # Разрешенные типы игр
+  allowed-game-types:
+    - "parkour"
+    - "pvp"
+    - "racing"
+    - "puzzle"
+    - "adventure"
+  
+  # Награды за создание игр
+  creation-rewards:
+    enabled: true
+    money: 1000.0
+    experience: 100
+
+# Настройки экономики
+economy:
+  # Использовать Vault для экономики
+  use-vault: true
+  
+  # Начальная сумма для новых игроков
+  starting-balance: 1000.0
+  
+  # Ежедневная награда
+  daily-reward:
+    enabled: true
+    amount: 500.0
+
+# Настройки производительности
+performance:
+  # Максимальное количество одновременно выполняющихся скриптов
+  max-concurrent-scripts: 50
+  
+  # Асинхронное выполнение тяжелых операций
+  async-heavy-operations: true
+  
+  # Кэширование данных
+  cache:
+    enabled: true
+    # Время жизни кэша (в минутах)
+    ttl: 30
+    # Максимальный размер кэша
+    max-size: 1000
+
+# Интеграции с другими плагинами
+integrations:
+  # PlaceholderAPI
+  placeholderapi:
+    enabled: true
+  
+  # WorldEdit
+  worldedit:
+    enabled: true
+    # Использовать WorldEdit для операций с миром
+    use-for-world-operations: true
+  
+  # ReActions
+  reactions:
+    enabled: true
