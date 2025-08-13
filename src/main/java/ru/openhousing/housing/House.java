@@ -23,6 +23,7 @@ public class House {
     private final Set<UUID> allowedPlayers;
     private final Set<UUID> bannedPlayers;
     private final Map<String, Object> settings;
+    private HouseMode mode;
     private long createdAt;
     private long lastModified;
     
@@ -38,6 +39,7 @@ public class House {
         this.allowedPlayers = new HashSet<>();
         this.bannedPlayers = new HashSet<>();
         this.settings = new HashMap<>();
+        this.mode = HouseMode.PLAY; // По умолчанию режим игры
         this.createdAt = System.currentTimeMillis();
         this.lastModified = createdAt;
     }
@@ -298,6 +300,15 @@ public class House {
     
     public long getLastModified() {
         return lastModified;
+    }
+    
+    public HouseMode getMode() {
+        return mode;
+    }
+    
+    public void setMode(HouseMode mode) {
+        this.mode = mode;
+        updateModified();
     }
     
     /**

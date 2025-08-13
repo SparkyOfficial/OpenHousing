@@ -25,18 +25,24 @@ public class InventoryListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player)) return;
         
         Player player = (Player) event.getWhoClicked();
-        InventoryHolder holder = event.getInventory().getHolder();
+        String title = event.getView().getTitle();
         
-        // Обработка кликов в редакторе кода
-        if (holder instanceof CodeEditorGUI) {
+        // Проверка наших GUI по заголовкам
+        if (title.startsWith("§6Редактор кода") || 
+            title.startsWith("§6Настройка блока") ||
+            title.contains("OpenHousing")) {
+            
             event.setCancelled(true);
             
-            CodeEditorGUI editor = (CodeEditorGUI) holder;
-            editor.handleClick(
-                event.getSlot(),
-                event.isRightClick(),
-                event.isShiftClick()
-            );
+            // Обработка редактора кода
+            if (title.startsWith("§6Редактор кода")) {
+                CodeEditorGUI editorGUI = plugin.getCodeManager().getEditorGUI(player);
+                if (editorGUI != null) {
+                    editorGUI.handleClick(event.getSlot(), event.isRightClick(), event.isShiftClick());
+                }
+            }
+            
+            // Обработка настроек блока будет добавлена позже
         }
     }
     

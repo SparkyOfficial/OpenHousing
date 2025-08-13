@@ -21,6 +21,12 @@ commands:
     description: 'Game management command'
     usage: '/ohgame [help|create|start|stop|join|leave]'
     aliases: [game, ohg]
+  play:
+    description: 'Switch house to play mode'
+    usage: '/play'
+  build:
+    description: 'Switch house to build mode'
+    usage: '/build'
 
 permissions:
   openhousing.*:

@@ -57,6 +57,13 @@ public class CodeManager {
     }
     
     /**
+     * Получение открытого редактора для игрока
+     */
+    public CodeEditorGUI getEditorGUI(Player player) {
+        return openEditors.get(player.getUniqueId());
+    }
+    
+    /**
      * Получение или создание скрипта игрока
      */
     public CodeScript getOrCreateScript(Player player) {

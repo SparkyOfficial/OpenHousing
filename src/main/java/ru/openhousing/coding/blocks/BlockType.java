@@ -87,7 +87,7 @@ public enum BlockType {
         CONDITION("Условия", Material.COMPARATOR, "Блоки условий"),
         ACTION("Действия", Material.PISTON, "Блоки действий"),
         FUNCTION("Функции", Material.COMMAND_BLOCK, "Блоки функций"),
-        CONTROL("Управление", Material.REDSTONE_WIRE, "Блоки управления кодом");
+        CONTROL("Управление", Material.REDSTONE, "Блоки управления кодом");
         
         private final String displayName;
         private final Material material;

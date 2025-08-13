@@ -169,6 +169,11 @@ public class OpenHousing extends JavaPlugin {
         getCommand("code").setExecutor(new CodeCommand(this));
         getCommand("ohgame").setExecutor(new GameCommand(this));
         
+        // Команды режимов дома
+        HouseModeCommand modeCommand = new HouseModeCommand(this);
+        getCommand("play").setExecutor(modeCommand);
+        getCommand("build").setExecutor(modeCommand);
+        
         getLogger().info("Commands registered successfully!");
     }
     
