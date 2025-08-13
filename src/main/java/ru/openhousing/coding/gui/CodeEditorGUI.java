@@ -402,22 +402,32 @@ public class CodeEditorGUI implements InventoryHolder {
      */
     public void handleClick(int slot, boolean isRightClick, boolean isShiftClick) {
         ItemStack item = inventory.getItem(slot);
-        if (item == null || item.getType() == Material.AIR) return;
+        if (item == null || item.getType() == Material.AIR) {
+            plugin.getLogger().info("Click on empty slot: " + slot);
+            return;
+        }
+        
+        plugin.getLogger().info("Handling click in CodeEditorGUI: slot=" + slot + ", mode=" + mode + ", item=" + item.getType());
         
         switch (mode) {
             case MAIN:
+                plugin.getLogger().info("Handling main menu click");
                 handleMainMenuClick(slot);
                 break;
             case CATEGORIES:
+                plugin.getLogger().info("Handling categories click");
                 handleCategoriesClick(slot);
                 break;
             case BLOCKS:
+                plugin.getLogger().info("Handling blocks click");
                 handleBlocksClick(slot, isRightClick);
                 break;
             case SCRIPT:
+                plugin.getLogger().info("Handling script click");
                 handleScriptClick(slot, isRightClick);
                 break;
             case BLOCK_EDIT:
+                plugin.getLogger().info("Handling block edit click");
                 handleBlockEditClick(slot);
                 break;
         }
@@ -631,8 +641,18 @@ public class CodeEditorGUI implements InventoryHolder {
                             return new ru.openhousing.coding.blocks.control.RepeatBlock();
                         case ELSE:
                             return new ru.openhousing.coding.blocks.control.ElseBlock();
-                        case TARGET:
-                            return new ru.openhousing.coding.blocks.control.TargetBlock();
+                                    case TARGET:
+                return new ru.openhousing.coding.blocks.control.TargetBlock();
+            
+            // Математика и утилиты
+            case MATH:
+                return new ru.openhousing.coding.blocks.math.MathBlock();
+            case TEXT_OPERATION:
+                return new ru.openhousing.coding.blocks.text.TextOperationBlock();
+            case INVENTORY_ACTION:
+                return new ru.openhousing.coding.blocks.inventory.InventoryActionBlock();
+            case ITEM_CHECK:
+                return new ru.openhousing.coding.blocks.inventory.ItemCheckBlock();
             
             default:
                 return null;

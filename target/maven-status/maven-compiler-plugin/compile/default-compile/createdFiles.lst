@@ -1,4 +1,5 @@
 ru\openhousing\coding\serialization\ScriptSerializer$CodeScriptAdapter.class
+ru\openhousing\coding\blocks\inventory\ItemCheckBlock.class
 ru\openhousing\coding\blocks\actions\EntityActionBlock.class
 ru\openhousing\coding\gui\CodeEditorGUI$1.class
 ru\openhousing\database\DatabaseManager.class
@@ -13,6 +14,7 @@ ru\openhousing\coding\blocks\functions\CallFunctionBlock.class
 ru\openhousing\coding\blocks\events\WorldEventBlock.class
 ru\openhousing\coding\values\SoundValue.class
 ru\openhousing\housing\HouseMode.class
+ru\openhousing\coding\blocks\text\TextOperationBlock.class
 ru\openhousing\coding\blocks\variables\VariableActionBlock.class
 ru\openhousing\coding\blocks\functions\FunctionBlock.class
 ru\openhousing\coding\gui\CodeEditorGUI.class
@@ -32,6 +34,7 @@ ru\openhousing\coding\blocks\events\EntityEventBlock$EntityEventType.class
 ru\openhousing\games\GameManager.class
 ru\openhousing\commands\GameCommand.class
 ru\openhousing\housing\HousingManager.class
+ru\openhousing\coding\blocks\text\TextOperationBlock$TextOperation.class
 ru\openhousing\listeners\GameListener.class
 ru\openhousing\placeholders\OpenHousingPlaceholders.class
 ru\openhousing\coding\blocks\conditions\IfEntityBlock.class
@@ -49,6 +52,7 @@ ru\openhousing\coding\blocks\math\MathBlock$MathOperation.class
 ru\openhousing\coding\gui\ValueSelectorGUI.class
 ru\openhousing\listeners\HousingListener.class
 ru\openhousing\coding\blocks\BlockType.class
+ru\openhousing\coding\blocks\inventory\InventoryActionBlock.class
 ru\openhousing\housing\House$HouseSize.class
 ru\openhousing\coding\gui\BlockConfigGUI.class
 ru\openhousing\commands\HouseModeCommand.class

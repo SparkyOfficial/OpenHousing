@@ -15,7 +15,10 @@ C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\bl
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\events\WorldEventBlock.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\functions\CallFunctionBlock.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\functions\FunctionBlock.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\inventory\InventoryActionBlock.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\inventory\ItemCheckBlock.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\math\MathBlock.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\text\TextOperationBlock.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\variables\VariableActionBlock.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\CodeManager.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\BlockConfigGUI.java

@@ -241,6 +241,14 @@ public class ScriptSerializer {
                             return new ElseBlock();
                         case TARGET:
                             return new ru.openhousing.coding.blocks.control.TargetBlock();
+                        case MATH:
+                            return new ru.openhousing.coding.blocks.math.MathBlock();
+                        case TEXT_OPERATION:
+                            return new ru.openhousing.coding.blocks.text.TextOperationBlock();
+                        case INVENTORY_ACTION:
+                            return new ru.openhousing.coding.blocks.inventory.InventoryActionBlock();
+                        case ITEM_CHECK:
+                            return new ru.openhousing.coding.blocks.inventory.ItemCheckBlock();
                 
                 default:
                     return null;

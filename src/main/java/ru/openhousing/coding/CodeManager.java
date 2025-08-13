@@ -143,8 +143,19 @@ public class CodeManager {
      * Получение классов событий для блока
      */
     private Class<?>[] getEventClasses(PlayerEventBlock eventBlock) {
-        PlayerEventBlock.PlayerEventType eventType = 
-            (PlayerEventBlock.PlayerEventType) eventBlock.getParameter("eventType");
+        Object eventTypeParam = eventBlock.getParameter("eventType");
+        PlayerEventBlock.PlayerEventType eventType = null;
+        
+        if (eventTypeParam instanceof PlayerEventBlock.PlayerEventType) {
+            eventType = (PlayerEventBlock.PlayerEventType) eventTypeParam;
+        } else if (eventTypeParam instanceof String) {
+            try {
+                eventType = PlayerEventBlock.PlayerEventType.valueOf((String) eventTypeParam);
+            } catch (IllegalArgumentException e) {
+                plugin.getLogger().warning("Invalid event type: " + eventTypeParam);
+                return new Class<?>[0];
+            }
+        }
         
         if (eventType == null) return new Class<?>[0];
         
