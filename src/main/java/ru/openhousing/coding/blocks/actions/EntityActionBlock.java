@@ -286,6 +286,14 @@ public class EntityActionBlock extends CodeBlock {
                 setAngry(entity, Boolean.parseBoolean(value));
                 break;
                 
+            case SET_PEACEFUL:
+                // TODO: Реализовать логику успокоения
+                if (entity instanceof Mob) {
+                    Mob mob = (Mob) entity;
+                    // Логика успокоения моба
+                }
+                break;
+                
             case TAME:
                 if (entity instanceof Tameable && context.getPlayer() != null) {
                     Tameable tameable = (Tameable) entity;
@@ -359,6 +367,135 @@ public class EntityActionBlock extends CodeBlock {
                     ((LivingEntity) entity).setCollidable(Boolean.parseBoolean(value));
                 }
                 break;
+                
+            case BREED:
+                // TODO: Реализовать логику размножения
+                if (entity instanceof Animals) {
+                    ((Animals) entity).setLoveModeTicks(600); // 5 минут
+                }
+                break;
+                
+            case SHEAR:
+                // TODO: Реализовать логику стрижки
+                if (entity instanceof Sheep) {
+                    ((Sheep) entity).setSheared(Boolean.parseBoolean(value));
+                }
+                break;
+                
+            case MILK:
+                // TODO: Реализовать логику доения
+                if (entity instanceof Cow) {
+                    // Логика доения коровы
+                }
+                break;
+                
+            case LEASH:
+                // TODO: Реализовать логику поводка
+                if (entity instanceof LivingEntity && context.getPlayer() != null) {
+                    // Логика поводка
+                }
+                break;
+                
+            case UNLEASH:
+                // TODO: Реализовать логику отпускания с поводка
+                if (entity instanceof LivingEntity) {
+                    // Логика отпускания с поводка
+                }
+                break;
+                
+            case MOUNT_PLAYER:
+                // TODO: Реализовать логику посадки игрока
+                if (entity instanceof Vehicle && context.getPlayer() != null) {
+                    // Логика посадки игрока
+                }
+                break;
+                
+            case DISMOUNT_PLAYER:
+                // TODO: Реализовать логику снятия игрока
+                if (entity instanceof Vehicle && context.getPlayer() != null) {
+                    // Логика снятия игрока
+                }
+                break;
+                
+            case DROP_ITEM:
+                // TODO: Реализовать логику выбрасывания предмета
+                if (entity instanceof LivingEntity) {
+                    LivingEntity living = (LivingEntity) entity;
+                    // Логика выбрасывания предмета
+                }
+                break;
+                
+            case GIVE_ITEM:
+                // TODO: Реализовать логику выдачи предмета
+                if (entity instanceof LivingEntity) {
+                    LivingEntity living = (LivingEntity) entity;
+                    // Логика выдачи предмета
+                }
+                break;
+                
+            case SET_EQUIPMENT:
+                // TODO: Реализовать логику установки экипировки
+                if (entity instanceof LivingEntity) {
+                    LivingEntity living = (LivingEntity) entity;
+                    // Логика установки экипировки
+                }
+                break;
+                
+            case FOLLOW_PLAYER:
+                // TODO: Реализовать логику следования за игроком
+                if (entity instanceof Tameable && context.getPlayer() != null) {
+                    Tameable tameable = (Tameable) entity;
+                    // Логика следования за игроком
+                }
+                break;
+                
+            case STOP_FOLLOWING:
+                // TODO: Реализовать логику прекращения следования
+                if (entity instanceof Tameable) {
+                    Tameable tameable = (Tameable) entity;
+                    // Логика прекращения следования
+                }
+                break;
+                
+            case FACE_PLAYER:
+                // TODO: Реализовать логику поворота к игроку
+                if (context.getPlayer() != null) {
+                    Location playerLoc = context.getPlayer().getLocation();
+                    Location entityLoc = entity.getLocation();
+                    Vector direction = playerLoc.subtract(entityLoc).toVector();
+                    float yaw = (float) Math.toDegrees(Math.atan2(-direction.getX(), direction.getZ()));
+                    float pitch = (float) Math.toDegrees(Math.asin(-direction.getY() / direction.length()));
+                    entity.setRotation(yaw, pitch);
+                }
+                break;
+                
+            case FACE_LOCATION:
+                // TODO: Реализовать логику поворота к точке
+                Location targetLoc = parseLocationString(value, entity.getWorld());
+                if (targetLoc != null) {
+                    Location entityLoc = entity.getLocation();
+                    Vector direction = targetLoc.subtract(entityLoc).toVector();
+                    float yaw = (float) Math.toDegrees(Math.atan2(-direction.getX(), direction.getZ()));
+                    float pitch = (float) Math.toDegrees(Math.asin(-direction.getY() / direction.length()));
+                    entity.setRotation(yaw, pitch);
+                }
+                break;
+                
+            case FREEZE:
+                // TODO: Реализовать логику заморозки
+                if (entity instanceof LivingEntity) {
+                    LivingEntity living = (LivingEntity) entity;
+                    living.setFreezeTicks(Integer.MAX_VALUE);
+                }
+                break;
+                
+            case UNFREEZE:
+                // TODO: Реализовать логику разморозки
+                if (entity instanceof LivingEntity) {
+                    LivingEntity living = (LivingEntity) entity;
+                    living.setFreezeTicks(0);
+                }
+                break;
         }
     }
     
@@ -382,6 +519,7 @@ public class EntityActionBlock extends CodeBlock {
             
         } catch (IllegalArgumentException e) {
             // Неверный тип существа
+            context.getPlayer().sendMessage("§c[OpenHousing] Неверный тип существа: '" + entityType + "'. Примеры: ZOMBIE, SKELETON, CREEPER, VILLAGER");
         }
     }
     
@@ -405,9 +543,25 @@ public class EntityActionBlock extends CodeBlock {
                 double x = Double.parseDouble(parts[0].trim());
                 double y = Double.parseDouble(parts[1].trim());
                 double z = Double.parseDouble(parts[2].trim());
+                
+                // Проверяем разумность значений
+                if (Math.abs(x) > 10.0 || Math.abs(y) > 10.0 || Math.abs(z) > 10.0) {
+                    if (entity instanceof Player) {
+                        ((Player) entity).sendMessage("§c[OpenHousing] Слишком большая скорость: " + x + "," + y + "," + z + ". Максимум: ±10.0");
+                    }
+                    return;
+                }
+                
                 entity.setVelocity(new Vector(x, y, z));
             } catch (NumberFormatException e) {
                 // Игнорируем ошибку
+                if (entity instanceof Player) {
+                    ((Player) entity).sendMessage("§c[OpenHousing] Неверные значения скорости: '" + velocityString + "'. Формат: x,y,z (числа)");
+                }
+            }
+        } else {
+            if (entity instanceof Player) {
+                ((Player) entity).sendMessage("§c[OpenHousing] Неверный формат скорости: '" + velocityString + "'. Ожидается: x,y,z");
             }
         }
     }
@@ -423,8 +577,17 @@ public class EntityActionBlock extends CodeBlock {
         if (parts.length > 1) {
             try {
                 force = Double.parseDouble(parts[1]);
+                if (force < 0.1 || force > 10.0) {
+                    if (entity instanceof Player) {
+                        ((Player) entity).sendMessage("§c[OpenHousing] Сила толчка должна быть от 0.1 до 10.0. Используется значение по умолчанию: 1.0");
+                    }
+                    force = 1.0;
+                }
             } catch (NumberFormatException e) {
                 force = 1.0;
+                if (entity instanceof Player) {
+                    ((Player) entity).sendMessage("§c[OpenHousing] Неверная сила толчка: '" + parts[1] + "'. Используется значение по умолчанию: 1.0");
+                }
             }
         }
         
@@ -453,6 +616,11 @@ public class EntityActionBlock extends CodeBlock {
                     pushVector = dir.multiply(force);
                 }
                 break;
+            default:
+                if (entity instanceof Player) {
+                    ((Player) entity).sendMessage("§c[OpenHousing] Неверное направление толчка: '" + parts[0] + "'. Доступные: forward, backward, up, down, left, right, player");
+                }
+                return;
         }
         
         entity.setVelocity(pushVector);
@@ -465,7 +633,12 @@ public class EntityActionBlock extends CodeBlock {
         if (!(entity instanceof LivingEntity)) return;
         
         PotionEffectType effectType = PotionEffectType.getByName(effectName.toUpperCase());
-        if (effectType == null) return;
+        if (effectType == null) {
+            if (entity instanceof Player) {
+                ((Player) entity).sendMessage("§c[OpenHousing] Неверный тип эффекта: '" + effectName + "'. Примеры: SPEED, JUMP, STRENGTH, INVISIBILITY");
+            }
+            return;
+        }
         
         int dur = 200; // 10 секунд по умолчанию
         int amp = 0;
@@ -473,12 +646,27 @@ public class EntityActionBlock extends CodeBlock {
         try {
             if (!duration.isEmpty()) {
                 dur = Integer.parseInt(duration) * 20; // Конвертируем секунды в тики
+                if (dur < 20 || dur > 24000) { // От 1 секунды до 20 минут
+                    if (entity instanceof Player) {
+                        ((Player) entity).sendMessage("§c[OpenHousing] Длительность эффекта должна быть от 1 до 1200 секунд. Используется значение по умолчанию: 10 сек");
+                    }
+                    dur = 200;
+                }
             }
             if (!amplifier.isEmpty()) {
                 amp = Integer.parseInt(amplifier);
+                if (amp < 0 || amp > 255) {
+                    if (entity instanceof Player) {
+                        ((Player) entity).sendMessage("§c[OpenHousing] Усиление эффекта должно быть от 0 до 255. Используется значение по умолчанию: 0");
+                    }
+                    amp = 0;
+                }
             }
         } catch (NumberFormatException e) {
             // Используем значения по умолчанию
+            if (entity instanceof Player) {
+                ((Player) entity).sendMessage("§c[OpenHousing] Неверные значения для эффекта. Используются значения по умолчанию: длительность 10 сек, усиление 0");
+            }
         }
         
         PotionEffect effect = new PotionEffect(effectType, dur, amp);
@@ -533,6 +721,11 @@ public class EntityActionBlock extends CodeBlock {
             } else {
                 ((PigZombie) entity).setAngry(false);
             }
+        } else {
+            // Для других существ отправляем сообщение
+            if (entity instanceof Player) {
+                ((Player) entity).sendMessage("§c[OpenHousing] Установка агрессивности доступна только для волков и зомби-свиней");
+            }
         }
     }
     
@@ -543,8 +736,17 @@ public class EntityActionBlock extends CodeBlock {
         float explosionPower = 4.0f;
         try {
             explosionPower = Float.parseFloat(power);
+            if (explosionPower < 0.1f || explosionPower > 10.0f) {
+                if (entity instanceof Player) {
+                    ((Player) entity).sendMessage("§c[OpenHousing] Сила взрыва должна быть от 0.1 до 10.0. Используется значение по умолчанию: 4.0");
+                }
+                explosionPower = 4.0f;
+            }
         } catch (NumberFormatException e) {
             // Используем значение по умолчанию
+            if (entity instanceof Player) {
+                ((Player) entity).sendMessage("§c[OpenHousing] Неверная сила взрыва: '" + power + "'. Используется значение по умолчанию: 4.0");
+            }
         }
         
         entity.getWorld().createExplosion(entity.getLocation(), explosionPower, false, false);
@@ -559,13 +761,25 @@ public class EntityActionBlock extends CodeBlock {
             float vol = 1.0f;
             try {
                 vol = Float.parseFloat(volume);
+                if (vol < 0.0f || vol > 10.0f) {
+                    if (entity instanceof Player) {
+                        ((Player) entity).sendMessage("§c[OpenHousing] Громкость звука должна быть от 0.0 до 10.0. Используется значение по умолчанию: 1.0");
+                    }
+                    vol = 1.0f;
+                }
             } catch (NumberFormatException e) {
                 // Используем значение по умолчанию
+                if (entity instanceof Player) {
+                    ((Player) entity).sendMessage("§c[OpenHousing] Неверная громкость звука: '" + volume + "'. Используется значение по умолчанию: 1.0");
+                }
             }
             
             entity.getWorld().playSound(entity.getLocation(), sound, vol, 1.0f);
         } catch (IllegalArgumentException e) {
             // Неверное имя звука
+            if (entity instanceof Player) {
+                ((Player) entity).sendMessage("§c[OpenHousing] Неверное имя звука: '" + soundName + "'. Примеры: BLOCK_STONE_BREAK, ENTITY_PLAYER_LEVELUP, MUSIC_DISC_13");
+            }
         }
     }
     
@@ -580,6 +794,12 @@ public class EntityActionBlock extends CodeBlock {
             
             try {
                 particleCount = Integer.parseInt(count);
+                if (particleCount < 1 || particleCount > 1000) {
+                    if (entity instanceof Player) {
+                        ((Player) entity).sendMessage("§c[OpenHousing] Количество частиц должно быть от 1 до 1000. Используется значение по умолчанию: 10");
+                    }
+                    particleCount = 10;
+                }
             } catch (NumberFormatException e) {
                 // Используем значение по умолчанию
                 if (entity instanceof Player) {
@@ -589,6 +809,12 @@ public class EntityActionBlock extends CodeBlock {
             
             try {
                 offsetValue = Double.parseDouble(offset);
+                if (offsetValue < 0.1 || offsetValue > 5.0) {
+                    if (entity instanceof Player) {
+                        ((Player) entity).sendMessage("§c[OpenHousing] Смещение частиц должно быть от 0.1 до 5.0. Используется значение по умолчанию: 0.5");
+                    }
+                    offsetValue = 0.5;
+                }
             } catch (NumberFormatException e) {
                 // Используем значение по умолчанию
                 if (entity instanceof Player) {

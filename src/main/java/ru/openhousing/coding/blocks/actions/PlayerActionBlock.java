@@ -299,14 +299,25 @@ public class PlayerActionBlock extends CodeBlock {
                 break;
                 
             case REMOVE_POTION_EFFECT:
-                PotionEffectType removeType = PotionEffectType.getByName(value.toUpperCase());
-                if (removeType != null) {
-                    player.removePotionEffect(removeType);
+                try {
+                    PotionEffectType removeType = PotionEffectType.getByName(value.toUpperCase());
+                    if (removeType != null) {
+                        player.removePotionEffect(removeType);
+                    } else {
+                        player.sendMessage("§c[OpenHousing] Неверный тип эффекта для удаления: '" + value + "'. Примеры: SPEED, JUMP, STRENGTH, INVISIBILITY");
+                    }
+                } catch (Exception e) {
+                    player.sendMessage("§c[OpenHousing] Ошибка при удалении эффекта: '" + value + "'");
                 }
                 break;
                 
             case CLEAR_INVENTORY:
                 player.getInventory().clear();
+                break;
+                
+            case OPEN_INVENTORY:
+                // TODO: Реализовать логику открытия инвентаря
+                // player.openInventory(inventory);
                 break;
                 
             case CLOSE_INVENTORY:
@@ -326,19 +337,39 @@ public class PlayerActionBlock extends CodeBlock {
                     Particle particle = Particle.valueOf(particleParts[0].toUpperCase());
                     int count = particleParts.length > 1 ? Integer.parseInt(particleParts[1]) : 10;
                     
+                    // Проверяем разумность количества частиц
+                    if (count < 1 || count > 1000) {
+                        player.sendMessage("§c[OpenHousing] Количество частиц должно быть от 1 до 1000. Используется значение по умолчанию: 10");
+                        count = 10;
+                    }
+                    
                     double offsetX = 0, offsetY = 0, offsetZ = 0;
                     if (particleParts.length > 2) {
                         String[] offsets = particleParts[2].split(",");
                         if (offsets.length >= 3) {
-                            offsetX = Double.parseDouble(offsets[0]);
-                            offsetY = Double.parseDouble(offsets[1]);
-                            offsetZ = Double.parseDouble(offsets[2]);
+                            try {
+                                offsetX = Double.parseDouble(offsets[0]);
+                                offsetY = Double.parseDouble(offsets[1]);
+                                offsetZ = Double.parseDouble(offsets[2]);
+                                
+                                // Проверяем разумность смещений
+                                if (Math.abs(offsetX) > 5.0 || Math.abs(offsetY) > 5.0 || Math.abs(offsetZ) > 5.0) {
+                                    player.sendMessage("§c[OpenHousing] Смещения частиц слишком большие. Максимум: ±5.0. Используются значения по умолчанию: 0,0,0");
+                                    offsetX = offsetY = offsetZ = 0;
+                                }
+                            } catch (NumberFormatException e) {
+                                player.sendMessage("§c[OpenHousing] Неверные значения смещений частиц: '" + particleParts[2] + "'. Используются значения по умолчанию: 0,0,0");
+                                offsetX = offsetY = offsetZ = 0;
+                            }
                         }
                     }
                     
                     player.getWorld().spawnParticle(particle, player.getLocation(), count, offsetX, offsetY, offsetZ);
+                } catch (IllegalArgumentException e) {
+                    // Неверное имя частицы
+                    player.sendMessage("§c[OpenHousing] Неверное имя частицы: '" + particleParts[0] + "'. Примеры: EXPLOSION_NORMAL, FLAME, HEART, NOTE");
                 } catch (Exception e) {
-                    // Ignore invalid particle
+                    player.sendMessage("§c[OpenHousing] Ошибка при создании частиц: " + e.getMessage());
                 }
                 break;
                 
@@ -347,8 +378,19 @@ public class PlayerActionBlock extends CodeBlock {
                 break;
                 
             case SET_FIRE:
-                int fireTicks = Integer.parseInt(value);
-                player.setFireTicks(fireTicks);
+                try {
+                    int fireTicks = Integer.parseInt(value);
+                    if (fireTicks < 0) {
+                        player.sendMessage("§c[OpenHousing] Время горения не может быть отрицательным. Устанавливается 0.");
+                        fireTicks = 0;
+                    } else if (fireTicks > 600) { // 30 секунд максимум
+                        player.sendMessage("§c[OpenHousing] Время горения слишком большое: " + fireTicks + " тиков. Максимум: 600 (30 сек)");
+                        fireTicks = 600;
+                    }
+                    player.setFireTicks(fireTicks);
+                } catch (NumberFormatException e) {
+                    player.sendMessage("§c[OpenHousing] Неверное время горения: '" + value + "'. Ожидается число от 0 до 600");
+                }
                 break;
                 
             case EXTINGUISH:
@@ -360,10 +402,22 @@ public class PlayerActionBlock extends CodeBlock {
                     ru.openhousing.OpenHousing plugin = ru.openhousing.OpenHousing.getInstance();
                     if (plugin.getEconomy() != null) {
                         double amount_money = Double.parseDouble(value);
+                        if (amount_money < 0) {
+                            player.sendMessage("§c[OpenHousing] Сумма денег не может быть отрицательной.");
+                            return;
+                        } else if (amount_money > 1000000) {
+                            player.sendMessage("§c[OpenHousing] Слишком большая сумма: " + amount_money + ". Максимум: 1,000,000");
+                            return;
+                        }
                         plugin.getEconomy().depositPlayer(player, amount_money);
+                        player.sendMessage("§a[OpenHousing] Получено " + amount_money + " денег!");
+                    } else {
+                        player.sendMessage("§c[OpenHousing] Экономика недоступна на этом сервере");
                     }
+                } catch (NumberFormatException e) {
+                    player.sendMessage("§c[OpenHousing] Неверная сумма денег: '" + value + "'. Ожидается число");
                 } catch (Exception e) {
-                    // Economy not available
+                    player.sendMessage("§c[OpenHousing] Ошибка при выдаче денег: " + e.getMessage());
                 }
                 break;
                 
@@ -372,11 +426,45 @@ public class PlayerActionBlock extends CodeBlock {
                     ru.openhousing.OpenHousing plugin = ru.openhousing.OpenHousing.getInstance();
                     if (plugin.getEconomy() != null) {
                         double amount_money = Double.parseDouble(value);
+                        if (amount_money < 0) {
+                            player.sendMessage("§c[OpenHousing] Сумма денег не может быть отрицательной.");
+                            return;
+                        } else if (amount_money > 1000000) {
+                            player.sendMessage("§c[OpenHousing] Слишком большая сумма: " + amount_money + ". Максимум: 1,000,000");
+                            return;
+                        }
+                        
+                        double balance = plugin.getEconomy().getBalance(player);
+                        if (balance < amount_money) {
+                            player.sendMessage("§c[OpenHousing] Недостаточно денег! Баланс: " + balance + ", требуется: " + amount_money);
+                            return;
+                        }
+                        
                         plugin.getEconomy().withdrawPlayer(player, amount_money);
+                        player.sendMessage("§a[OpenHousing] Списано " + amount_money + " денег. Новый баланс: " + plugin.getEconomy().getBalance(player));
+                    } else {
+                        player.sendMessage("§c[OpenHousing] Экономика недоступна на этом сервере");
                     }
+                } catch (NumberFormatException e) {
+                    player.sendMessage("§c[OpenHousing] Неверная сумма денег: '" + value + "'. Ожидается число");
                 } catch (Exception e) {
-                    // Economy not available
+                    player.sendMessage("§c[OpenHousing] Ошибка при списании денег: " + e.getMessage());
                 }
+                break;
+                
+            case HIDE_PLAYER:
+                // TODO: Реализовать логику скрытия игрока
+                // player.hidePlayer(plugin, targetPlayer);
+                break;
+                
+            case SHOW_PLAYER:
+                // TODO: Реализовать логику показа игрока
+                // player.showPlayer(plugin, targetPlayer);
+                break;
+                
+            case SEND_TO_SERVER:
+                // TODO: Реализовать логику отправки на другой сервер
+                // BungeeCord API для отправки на другой сервер
                 break;
         }
     }

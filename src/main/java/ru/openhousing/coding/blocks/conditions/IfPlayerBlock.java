@@ -94,20 +94,72 @@ public class IfPlayerBlock extends CodeBlock {
                     return player.getInventory().contains(org.bukkit.Material.valueOf(value.toUpperCase()));
                     
                 case HEALTH_ABOVE:
-                    double healthAbove = Double.parseDouble(value);
-                    return player.getHealth() > healthAbove;
+                    try {
+                        double healthAbove = Double.parseDouble(value);
+                        if (healthAbove < 0 || healthAbove > 20) {
+                            if (player != null) {
+                                player.sendMessage("§c[OpenHousing] Здоровье должно быть от 0 до 20. Используется значение по умолчанию: 10");
+                            }
+                            healthAbove = Math.min(Math.max(healthAbove, 0), 20);
+                        }
+                        return player.getHealth() > healthAbove;
+                    } catch (NumberFormatException e) {
+                        if (player != null) {
+                            player.sendMessage("§c[OpenHousing] Неверное значение здоровья: '" + value + "'. Ожидается число от 0 до 20");
+                        }
+                        return false;
+                    }
                     
                 case HEALTH_BELOW:
-                    double healthBelow = Double.parseDouble(value);
-                    return player.getHealth() < healthBelow;
+                    try {
+                        double healthBelow = Double.parseDouble(value);
+                        if (healthBelow < 0 || healthBelow > 20) {
+                            if (player != null) {
+                                player.sendMessage("§c[OpenHousing] Здоровье должно быть от 0 до 20. Используется значение по умолчанию: 10");
+                            }
+                            healthBelow = Math.min(Math.max(healthBelow, 0), 20);
+                        }
+                        return player.getHealth() < healthBelow;
+                    } catch (NumberFormatException e) {
+                        if (player != null) {
+                            player.sendMessage("§c[OpenHousing] Неверное значение здоровья: '" + value + "'. Ожидается число от 0 до 20");
+                        }
+                        return false;
+                    }
                     
                 case LEVEL_ABOVE:
-                    int levelAbove = Integer.parseInt(value);
-                    return player.getLevel() > levelAbove;
+                    try {
+                        int levelAbove = Integer.parseInt(value);
+                        if (levelAbove < 0 || levelAbove > 1000) {
+                            if (player != null) {
+                                player.sendMessage("§c[OpenHousing] Уровень должен быть от 0 до 1000. Используется значение по умолчанию: 50");
+                            }
+                            levelAbove = Math.min(Math.max(levelAbove, 0), 1000);
+                        }
+                        return player.getLevel() > levelAbove;
+                    } catch (NumberFormatException e) {
+                        if (player != null) {
+                            player.sendMessage("§c[OpenHousing] Неверный уровень: '" + value + "'. Ожидается число от 0 до 1000");
+                        }
+                        return false;
+                    }
                     
                 case LEVEL_BELOW:
-                    int levelBelow = Integer.parseInt(value);
-                    return player.getLevel() < levelBelow;
+                    try {
+                        int levelBelow = Integer.parseInt(value);
+                        if (levelBelow < 0 || levelBelow > 1000) {
+                            if (player != null) {
+                                player.sendMessage("§c[OpenHousing] Уровень должен быть от 0 до 1000. Используется значение по умолчанию: 50");
+                            }
+                            levelBelow = Math.min(Math.max(levelBelow, 0), 1000);
+                        }
+                        return player.getLevel() < levelBelow;
+                    } catch (NumberFormatException e) {
+                        if (player != null) {
+                            player.sendMessage("§c[OpenHousing] Неверный уровень: '" + value + "'. Ожидается число от 0 до 1000");
+                        }
+                        return false;
+                    }
                     
                 case IS_SNEAKING:
                     return player.isSneaking();
@@ -131,17 +183,39 @@ public class IfPlayerBlock extends CodeBlock {
                     // Формат: world,x,y,z,distance
                     String[] locationParts = value.split(",");
                     if (locationParts.length == 5) {
-                        String worldName = locationParts[0];
-                        double x = Double.parseDouble(locationParts[1]);
-                        double y = Double.parseDouble(locationParts[2]);
-                        double z = Double.parseDouble(locationParts[3]);
-                        double maxDistance = Double.parseDouble(locationParts[4]);
-                        
-                        if (player.getWorld().getName().equals(worldName)) {
-                            double distance = player.getLocation().distance(new org.bukkit.Location(
-                                player.getWorld(), x, y, z
-                            ));
-                            return distance <= maxDistance;
+                        try {
+                            String worldName = locationParts[0];
+                            double x = Double.parseDouble(locationParts[1]);
+                            double y = Double.parseDouble(locationParts[2]);
+                            double z = Double.parseDouble(locationParts[3]);
+                            double maxDistance = Double.parseDouble(locationParts[4]);
+                            
+                            // Проверяем разумность расстояния
+                            if (maxDistance < 0 || maxDistance > 1000) {
+                                if (player != null) {
+                                    player.sendMessage("§c[OpenHousing] Расстояние должно быть от 0 до 1000. Используется значение по умолчанию: 10");
+                                }
+                                maxDistance = Math.min(Math.max(maxDistance, 0), 1000);
+                            }
+                            
+                            if (player.getWorld().getName().equals(worldName)) {
+                                double distance = player.getLocation().distance(new org.bukkit.Location(
+                                    player.getWorld(), x, y, z
+                                ));
+                                return distance <= maxDistance;
+                            } else {
+                                if (player != null) {
+                                    player.sendMessage("§c[OpenHousing] Игрок находится в мире '" + player.getWorld().getName() + "', а не в '" + worldName + "'");
+                                }
+                            }
+                        } catch (NumberFormatException e) {
+                            if (player != null) {
+                                player.sendMessage("§c[OpenHousing] Неверный формат локации: '" + value + "'. Ожидается: мир,x,y,z,расстояние");
+                            }
+                        }
+                    } else {
+                        if (player != null) {
+                            player.sendMessage("§c[OpenHousing] Неверный формат локации: '" + value + "'. Ожидается 5 значений через запятую: мир,x,y,z,расстояние");
                         }
                     }
                     return false;
@@ -152,10 +226,31 @@ public class IfPlayerBlock extends CodeBlock {
                         ru.openhousing.OpenHousing plugin = ru.openhousing.OpenHousing.getInstance();
                         if (plugin.getEconomy() != null) {
                             double requiredMoney = Double.parseDouble(value);
+                            if (requiredMoney < 0) {
+                                if (player != null) {
+                                    player.sendMessage("§c[OpenHousing] Сумма денег не может быть отрицательной.");
+                                }
+                                return false;
+                            } else if (requiredMoney > 1000000) {
+                                if (player != null) {
+                                    player.sendMessage("§c[OpenHousing] Слишком большая сумма: " + requiredMoney + ". Максимум: 1,000,000");
+                                }
+                                return false;
+                            }
                             return plugin.getEconomy().getBalance(player) >= requiredMoney;
+                        } else {
+                            if (player != null) {
+                                player.sendMessage("§c[OpenHousing] Экономика недоступна на этом сервере");
+                            }
+                        }
+                    } catch (NumberFormatException e) {
+                        if (player != null) {
+                            player.sendMessage("§c[OpenHousing] Неверная сумма денег: '" + value + "'. Ожидается число");
                         }
                     } catch (Exception e) {
-                        return false;
+                        if (player != null) {
+                            player.sendMessage("§c[OpenHousing] Ошибка при проверке баланса: " + e.getMessage());
+                        }
                     }
                     return false;
                     

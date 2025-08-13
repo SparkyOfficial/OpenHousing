@@ -75,25 +75,74 @@ public class MathBlock extends CodeBlock {
     @Override
     public ExecutionResult execute(ExecutionContext context) {
         try {
-            double result = performOperation(context);
+            if (operation == null) {
+                return ExecutionResult.error("Операция не выбрана");
+            }
             
-            // Сохраняем результат в переменную
+            if (operand1 == null) {
+                return ExecutionResult.error("Первый операнд не указан");
+            }
+            
+            if (!isUnaryOperation() && operand2 == null) {
+                return ExecutionResult.error("Второй операнд не указан для операции " + operation.getDisplayName());
+            }
+            
+            if (resultVariable == null || resultVariable.trim().isEmpty()) {
+                return ExecutionResult.error("Переменная для результата не указана");
+            }
+            
+            double value1 = getNumberValue(operand1, context);
+            double value2 = 0;
+            
+            if (!isUnaryOperation()) {
+                value2 = getNumberValue(operand2, context);
+            }
+            
+            double result = performOperation(value1, value2);
+            
+            // Проверяем разумность результата
+            if (Double.isInfinite(result) || Double.isNaN(result)) {
+                if (context.getPlayer() != null) {
+                    context.getPlayer().sendMessage("§c[OpenHousing] Результат математической операции некорректен: " + result);
+                }
+                return ExecutionResult.error("Результат математической операции некорректен");
+            }
+            
+            // Ограничиваем результат разумными пределами
+            if (Math.abs(result) > 1e15) {
+                if (context.getPlayer() != null) {
+                    context.getPlayer().sendMessage("§c[OpenHousing] Результат слишком большой: " + result + ". Ограничен до ±1e15");
+                }
+                result = Math.signum(result) * 1e15;
+            }
+            
             context.setVariable(resultVariable, result);
             
-            return ExecutionResult.success(result);
+            if (context.getPlayer() != null) {
+                context.getPlayer().sendMessage("§a[OpenHousing] Результат операции " + operation.getDisplayName() + ": " + result);
+            }
             
+            return ExecutionResult.success();
+            
+        } catch (ArithmeticException e) {
+            String errorMsg = "Математическая ошибка: " + e.getMessage();
+            if (context.getPlayer() != null) {
+                context.getPlayer().sendMessage("§c[OpenHousing] " + errorMsg);
+            }
+            return ExecutionResult.error(errorMsg);
         } catch (Exception e) {
-            return ExecutionResult.error("Ошибка в математической операции: " + e.getMessage());
+            String errorMsg = "Ошибка выполнения математической операции: " + e.getMessage();
+            if (context.getPlayer() != null) {
+                context.getPlayer().sendMessage("§c[OpenHousing] " + errorMsg);
+            }
+            return ExecutionResult.error(errorMsg);
         }
     }
-    
+
     /**
      * Выполнение математической операции
      */
-    private double performOperation(ExecutionContext context) throws Exception {
-        double value1 = getNumberValue(operand1, context);
-        double value2 = isUnaryOperation() ? 0 : getNumberValue(operand2, context);
-        
+    private double performOperation(double value1, double value2) throws ArithmeticException {
         switch (operation) {
             case ADD:
                 return value1 + value2;
@@ -102,15 +151,27 @@ public class MathBlock extends CodeBlock {
             case MULTIPLY:
                 return value1 * value2;
             case DIVIDE:
-                if (value2 == 0) throw new ArithmeticException("Деление на ноль");
+                if (value2 == 0) {
+                    throw new ArithmeticException("Деление на ноль невозможно");
+                }
                 return value1 / value2;
             case MODULO:
-                if (value2 == 0) throw new ArithmeticException("Деление на ноль");
+                if (value2 == 0) {
+                    throw new ArithmeticException("Остаток от деления на ноль невозможен");
+                }
                 return value1 % value2;
             case POWER:
+                if (value1 == 0 && value2 < 0) {
+                    throw new ArithmeticException("Нуль в отрицательной степени не определен");
+                }
+                if (value1 < 0 && value2 != Math.floor(value2)) {
+                    throw new ArithmeticException("Отрицательное число в дробной степени не определено");
+                }
                 return Math.pow(value1, value2);
             case SQUARE_ROOT:
-                if (value1 < 0) throw new ArithmeticException("Квадратный корень из отрицательного числа");
+                if (value1 < 0) {
+                    throw new ArithmeticException("Квадратный корень из отрицательного числа не определен");
+                }
                 return Math.sqrt(value1);
             case ABSOLUTE:
                 return Math.abs(value1);
@@ -130,6 +191,9 @@ public class MathBlock extends CodeBlock {
                     double temp = value1;
                     value1 = value2;
                     value2 = temp;
+                }
+                if (value1 == value2) {
+                    return value1;
                 }
                 return value1 + Math.random() * (value2 - value1);
             default:

@@ -196,6 +196,22 @@ public class WorldEventBlock extends CodeBlock {
             case DISPENSER_DISPENSE:
                 return eventClass == BlockDispenseEvent.class;
             
+            case EXPLOSION:
+                // TODO: Реализовать логику для взрыва
+                return false;
+            case WATER_LEVEL_CHANGE:
+                // TODO: Реализовать логику для изменения уровня воды
+                return false;
+            case LAVA_LEVEL_CHANGE:
+                // TODO: Реализовать логику для изменения уровня лавы
+                return false;
+            case DROPPER_DROP:
+                // TODO: Реализовать логику для сброса дроппера
+                return false;
+            case HOPPER_MOVE:
+                // TODO: Реализовать логику для движения воронки
+                return false;
+            
             default:
                 return false;
         }

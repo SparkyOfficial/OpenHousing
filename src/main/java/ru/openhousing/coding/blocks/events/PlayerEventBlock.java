@@ -151,6 +151,18 @@ public class PlayerEventBlock extends CodeBlock {
                 return eventClass == org.bukkit.event.block.BlockBreakEvent.class;
             case PLACE_BLOCK:
                 return eventClass == org.bukkit.event.block.BlockPlaceEvent.class;
+            case SNEAK:
+                // TODO: Реализовать логику для приседания
+                return false;
+            case JUMP:
+                // TODO: Реализовать логику для прыжка
+                return false;
+            case LEFT_CLICK:
+                // TODO: Реализовать логику для левого клика
+                return false;
+            case RIGHT_CLICK:
+                // TODO: Реализовать логику для правого клика
+                return false;
             default:
                 return false;
         }

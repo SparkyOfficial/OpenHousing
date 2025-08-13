@@ -259,7 +259,7 @@ public class WorldActionBlock extends CodeBlock {
                 break;
                 
             case GIVE_ITEM:
-                giveItem(player, value, location, extra);
+                giveItem(player, value, extra, null); // name is not used in this case
                 break;
                 
             case CLEAR_INVENTORY:
@@ -375,6 +375,62 @@ public class WorldActionBlock extends CodeBlock {
                 // Реализация ожидания через планировщик
                 waitAction(context, value);
                 break;
+                
+            case REPLACE_BLOCKS:
+                // TODO: Реализовать логику замены блоков
+                break;
+                
+            case STOP_SOUND:
+                // TODO: Реализовать логику остановки звука
+                break;
+                
+            case SPAWN_PARTICLE_SPHERE:
+                // TODO: Реализовать логику создания сферы из частиц
+                break;
+                
+            case TAKE_ITEM:
+                // TODO: Реализовать логику забора предмета
+                break;
+                
+            case KICK_PLAYER:
+                // TODO: Реализовать логику кика игрока
+                break;
+                
+            case BAN_PLAYER:
+                // TODO: Реализовать логику бана игрока
+                break;
+                
+            case LOAD_CHUNK:
+                // TODO: Реализовать логику загрузки чанка
+                break;
+                
+            case UNLOAD_CHUNK:
+                // TODO: Реализовать логику выгрузки чанка
+                break;
+                
+            case FREEZE_PLAYER:
+                // TODO: Реализовать логику заморозки игрока
+                break;
+                
+            case UNFREEZE_PLAYER:
+                // TODO: Реализовать логику разморозки игрока
+                break;
+                
+            case HIDE_PLAYER:
+                // TODO: Реализовать логику скрытия игрока
+                break;
+                
+            case SHOW_PLAYER:
+                // TODO: Реализовать логику показа игрока
+                break;
+                
+            case TAKE_EXPERIENCE:
+                // TODO: Реализовать логику забора опыта
+                break;
+                
+            case SEND_TO_SERVER:
+                // TODO: Реализовать логику отправки на другой сервер
+                break;
         }
     }
     
@@ -393,6 +449,12 @@ public class WorldActionBlock extends CodeBlock {
                 // Неверный тип блока - логируем для администраторов
                 if (OpenHousing.getInstance() != null) {
                     OpenHousing.getInstance().getLogger().warning("Неверный тип блока: " + blockType + " в локации " + location);
+                }
+                // Отправляем сообщение игроку, если он в мире
+                for (Player player : world.getPlayers()) {
+                    if (player.getLocation().distance(loc) < 50) { // В радиусе 50 блоков
+                        player.sendMessage("§c[OpenHousing] Неверный тип блока: '" + blockType + "'. Примеры: STONE, DIAMOND_ORE, GLASS");
+                    }
                 }
             }
         }
@@ -430,10 +492,25 @@ public class WorldActionBlock extends CodeBlock {
                     sizeX = Integer.parseInt(sizeParts[0].trim());
                     sizeY = Integer.parseInt(sizeParts[1].trim());
                     sizeZ = Integer.parseInt(sizeParts[2].trim());
+                    
+                    // Проверяем разумность размеров
+                    if (sizeX > 50 || sizeY > 50 || sizeZ > 50) {
+                        for (Player player : world.getPlayers()) {
+                            if (player.getLocation().distance(loc) < 100) {
+                                player.sendMessage("§c[OpenHousing] Слишком большие размеры области: " + sizeX + "x" + sizeY + "x" + sizeZ + ". Максимум: 50x50x50");
+                            }
+                        }
+                        return;
+                    }
                 } catch (NumberFormatException e) {
                     // Используем значения по умолчанию
                     if (OpenHousing.getInstance() != null) {
                         OpenHousing.getInstance().getLogger().warning("Неверные размеры области: " + size + ". Используются значения по умолчанию: 3x3x3");
+                    }
+                    for (Player player : world.getPlayers()) {
+                        if (player.getLocation().distance(loc) < 100) {
+                            player.sendMessage("§c[OpenHousing] Неверные размеры области: '" + size + "'. Используются значения по умолчанию: 3x3x3");
+                        }
                     }
                 }
             }
@@ -446,6 +523,13 @@ public class WorldActionBlock extends CodeBlock {
                                                      loc.getBlockZ() + z);
                         block.setType(material);
                     }
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            // Неверный тип блока
+            for (Player player : world.getPlayers()) {
+                if (player.getLocation().distance(loc) < 100) {
+                    player.sendMessage("§c[OpenHousing] Неверный тип блока: '" + blockType + "'. Примеры: STONE, DIAMOND_ORE, GLASS");
                 }
             }
         } catch (Exception e) {
@@ -482,8 +566,13 @@ public class WorldActionBlock extends CodeBlock {
             
             try {
                 vol = Float.parseFloat(volume);
+                if (vol < 0.0f || vol > 10.0f) {
+                    player.sendMessage("§c[OpenHousing] Громкость звука должна быть от 0.0 до 10.0. Используется значение по умолчанию: 1.0");
+                    vol = 1.0f;
+                }
             } catch (NumberFormatException e) {
                 // Используем значение по умолчанию
+                player.sendMessage("§c[OpenHousing] Неверная громкость звука: '" + volume + "'. Используется значение по умолчанию: 1.0");
             }
             
             if (location.isEmpty()) {
@@ -492,10 +581,13 @@ public class WorldActionBlock extends CodeBlock {
                 Location loc = parseLocation(location, player.getWorld());
                 if (loc != null) {
                     player.playSound(loc, sound, vol, pitch);
+                } else {
+                    player.sendMessage("§c[OpenHousing] Неверная локация для звука: '" + location + "'. Формат: x,y,z или world,x,y,z");
                 }
             }
         } catch (IllegalArgumentException e) {
             // Неверное имя звука
+            player.sendMessage("§c[OpenHousing] Неверное имя звука: '" + soundName + "'. Примеры: BLOCK_STONE_BREAK, ENTITY_PLAYER_LEVELUP, MUSIC_DISC_13");
         }
     }
     
@@ -525,13 +617,31 @@ public class WorldActionBlock extends CodeBlock {
             
             try {
                 particleCount = Integer.parseInt(count);
+                if (particleCount < 1 || particleCount > 1000) {
+                    for (Player player : world.getPlayers()) {
+                        if (player.getLocation().distance(loc) < 100) {
+                            player.sendMessage("§c[OpenHousing] Количество частиц должно быть от 1 до 1000. Используется значение по умолчанию: 10");
+                        }
+                    }
+                    particleCount = 10;
+                }
             } catch (NumberFormatException e) {
                 // Используем значение по умолчанию
+                for (Player player : world.getPlayers()) {
+                    if (player.getLocation().distance(loc) < 100) {
+                        player.sendMessage("§c[OpenHousing] Неверное количество частиц: '" + count + "'. Используется значение по умолчанию: 10");
+                    }
+                }
             }
             
             world.spawnParticle(particle, loc, particleCount, 0.5, 0.5, 0.5);
         } catch (IllegalArgumentException e) {
             // Неверное имя частицы
+            for (Player player : world.getPlayers()) {
+                if (player.getLocation().distance(loc) < 100) {
+                    player.sendMessage("§c[OpenHousing] Неверное имя частицы: '" + particleName + "'. Примеры: EXPLOSION_NORMAL, FLAME, HEART, NOTE");
+                }
+            }
         }
     }
     
@@ -660,12 +770,17 @@ public class WorldActionBlock extends CodeBlock {
                 player.setHealth(player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue());
             } else {
                 double healAmount = Double.parseDouble(amount);
+                if (healAmount < 0) {
+                    player.sendMessage("§c[OpenHousing] Количество здоровья не может быть отрицательным. Используется полное исцеление.");
+                    healAmount = player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue();
+                }
                 double newHealth = Math.min(player.getHealth() + healAmount,
                                           player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue());
                 player.setHealth(newHealth);
             }
         } catch (NumberFormatException e) {
             // Полное исцеление при ошибке
+            player.sendMessage("§c[OpenHousing] Неверное количество здоровья: '" + amount + "'. Используется полное исцеление.");
             player.setHealth(player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue());
         }
     }
@@ -682,8 +797,16 @@ public class WorldActionBlock extends CodeBlock {
             
             try {
                 itemAmount = Integer.parseInt(amount);
+                if (itemAmount < 1) {
+                    player.sendMessage("§c[OpenHousing] Количество предметов должно быть больше 0. Используется значение по умолчанию: 1");
+                    itemAmount = 1;
+                } else if (itemAmount > 64) {
+                    player.sendMessage("§c[OpenHousing] Количество предметов не может быть больше 64. Используется значение по умолчанию: 1");
+                    itemAmount = 1;
+                }
             } catch (NumberFormatException e) {
                 // Используем значение по умолчанию
+                player.sendMessage("§c[OpenHousing] Неверное количество предметов: '" + amount + "'. Используется значение по умолчанию: 1");
             }
             
             org.bukkit.inventory.ItemStack item = new org.bukkit.inventory.ItemStack(material, itemAmount);
@@ -699,6 +822,7 @@ public class WorldActionBlock extends CodeBlock {
             player.getInventory().addItem(item);
         } catch (IllegalArgumentException e) {
             // Неверный тип предмета
+            player.sendMessage("§c[OpenHousing] Неверный тип предмета: '" + itemType + "'. Примеры: DIAMOND, STONE, APPLE, IRON_SWORD");
         }
     }
     
@@ -713,6 +837,7 @@ public class WorldActionBlock extends CodeBlock {
             player.setGameMode(gameMode);
         } catch (IllegalArgumentException e) {
             // Неверный режим игры
+            player.sendMessage("§c[OpenHousing] Неверный режим игры: '" + mode + "'. Доступные: SURVIVAL, CREATIVE, ADVENTURE, SPECTATOR");
         }
     }
     
@@ -739,6 +864,9 @@ public class WorldActionBlock extends CodeBlock {
             world.setDifficulty(diff);
         } catch (IllegalArgumentException e) {
             // Неверная сложность
+            for (Player player : world.getPlayers()) {
+                player.sendMessage("§c[OpenHousing] Неверная сложность: '" + difficulty + "'. Доступные: PEACEFUL, EASY, NORMAL, HARD");
+            }
         }
     }
     
@@ -760,9 +888,16 @@ public class WorldActionBlock extends CodeBlock {
                     GameRule<Integer> intRule = (GameRule<Integer>) gameRule;
                     world.setGameRule(intRule, Integer.parseInt(value));
                 }
+            } else {
+                for (Player player : world.getPlayers()) {
+                    player.sendMessage("§c[OpenHousing] Неверное игровое правило: '" + ruleName + "'. Примеры: doDaylightCycle, keepInventory, naturalRegeneration");
+                }
             }
         } catch (Exception e) {
-            // Игнорируем ошибки
+            // Ошибка в значении правила
+            for (Player player : world.getPlayers()) {
+                player.sendMessage("§c[OpenHousing] Неверное значение для правила '" + ruleName + "': '" + value + "'");
+            }
         }
     }
     
@@ -797,8 +932,13 @@ public class WorldActionBlock extends CodeBlock {
         double pushForce = 1.0;
         try {
             pushForce = Double.parseDouble(force);
+            if (pushForce < 0.1 || pushForce > 10.0) {
+                player.sendMessage("§c[OpenHousing] Сила толчка должна быть от 0.1 до 10.0. Используется значение по умолчанию: 1.0");
+                pushForce = 1.0;
+            }
         } catch (NumberFormatException e) {
             // Используем значение по умолчанию
+            player.sendMessage("§c[OpenHousing] Неверная сила толчка: '" + force + "'. Используется значение по умолчанию: 1.0");
         }
         
         Vector pushVector = new Vector(0, 0, 0);
@@ -822,6 +962,9 @@ public class WorldActionBlock extends CodeBlock {
             case "right":
                 pushVector = player.getLocation().getDirection().rotateAroundY(-Math.PI/2).multiply(pushForce);
                 break;
+            default:
+                player.sendMessage("§c[OpenHousing] Неверное направление толчка: '" + direction + "'. Доступные: forward, backward, up, down, left, right");
+                return;
         }
         
         player.setVelocity(pushVector);
@@ -835,10 +978,18 @@ public class WorldActionBlock extends CodeBlock {
         
         try {
             int level = Integer.parseInt(value);
+            if (level < 0) {
+                player.sendMessage("§c[OpenHousing] Уровень опыта не может быть отрицательным. Устанавливается 0.");
+                level = 0;
+            } else if (level > 1000) {
+                player.sendMessage("§c[OpenHousing] Уровень опыта слишком высокий: " + level + ". Максимум: 1000");
+                level = 1000;
+            }
             player.setLevel(level);
             player.setExp(0);
         } catch (NumberFormatException e) {
             // Игнорируем ошибку
+            player.sendMessage("§c[OpenHousing] Неверный уровень опыта: '" + value + "'. Ожидается число от 0 до 1000");
         }
     }
     
@@ -848,6 +999,17 @@ public class WorldActionBlock extends CodeBlock {
     private void waitAction(ExecutionContext context, String seconds) {
         try {
             int delay = Integer.parseInt(seconds);
+            if (delay < 1) {
+                if (context.getPlayer() != null) {
+                    context.getPlayer().sendMessage("§c[OpenHousing] Время ожидания должно быть больше 0. Используется 1 секунда.");
+                }
+                delay = 1;
+            } else if (delay > 300) {
+                if (context.getPlayer() != null) {
+                    context.getPlayer().sendMessage("§c[OpenHousing] Время ожидания слишком большое: " + delay + " сек. Максимум: 300 сек (5 мин)");
+                }
+                delay = 300;
+            }
             // Используем Bukkit Scheduler вместо Thread.sleep
             org.bukkit.Bukkit.getScheduler().runTaskLater(
                 ru.openhousing.OpenHousing.getInstance(),
@@ -859,8 +1021,11 @@ public class WorldActionBlock extends CodeBlock {
                 },
                 delay * 20L // Конвертируем секунды в тики (20 тиков = 1 секунда)
             );
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             // Игнорируем ошибки
+            if (context.getPlayer() != null) {
+                context.getPlayer().sendMessage("§c[OpenHousing] Неверное время ожидания: '" + seconds + "'. Ожидается число от 1 до 300");
+            }
         }
     }
     

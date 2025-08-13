@@ -65,41 +65,83 @@ public class TextOperationBlock extends CodeBlock {
     @Override
     public ExecutionResult execute(ExecutionContext context) {
         try {
-            String result = performOperation(context);
+            if (operation == null) {
+                return ExecutionResult.error("Операция с текстом не выбрана");
+            }
             
-            // Сохраняем результат в переменную
+            if (text1 == null) {
+                return ExecutionResult.error("Первый текстовый параметр не указан");
+            }
+            
+            if ((operation == TextOperation.CONCATENATE || operation == TextOperation.REPLACE) && text2 == null) {
+                return ExecutionResult.error("Второй текстовый параметр не указан для операции " + operation.getDisplayName());
+            }
+            
+            if (resultVariable == null || resultVariable.trim().isEmpty()) {
+                return ExecutionResult.error("Переменная для результата не указана");
+            }
+            
+            String str1 = getStringValue(text1, context);
+            String str2 = "";
+            
+            if (text2 != null) {
+                str2 = getStringValue(text2, context);
+            }
+            
+            // Проверяем разумность входных данных
+            if (str1.length() > 10000) {
+                if (context.getPlayer() != null) {
+                    context.getPlayer().sendMessage("§c[OpenHousing] Первый текст слишком длинный: " + str1.length() + " символов. Максимум: 10,000");
+                }
+                str1 = str1.substring(0, 10000);
+            }
+            
+            if (str2.length() > 1000) {
+                if (context.getPlayer() != null) {
+                    context.getPlayer().sendMessage("§c[OpenHousing] Второй текст слишком длинный: " + str2.length() + " символов. Максимум: 1,000");
+                }
+                str2 = str2.substring(0, 1000);
+            }
+            
+            String result = performTextOperation(str1, str2);
+            
+            // Проверяем разумность результата
+            if (result.length() > 50000) {
+                if (context.getPlayer() != null) {
+                    context.getPlayer().sendMessage("§c[OpenHousing] Результат операции слишком длинный: " + result.length() + " символов. Обрезан до 50,000");
+                }
+                result = result.substring(0, 50000);
+            }
+            
             context.setVariable(resultVariable, result);
             
-            return ExecutionResult.success(result);
+            if (context.getPlayer() != null) {
+                context.getPlayer().sendMessage("§a[OpenHousing] Результат операции " + operation.getDisplayName() + ": " + 
+                    (result.length() > 100 ? result.substring(0, 100) + "..." : result));
+            }
+            
+            return ExecutionResult.success();
             
         } catch (Exception e) {
-            return ExecutionResult.error("Ошибка в текстовой операции: " + e.getMessage());
+            String errorMsg = "Ошибка выполнения текстовой операции: " + e.getMessage();
+            if (context.getPlayer() != null) {
+                context.getPlayer().sendMessage("§c[OpenHousing] " + errorMsg);
+            }
+            return ExecutionResult.error(errorMsg);
         }
     }
-    
+
     /**
      * Выполнение текстовой операции
      */
-    private String performOperation(ExecutionContext context) throws Exception {
-        String str1 = getStringValue(text1, context);
-        String str2 = getStringValue(text2, context);
-        
+    private String performTextOperation(String str1, String str2) {
         switch (operation) {
             case CONCATENATE:
                 return str1 + str2;
-            case SUBSTRING:
-                // str1 = текст, str2 = "start,end"
-                String[] parts = str2.split(",");
-                if (parts.length >= 2) {
-                    int start = Integer.parseInt(parts[0].trim());
-                    int end = Integer.parseInt(parts[1].trim());
-                    if (start < 0) start = 0;
-                    if (end > str1.length()) end = str1.length();
-                    if (start >= end) return "";
-                    return str1.substring(start, end);
-                }
-                return str1;
             case REPLACE:
+                if (str2.isEmpty()) {
+                    return str1; // Если заменяющая строка пустая, возвращаем исходный текст
+                }
                 return str1.replace(str2, "");
             case UPPERCASE:
                 return str1.toUpperCase();
@@ -111,6 +153,9 @@ public class TextOperationBlock extends CodeBlock {
                 return String.valueOf(str1.length());
             case SPLIT:
                 // str1 = текст, str2 = разделитель
+                if (str2.isEmpty()) {
+                    return str1; // Если разделитель пустой, возвращаем исходный текст
+                }
                 String[] splitResult = str1.split(str2);
                 return String.join(", ", splitResult);
             case CONTAINS:

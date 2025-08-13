@@ -132,13 +132,39 @@ public class IfEntityBlock extends CodeBlock {
                     
                 case HEALTH_ABOVE:
                     if (entity instanceof Damageable) {
-                        return ((Damageable) entity).getHealth() > Double.parseDouble(value);
+                        try {
+                            double healthThreshold = Double.parseDouble(value);
+                            if (healthThreshold < 0) {
+                                if (context.getPlayer() != null) {
+                                    context.getPlayer().sendMessage("§c[OpenHousing] Порог здоровья не может быть отрицательным. Используется 0.");
+                                }
+                                healthThreshold = 0;
+                            }
+                            return ((Damageable) entity).getHealth() > healthThreshold;
+                        } catch (NumberFormatException e) {
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§c[OpenHousing] Неверный порог здоровья: '" + value + "'. Ожидается число");
+                            }
+                        }
                     }
                     break;
                     
                 case HEALTH_BELOW:
                     if (entity instanceof Damageable) {
-                        return ((Damageable) entity).getHealth() < Double.parseDouble(value);
+                        try {
+                            double healthThreshold = Double.parseDouble(value);
+                            if (healthThreshold < 0) {
+                                if (context.getPlayer() != null) {
+                                    context.getPlayer().sendMessage("§c[OpenHousing] Порог здоровья не может быть отрицательным. Используется 0.");
+                                }
+                                healthThreshold = 0;
+                            }
+                            return ((Damageable) entity).getHealth() < healthThreshold;
+                        } catch (NumberFormatException e) {
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§c[OpenHousing] Неверный порог здоровья: '" + value + "'. Ожидается число");
+                            }
+                        }
                     }
                     break;
                     
@@ -147,8 +173,21 @@ public class IfEntityBlock extends CodeBlock {
                         LivingEntity living = (LivingEntity) entity;
                         AttributeInstance maxHealth = living.getAttribute(Attribute.MAX_HEALTH);
                         if (maxHealth != null) {
-                            double percent = (living.getHealth() / maxHealth.getValue()) * 100;
-                            return percent > Double.parseDouble(value);
+                            try {
+                                double percentThreshold = Double.parseDouble(value);
+                                if (percentThreshold < 0 || percentThreshold > 100) {
+                                    if (context.getPlayer() != null) {
+                                        context.getPlayer().sendMessage("§c[OpenHousing] Процент здоровья должен быть от 0 до 100. Используется значение по умолчанию: 50");
+                                    }
+                                    percentThreshold = Math.min(Math.max(percentThreshold, 0), 100);
+                                }
+                                double percent = (living.getHealth() / maxHealth.getValue()) * 100;
+                                return percent > percentThreshold;
+                            } catch (NumberFormatException e) {
+                                if (context.getPlayer() != null) {
+                                    context.getPlayer().sendMessage("§c[OpenHousing] Неверный процент здоровья: '" + value + "'. Ожидается число от 0 до 100");
+                                }
+                            }
                         }
                     }
                     break;
@@ -158,8 +197,21 @@ public class IfEntityBlock extends CodeBlock {
                         LivingEntity living = (LivingEntity) entity;
                         AttributeInstance maxHealth = living.getAttribute(Attribute.MAX_HEALTH);
                         if (maxHealth != null) {
-                            double percent = (living.getHealth() / maxHealth.getValue()) * 100;
-                            return percent < Double.parseDouble(value);
+                            try {
+                                double percentThreshold = Double.parseDouble(value);
+                                if (percentThreshold < 0 || percentThreshold > 100) {
+                                    if (context.getPlayer() != null) {
+                                        context.getPlayer().sendMessage("§c[OpenHousing] Процент здоровья должен быть от 0 до 100. Используется значение по умолчанию: 50");
+                                    }
+                                    percentThreshold = Math.min(Math.max(percentThreshold, 0), 100);
+                                }
+                                double percent = (living.getHealth() / maxHealth.getValue()) * 100;
+                                return percent < percentThreshold;
+                            } catch (NumberFormatException e) {
+                                if (context.getPlayer() != null) {
+                                    context.getPlayer().sendMessage("§c[OpenHousing] Неверный процент здоровья: '" + value + "'. Ожидается число от 0 до 100");
+                                }
+                            }
                         }
                     }
                     break;
