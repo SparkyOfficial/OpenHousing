@@ -1,15 +1,25 @@
 package ru.openhousing.coding.blocks.actions;
 
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.BlockType;
 import ru.openhousing.coding.blocks.CodeBlock;
+import ru.openhousing.coding.blocks.actions.PlayerActionBlock.PlayerActionType;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Блок действий игрока
@@ -316,8 +326,25 @@ public class PlayerActionBlock extends CodeBlock {
                 break;
                 
             case OPEN_INVENTORY:
-                // TODO: Реализовать логику открытия инвентаря
-                // player.openInventory(inventory);
+                // Реализована логика открытия инвентаря
+                if (extra1 != null && !extra1.isEmpty()) {
+                    try {
+                        // Пытаемся найти игрока по имени
+                        Player targetPlayer = Bukkit.getPlayer(extra1);
+                        if (targetPlayer != null) {
+                            player.openInventory(targetPlayer.getInventory());
+                            player.sendMessage("§a[OpenHousing] Открыт инвентарь игрока: " + targetPlayer.getName());
+                        } else {
+                            player.sendMessage("§c[OpenHousing] Игрок не найден: " + extra1);
+                        }
+                    } catch (Exception e) {
+                        player.sendMessage("§c[OpenHousing] Ошибка при открытии инвентаря: " + e.getMessage());
+                    }
+                } else {
+                    // Открываем собственный инвентарь
+                    player.openInventory(player.getInventory());
+                    player.sendMessage("§a[OpenHousing] Открыт ваш инвентарь!");
+                }
                 break;
                 
             case CLOSE_INVENTORY:
@@ -453,18 +480,62 @@ public class PlayerActionBlock extends CodeBlock {
                 break;
                 
             case HIDE_PLAYER:
-                // TODO: Реализовать логику скрытия игрока
-                // player.hidePlayer(plugin, targetPlayer);
+                // Реализована логика скрытия игрока
+                if (extra1 != null && !extra1.isEmpty()) {
+                    try {
+                        Player targetPlayer = Bukkit.getPlayer(extra1);
+                        if (targetPlayer != null) {
+                            player.hidePlayer(OpenHousing.getInstance(), targetPlayer);
+                            player.sendMessage("§a[OpenHousing] Игрок " + targetPlayer.getName() + " скрыт от вас!");
+                        } else {
+                            player.sendMessage("§c[OpenHousing] Игрок не найден: " + extra1);
+                        }
+                    } catch (Exception e) {
+                        player.sendMessage("§c[OpenHousing] Ошибка при скрытии игрока: " + e.getMessage());
+                    }
+                } else {
+                    player.sendMessage("§c[OpenHousing] Укажите имя игрока для скрытия!");
+                }
                 break;
                 
             case SHOW_PLAYER:
-                // TODO: Реализовать логику показа игрока
-                // player.showPlayer(plugin, targetPlayer);
+                // Реализована логика показа игрока
+                if (extra1 != null && !extra1.isEmpty()) {
+                    try {
+                        Player targetPlayer = Bukkit.getPlayer(extra1);
+                        if (targetPlayer != null) {
+                            player.showPlayer(OpenHousing.getInstance(), targetPlayer);
+                            player.sendMessage("§a[OpenHousing] Игрок " + targetPlayer.getName() + " снова видим для вас!");
+                        } else {
+                            player.sendMessage("§c[OpenHousing] Игрок не найден: " + extra1);
+                        }
+                    } catch (Exception e) {
+                        player.sendMessage("§c[OpenHousing] Ошибка при показе игрока: " + e.getMessage());
+                    }
+                } else {
+                    player.sendMessage("§c[OpenHousing] Укажите имя игрока для показа!");
+                }
                 break;
                 
             case SEND_TO_SERVER:
-                // TODO: Реализовать логику отправки на другой сервер
-                // BungeeCord API для отправки на другой сервер
+                // Реализована логика отправки на другой сервер (BungeeCord)
+                if (extra1 != null && !extra1.isEmpty()) {
+                    try {
+                        // Проверяем, поддерживается ли BungeeCord
+                        if (player.getClass().getMethod("sendPluginMessage", String.class, byte[].class) != null) {
+                            // Отправляем команду на BungeeCord
+                            String command = "connect " + extra1;
+                            player.performCommand(command);
+                            player.sendMessage("§a[OpenHousing] Отправка на сервер: " + extra1);
+                        } else {
+                            player.sendMessage("§c[OpenHousing] BungeeCord не поддерживается на этом сервере!");
+                        }
+                    } catch (Exception e) {
+                        player.sendMessage("§c[OpenHousing] Ошибка при отправке на сервер: " + e.getMessage());
+                    }
+                } else {
+                    player.sendMessage("§c[OpenHousing] Укажите название сервера для перехода!");
+                }
                 break;
         }
     }

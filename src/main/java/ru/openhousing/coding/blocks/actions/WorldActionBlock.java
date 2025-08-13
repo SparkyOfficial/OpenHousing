@@ -377,59 +377,325 @@ public class WorldActionBlock extends CodeBlock {
                 break;
                 
             case REPLACE_BLOCKS:
-                // TODO: Реализовать логику замены блоков
+                // Реализована логика замены блоков
+                if (world != null && !value.isEmpty() && !extra.isEmpty()) {
+                    try {
+                        Material oldMaterial = Material.valueOf(value.toUpperCase());
+                        Material newMaterial = Material.valueOf(extra.toUpperCase());
+                        
+                        // Заменяем блоки в радиусе 10 блоков от локации
+                        Location center = parseLocation(location, world);
+                        if (center != null) {
+                            int replaced = 0;
+                            for (int x = -10; x <= 10; x++) {
+                                for (int y = -10; y <= 10; y++) {
+                                    for (int z = -10; z <= 10; z++) {
+                                        Location blockLoc = center.clone().add(x, y, z);
+                                        if (blockLoc.getBlock().getType() == oldMaterial) {
+                                            blockLoc.getBlock().setType(newMaterial);
+                                            replaced++;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§a[OpenHousing] Заменено " + replaced + " блоков " + oldMaterial.name() + " на " + newMaterial.name());
+                            }
+                        }
+                    } catch (IllegalArgumentException e) {
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§c[OpenHousing] Неверный тип блока: '" + value + "' или '" + extra + "'");
+                        }
+                    }
+                }
                 break;
                 
             case STOP_SOUND:
-                // TODO: Реализовать логику остановки звука
+                // Реализована логика остановки звука
+                if (world != null && !value.isEmpty()) {
+                    try {
+                        Sound sound = Sound.valueOf(value.toUpperCase());
+                        // Останавливаем звук для всех игроков в мире
+                        for (Player worldPlayer : world.getPlayers()) {
+                            worldPlayer.stopSound(sound);
+                        }
+                        
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§a[OpenHousing] Звук " + sound.name() + " остановлен для всех игроков!");
+                        }
+                    } catch (IllegalArgumentException e) {
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§c[OpenHousing] Неверное имя звука: '" + value + "'");
+                        }
+                    }
+                }
                 break;
                 
             case SPAWN_PARTICLE_SPHERE:
-                // TODO: Реализовать логику создания сферы из частиц
+                // Реализована логика создания сферы из частиц
+                if (world != null && !value.isEmpty()) {
+                    try {
+                        Particle particle = Particle.valueOf(value.toUpperCase());
+                        Location center = parseLocation(location, world);
+                        if (center != null) {
+                            double radius = 3.0; // Радиус по умолчанию
+                            if (!extra.isEmpty()) {
+                                try {
+                                    radius = Double.parseDouble(extra);
+                                    if (radius < 0.5 || radius > 10.0) {
+                                        radius = 3.0;
+                                        if (context.getPlayer() != null) {
+                                            context.getPlayer().sendMessage("§c[OpenHousing] Радиус должен быть от 0.5 до 10.0. Используется 3.0");
+                                        }
+                                    }
+                                } catch (NumberFormatException e) {
+                                    if (context.getPlayer() != null) {
+                                        context.getPlayer().sendMessage("§c[OpenHousing] Неверный радиус: '" + extra + "'. Используется 3.0");
+                                    }
+                                }
+                            }
+                            
+                            // Создаем сферу из частиц
+                            for (double phi = 0; phi <= Math.PI; phi += Math.PI / 15) {
+                                for (double theta = 0; theta <= 2 * Math.PI; theta += Math.PI / 30) {
+                                    double x = radius * Math.cos(theta) * Math.sin(phi);
+                                    double y = radius * Math.cos(phi);
+                                    double z = radius * Math.sin(theta) * Math.sin(phi);
+                                    
+                                    Location particleLoc = center.clone().add(x, y, z);
+                                    world.spawnParticle(particle, particleLoc, 1);
+                                }
+                            }
+                            
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§a[OpenHousing] Создана сфера из частиц " + particle.name() + " радиусом " + radius);
+                            }
+                        }
+                    } catch (IllegalArgumentException e) {
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§c[OpenHousing] Неверное имя частицы: '" + value + "'");
+                        }
+                    }
+                }
                 break;
                 
             case TAKE_ITEM:
-                // TODO: Реализовать логику забора предмета
+                // Реализована логика забора предмета
+                if (player != null && !value.isEmpty()) {
+                    try {
+                        String[] itemParts = value.split(":");
+                        Material material = Material.valueOf(itemParts[0].toUpperCase());
+                        int amount = 1;
+                        
+                        if (itemParts.length > 1) {
+                            try {
+                                amount = Integer.parseInt(itemParts[1]);
+                            } catch (NumberFormatException e) {
+                                if (context.getPlayer() != null) {
+                                    context.getPlayer().sendMessage("§c[OpenHousing] Неверное количество: '" + itemParts[1] + "'. Используется 1");
+                                }
+                            }
+                        }
+                        
+                        if (amount < 1) amount = 1;
+                        if (amount > 64) amount = 64;
+                        
+                        // Забираем предметы из инвентаря игрока
+                        org.bukkit.inventory.ItemStack[] contents = player.getInventory().getContents();
+                        int taken = 0;
+                        
+                        for (int i = 0; i < contents.length && taken < amount; i++) {
+                            if (contents[i] != null && contents[i].getType() == material) {
+                                int toTake = Math.min(contents[i].getAmount(), amount - taken);
+                                if (contents[i].getAmount() <= toTake) {
+                                    player.getInventory().setItem(i, null);
+                                } else {
+                                    contents[i].setAmount(contents[i].getAmount() - toTake);
+                                }
+                                taken += toTake;
+                            }
+                        }
+                        
+                        if (taken > 0) {
+                            player.sendMessage("§a[OpenHousing] Забрано " + taken + " предметов " + material.name());
+                        } else {
+                            player.sendMessage("§c[OpenHousing] Предметы " + material.name() + " не найдены в инвентаре!");
+                        }
+                    } catch (IllegalArgumentException e) {
+                        player.sendMessage("§c[OpenHousing] Неверный тип предмета: '" + value + "'");
+                    }
+                }
                 break;
                 
             case KICK_PLAYER:
-                // TODO: Реализовать логику кика игрока
+                // Реализована логика кика игрока
+                if (player != null && !value.isEmpty()) {
+                    String reason = extra.isEmpty() ? "Кикнут администратором" : extra;
+                    player.kickPlayer(ChatColor.translateAlternateColorCodes('&', reason));
+                    
+                    if (context.getPlayer() != null) {
+                        context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " кикнут с сервера!");
+                    }
+                }
                 break;
                 
             case BAN_PLAYER:
-                // TODO: Реализовать логику бана игрока
+                // Реализована логика бана игрока
+                if (player != null && !value.isEmpty()) {
+                    String reason = extra.isEmpty() ? "Забанен администратором" : extra;
+                    
+                    // Баним игрока
+                    player.banPlayer(ChatColor.translateAlternateColorCodes('&', reason));
+                    
+                    if (context.getPlayer() != null) {
+                        context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " забанен на сервере!");
+                    }
+                }
                 break;
                 
             case LOAD_CHUNK:
-                // TODO: Реализовать логику загрузки чанка
+                // Реализована логика загрузки чанка
+                if (world != null) {
+                    Location center = parseLocation(location, world);
+                    if (center != null) {
+                        int chunkX = center.getBlockX() >> 4;
+                        int chunkZ = center.getBlockZ() >> 4;
+                        
+                        if (world.isChunkLoaded(chunkX, chunkZ)) {
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§a[OpenHousing] Чанк уже загружен!");
+                            }
+                        } else {
+                            world.loadChunk(chunkX, chunkZ);
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§a[OpenHousing] Чанк загружен: " + chunkX + ", " + chunkZ);
+                            }
+                        }
+                    }
+                }
                 break;
                 
             case UNLOAD_CHUNK:
-                // TODO: Реализовать логику выгрузки чанка
+                // Реализована логика выгрузки чанка
+                if (world != null) {
+                    Location center = parseLocation(location, world);
+                    if (center != null) {
+                        int chunkX = center.getBlockX() >> 4;
+                        int chunkZ = center.getBlockZ() >> 4;
+                        
+                        if (!world.isChunkLoaded(chunkX, chunkZ)) {
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§a[OpenHousing] Чанк уже выгружен!");
+                            }
+                        } else {
+                            world.unloadChunk(chunkX, chunkZ);
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§a[OpenHousing] Чанк выгружен: " + chunkX + ", " + chunkZ);
+                            }
+                        }
+                    }
+                }
                 break;
                 
             case FREEZE_PLAYER:
-                // TODO: Реализовать логику заморозки игрока
+                // Реализована логика заморозки игрока
+                if (player != null) {
+                    player.setFreezeTicks(Integer.MAX_VALUE);
+                    player.sendMessage("§c[OpenHousing] Вы заморожены!");
+                    
+                    if (context.getPlayer() != null) {
+                        context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " заморожен!");
+                    }
+                }
                 break;
                 
             case UNFREEZE_PLAYER:
-                // TODO: Реализовать логику разморозки игрока
+                // Реализована логика разморозки игрока
+                if (player != null) {
+                    player.setFreezeTicks(0);
+                    player.sendMessage("§a[OpenHousing] Вы разморожены!");
+                    
+                    if (context.getPlayer() != null) {
+                        context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " разморожен!");
+                    }
+                }
                 break;
                 
             case HIDE_PLAYER:
-                // TODO: Реализовать логику скрытия игрока
+                // Реализована логика скрытия игрока
+                if (player != null && context.getPlayer() != null) {
+                    context.getPlayer().hidePlayer(OpenHousing.getInstance(), player);
+                    context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " скрыт от вас!");
+                }
                 break;
                 
             case SHOW_PLAYER:
-                // TODO: Реализовать логику показа игрока
+                // Реализована логика показа игрока
+                if (player != null && context.getPlayer() != null) {
+                    context.getPlayer().showPlayer(OpenHousing.getInstance(), player);
+                    context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " снова видим для вас!");
+                }
                 break;
                 
             case TAKE_EXPERIENCE:
-                // TODO: Реализовать логику забора опыта
+                // Реализована логика забора опыта
+                if (player != null && !value.isEmpty()) {
+                    try {
+                        int expToTake = Integer.parseInt(value);
+                        if (expToTake < 0) {
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§c[OpenHousing] Количество опыта не может быть отрицательным!");
+                            }
+                            return;
+                        }
+                        
+                        int currentExp = player.getTotalExperience();
+                        int newExp = Math.max(0, currentExp - expToTake);
+                        
+                        player.setTotalExperience(0);
+                        player.setLevel(0);
+                        player.setExp(0);
+                        
+                        if (newExp > 0) {
+                            player.giveExp(newExp);
+                        }
+                        
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§a[OpenHousing] У игрока " + player.getName() + " забрано " + expToTake + " опыта!");
+                        }
+                    } catch (NumberFormatException e) {
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§c[OpenHousing] Неверное количество опыта: '" + value + "'");
+                        }
+                    }
+                }
                 break;
                 
             case SEND_TO_SERVER:
-                // TODO: Реализовать логику отправки на другой сервер
+                // Реализована логика отправки на другой сервер (BungeeCord)
+                if (player != null && !value.isEmpty()) {
+                    try {
+                        // Проверяем, поддерживается ли BungeeCord
+                        if (player.getClass().getMethod("sendPluginMessage", String.class, byte[].class) != null) {
+                            // Отправляем команду на BungeeCord
+                            String command = "connect " + value;
+                            player.performCommand(command);
+                            
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " отправлен на сервер: " + value);
+                            }
+                        } else {
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§c[OpenHousing] BungeeCord не поддерживается на этом сервере!");
+                            }
+                        }
+                    } catch (Exception e) {
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§c[OpenHousing] Ошибка при отправке на сервер: " + e.getMessage());
+                        }
+                    }
+                }
                 break;
         }
     }

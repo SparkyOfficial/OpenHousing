@@ -1,18 +1,27 @@
 package ru.openhousing.coding.blocks.actions;
 
-import org.bukkit.*;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import ru.openhousing.coding.blocks.BlockType;
 import ru.openhousing.coding.blocks.CodeBlock;
+import ru.openhousing.coding.blocks.actions.EntityActionBlock.EntityActionType;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Блок действий с существами
@@ -369,96 +378,354 @@ public class EntityActionBlock extends CodeBlock {
                 break;
                 
             case BREED:
-                // TODO: Реализовать логику размножения
+                // Реализована логика размножения
                 if (entity instanceof Animals) {
-                    ((Animals) entity).setLoveModeTicks(600); // 5 минут
+                    Animals animal = (Animals) entity;
+                    if (context.getPlayer() != null) {
+                        // Проверяем, есть ли рядом партнер для размножения
+                        List<Entity> nearbyEntities = entity.getNearbyEntities(5, 5, 5);
+                        Animals partner = null;
+                        
+                        for (Entity nearby : nearbyEntities) {
+                            if (nearby instanceof Animals && nearby.getType() == entity.getType() && nearby != entity) {
+                                Animals nearbyAnimal = (Animals) nearby;
+                                if (nearbyAnimal.canBreed() && animal.canBreed()) {
+                                    partner = nearbyAnimal;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (partner != null) {
+                            // Устанавливаем режим любви для обоих животных
+                            animal.setLoveModeTicks(600); // 30 секунд
+                            partner.setLoveModeTicks(600);
+                            
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§a[OpenHousing] Животные готовы к размножению!");
+                            }
+                        } else {
+                            // Если партнера нет, просто устанавливаем режим любви
+                            animal.setLoveModeTicks(600);
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§a[OpenHousing] Животное готово к размножению!");
+                            }
+                        }
+                    }
                 }
                 break;
                 
             case SHEAR:
-                // TODO: Реализовать логику стрижки
+                // Реализована логика стрижки
                 if (entity instanceof Sheep) {
-                    ((Sheep) entity).setSheared(Boolean.parseBoolean(value));
+                    Sheep sheep = (Sheep) entity;
+                    if (Boolean.parseBoolean(value)) {
+                        sheep.setSheared(true);
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§a[OpenHousing] Овца пострижена!");
+                        }
+                    } else {
+                        sheep.setSheared(false);
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§a[OpenHousing] Шерсть овцы восстановлена!");
+                        }
+                    }
+                } else if (entity instanceof MushroomCow) {
+                    MushroomCow mooshroom = (MushroomCow) entity;
+                    if (Boolean.parseBoolean(value)) {
+                        // Превращаем в обычную корову
+                        mooshroom.setAware(false);
+                        mooshroom.getWorld().spawnEntity(mooshroom.getLocation(), EntityType.COW);
+                        mooshroom.remove();
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§a[OpenHousing] Мухомор пострижен и превращен в корову!");
+                        }
+                    }
+                } else if (context.getPlayer() != null) {
+                    context.getPlayer().sendMessage("§c[OpenHousing] Это существо нельзя стричь!");
                 }
                 break;
                 
             case MILK:
-                // TODO: Реализовать логику доения
-                if (entity instanceof Cow) {
-                    // Логика доения коровы
+                // Реализована логика доения
+                if (entity instanceof Cow || entity instanceof Goat) {
+                    if (context.getPlayer() != null) {
+                        Player player = context.getPlayer();
+                        
+                        // Проверяем, есть ли ведро в инвентаре
+                        if (player.getInventory().containsAtLeast(new ItemStack(Material.BUCKET), 1)) {
+                            // Убираем ведро и даем молоко
+                            player.getInventory().removeItem(new ItemStack(Material.BUCKET, 1));
+                            player.getInventory().addItem(new ItemStack(Material.MILK_BUCKET, 1));
+                            
+                            player.sendMessage("§a[OpenHousing] Вы подоили животное! Получено ведро молока.");
+                        } else {
+                            player.sendMessage("§c[OpenHousing] Для доения нужно ведро в инвентаре!");
+                        }
+                    }
+                } else if (context.getPlayer() != null) {
+                    context.getPlayer().sendMessage("§c[OpenHousing] Это существо нельзя доить!");
                 }
                 break;
                 
             case LEASH:
-                // TODO: Реализовать логику поводка
+                // Реализована логика поводка
                 if (entity instanceof LivingEntity && context.getPlayer() != null) {
-                    // Логика поводка
+                    LivingEntity living = (LivingEntity) entity;
+                    Player player = context.getPlayer();
+                    
+                    // Проверяем, есть ли поводок в инвентаре
+                    if (player.getInventory().containsAtLeast(new ItemStack(Material.LEAD), 1)) {
+                        // Убираем поводок и привязываем существо
+                        player.getInventory().removeItem(new ItemStack(Material.LEAD, 1));
+                        
+                        // Создаем поводок и привязываем к игроку
+                        if (living.isLeashed()) {
+                            living.setLeashHolder(null);
+                        }
+                        
+                        // Привязываем к игроку
+                        living.setLeashHolder(player);
+                        
+                        player.sendMessage("§a[OpenHousing] Существо привязано к вам на поводок!");
+                    } else {
+                        player.sendMessage("§c[OpenHousing] Для привязки нужен поводок в инвентаре!");
+                    }
                 }
                 break;
                 
             case UNLEASH:
-                // TODO: Реализовать логику отпускания с поводка
+                // Реализована логика отпускания с поводка
                 if (entity instanceof LivingEntity) {
-                    // Логика отпускания с поводка
+                    LivingEntity living = (LivingEntity) entity;
+                    if (living.isLeashed()) {
+                        living.setLeashHolder(null);
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§a[OpenHousing] Существо отпущено с поводка!");
+                        }
+                    }
                 }
                 break;
                 
             case MOUNT_PLAYER:
-                // TODO: Реализовать логику посадки игрока
+                // Реализована логика посадки игрока
                 if (entity instanceof Vehicle && context.getPlayer() != null) {
-                    // Логика посадки игрока
+                    Vehicle vehicle = (Vehicle) entity;
+                    Player player = context.getPlayer();
+                    
+                    if (vehicle.getPassengers().isEmpty()) {
+                        vehicle.addPassenger(player);
+                        player.sendMessage("§a[OpenHousing] Вы сели на транспорт!");
+                    } else {
+                        player.sendMessage("§c[OpenHousing] Транспорт уже занят!");
+                    }
                 }
                 break;
                 
             case DISMOUNT_PLAYER:
-                // TODO: Реализовать логику снятия игрока
+                // Реализована логика снятия игрока
                 if (entity instanceof Vehicle && context.getPlayer() != null) {
-                    // Логика снятия игрока
+                    Vehicle vehicle = (Vehicle) entity;
+                    Player player = context.getPlayer();
+                    
+                    if (vehicle.getPassengers().contains(player)) {
+                        vehicle.removePassenger(player);
+                        player.sendMessage("§a[OpenHousing] Вы слезли с транспорта!");
+                    }
                 }
                 break;
                 
             case DROP_ITEM:
-                // TODO: Реализовать логику выбрасывания предмета
+                // Реализована логика выбрасывания предмета
                 if (entity instanceof LivingEntity) {
                     LivingEntity living = (LivingEntity) entity;
-                    // Логика выбрасывания предмета
+                    
+                    try {
+                        // Парсим предмет из строки (формат: MATERIAL:количество:имя)
+                        String[] itemParts = value.split(":");
+                        if (itemParts.length > 0) {
+                            Material material = Material.valueOf(itemParts[0].toUpperCase());
+                            int amount = 1;
+                            String customName = "";
+                            
+                            if (itemParts.length > 1) {
+                                try {
+                                    amount = Integer.parseInt(itemParts[1]);
+                                } catch (NumberFormatException e) {
+                                    if (context.getPlayer() != null) {
+                                        context.getPlayer().sendMessage("§c[OpenHousing] Неверное количество предметов: '" + itemParts[1] + "'. Используется 1");
+                                    }
+                                }
+                            }
+                            
+                            if (itemParts.length > 2) {
+                                customName = itemParts[2];
+                            }
+                            
+                            ItemStack item = new ItemStack(material, amount);
+                            
+                            if (!customName.isEmpty()) {
+                                ItemMeta meta = item.getItemMeta();
+                                if (meta != null) {
+                                    meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', customName));
+                                    item.setItemMeta(meta);
+                                }
+                            }
+                            
+                            // Выбрасываем предмет в мире
+                            living.getWorld().dropItemNaturally(living.getLocation(), item);
+                            
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§a[OpenHousing] Предмет выброшен: " + material.name());
+                            }
+                        }
+                    } catch (IllegalArgumentException e) {
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§c[OpenHousing] Неверный тип предмета: '" + value + "'. Примеры: DIAMOND:1:Алмаз, APPLE:5");
+                        }
+                    }
                 }
                 break;
                 
             case GIVE_ITEM:
-                // TODO: Реализовать логику выдачи предмета
+                // Реализована логика выдачи предмета
                 if (entity instanceof LivingEntity) {
                     LivingEntity living = (LivingEntity) entity;
-                    // Логика выдачи предмета
+                    
+                    try {
+                        // Парсим предмет из строки (формат: MATERIAL:количество:имя)
+                        String[] itemParts = value.split(":");
+                        if (itemParts.length > 0) {
+                            Material material = Material.valueOf(itemParts[0].toUpperCase());
+                            int amount = 1;
+                            String customName = "";
+                            
+                            if (itemParts.length > 1) {
+                                try {
+                                    amount = Integer.parseInt(itemParts[1]);
+                                } catch (NumberFormatException e) {
+                                    if (context.getPlayer() != null) {
+                                        context.getPlayer().sendMessage("§c[OpenHousing] Неверное количество предметов: '" + itemParts[1] + "'. Используется 1");
+                                    }
+                                }
+                            }
+                            
+                            if (itemParts.length > 2) {
+                                customName = itemParts[2];
+                            }
+                            
+                            ItemStack item = new ItemStack(material, amount);
+                            
+                            if (!customName.isEmpty()) {
+                                ItemMeta meta = item.getItemMeta();
+                                if (meta != null) {
+                                    meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', customName));
+                                    item.setItemMeta(meta);
+                                }
+                            }
+                            
+                            // Если это игрок, даем в инвентарь
+                            if (living instanceof Player) {
+                                Player player = (Player) living;
+                                player.getInventory().addItem(item);
+                                player.sendMessage("§a[OpenHousing] Получен предмет: " + material.name());
+                            } else {
+                                // Если это моб, выбрасываем рядом
+                                living.getWorld().dropItemNaturally(living.getLocation(), item);
+                            }
+                            
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§a[OpenHousing] Предмет выдан: " + material.name());
+                            }
+                        }
+                    } catch (IllegalArgumentException e) {
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§c[OpenHousing] Неверный тип предмета: '" + value + "'. Примеры: DIAMOND:1:Алмаз, APPLE:5");
+                        }
+                    }
                 }
                 break;
                 
             case SET_EQUIPMENT:
-                // TODO: Реализовать логику установки экипировки
+                // Реализована логика установки экипировки
                 if (entity instanceof LivingEntity) {
                     LivingEntity living = (LivingEntity) entity;
-                    // Логика установки экипировки
+                    
+                    try {
+                        // Парсим экипировку из строки (формат: SLOT:MATERIAL:имя)
+                        String[] equipParts = value.split(":");
+                        if (equipParts.length >= 2) {
+                            EquipmentSlot slot = EquipmentSlot.valueOf(equipParts[0].toUpperCase());
+                            Material material = Material.valueOf(equipParts[1].toUpperCase());
+                            String customName = equipParts.length > 2 ? equipParts[2] : "";
+                            
+                            ItemStack item = new ItemStack(material, 1);
+                            
+                            if (!customName.isEmpty()) {
+                                ItemMeta meta = item.getItemMeta();
+                                if (meta != null) {
+                                    meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', customName));
+                                    item.setItemMeta(meta);
+                                }
+                            }
+                            
+                            // Устанавливаем экипировку
+                            living.getEquipment().setItem(slot, item);
+                            
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§a[OpenHousing] Экипировка установлена: " + slot.name() + " - " + material.name());
+                            }
+                        }
+                    } catch (IllegalArgumentException e) {
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§c[OpenHousing] Неверные параметры экипировки: '" + value + "'. Примеры: HEAD:DIAMOND_HELMET:Шлем, MAINHAND:IRON_SWORD:Меч");
+                        }
+                    }
                 }
                 break;
                 
             case FOLLOW_PLAYER:
-                // TODO: Реализовать логику следования за игроком
+                // Реализована логика следования за игроком
                 if (entity instanceof Tameable && context.getPlayer() != null) {
                     Tameable tameable = (Tameable) entity;
-                    // Логика следования за игроком
+                    Player player = context.getPlayer();
+                    
+                    if (tameable.isTamed() && tameable.getOwner().equals(player)) {
+                        // Используем PathfinderGoal для следования
+                        if (entity instanceof Mob) {
+                            Mob mob = (Mob) entity;
+                            // Устанавливаем цель следования
+                            mob.setTarget(player);
+                            
+                            player.sendMessage("§a[OpenHousing] Питомец следует за вами!");
+                        }
+                    } else {
+                        player.sendMessage("§c[OpenHousing] Существо не приручено вами!");
+                    }
                 }
                 break;
                 
             case STOP_FOLLOWING:
-                // TODO: Реализовать логику прекращения следования
+                // Реализована логика прекращения следования
                 if (entity instanceof Tameable) {
                     Tameable tameable = (Tameable) entity;
-                    // Логика прекращения следования
+                    
+                    if (tameable.isTamed()) {
+                        if (entity instanceof Mob) {
+                            Mob mob = (Mob) entity;
+                            // Убираем цель
+                            mob.setTarget(null);
+                            
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§a[OpenHousing] Питомец перестал следовать!");
+                            }
+                        }
+                    }
                 }
                 break;
                 
             case FACE_PLAYER:
-                // TODO: Реализовать логику поворота к игроку
+                // Логика поворота к игроку уже реализована
                 if (context.getPlayer() != null) {
                     Location playerLoc = context.getPlayer().getLocation();
                     Location entityLoc = entity.getLocation();
@@ -466,11 +733,15 @@ public class EntityActionBlock extends CodeBlock {
                     float yaw = (float) Math.toDegrees(Math.atan2(-direction.getX(), direction.getZ()));
                     float pitch = (float) Math.toDegrees(Math.asin(-direction.getY() / direction.length()));
                     entity.setRotation(yaw, pitch);
+                    
+                    if (context.getPlayer() != null) {
+                        context.getPlayer().sendMessage("§a[OpenHousing] Существо повернулось к вам!");
+                    }
                 }
                 break;
                 
             case FACE_LOCATION:
-                // TODO: Реализовать логику поворота к точке
+                // Логика поворота к точке уже реализована
                 Location targetLoc = parseLocationString(value, entity.getWorld());
                 if (targetLoc != null) {
                     Location entityLoc = entity.getLocation();
@@ -478,22 +749,36 @@ public class EntityActionBlock extends CodeBlock {
                     float yaw = (float) Math.toDegrees(Math.atan2(-direction.getX(), direction.getZ()));
                     float pitch = (float) Math.toDegrees(Math.asin(-direction.getY() / direction.length()));
                     entity.setRotation(yaw, pitch);
+                    
+                    if (context.getPlayer() != null) {
+                        context.getPlayer().sendMessage("§a[OpenHousing] Существо повернулось к указанной точке!");
+                    }
+                } else if (context.getPlayer() != null) {
+                    context.getPlayer().sendMessage("§c[OpenHousing] Неверная локация для поворота: '" + value + "'");
                 }
                 break;
                 
             case FREEZE:
-                // TODO: Реализовать логику заморозки
+                // Реализована логика заморозки
                 if (entity instanceof LivingEntity) {
                     LivingEntity living = (LivingEntity) entity;
                     living.setFreezeTicks(Integer.MAX_VALUE);
+                    
+                    if (context.getPlayer() != null) {
+                        context.getPlayer().sendMessage("§a[OpenHousing] Существо заморожено!");
+                    }
                 }
                 break;
                 
             case UNFREEZE:
-                // TODO: Реализовать логику разморозки
+                // Реализована логика разморозки
                 if (entity instanceof LivingEntity) {
                     LivingEntity living = (LivingEntity) entity;
                     living.setFreezeTicks(0);
+                    
+                    if (context.getPlayer() != null) {
+                        context.getPlayer().sendMessage("§a[OpenHousing] Существо разморожено!");
+                    }
                 }
                 break;
         }
