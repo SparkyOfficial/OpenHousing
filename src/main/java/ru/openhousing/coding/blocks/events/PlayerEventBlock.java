@@ -74,7 +74,19 @@ public class PlayerEventBlock extends CodeBlock {
     
     @Override
     public List<String> getDescription() {
-        PlayerEventType eventType = (PlayerEventType) getParameter("eventType");
+        Object eventTypeParam = getParameter("eventType");
+        PlayerEventType eventType = null;
+        
+        if (eventTypeParam instanceof PlayerEventType) {
+            eventType = (PlayerEventType) eventTypeParam;
+        } else if (eventTypeParam instanceof String) {
+            try {
+                eventType = PlayerEventType.valueOf((String) eventTypeParam);
+            } catch (IllegalArgumentException e) {
+                // Игнорируем неверные значения
+            }
+        }
+        
         return Arrays.asList(
             "§6Событие игрока",
             "§7Тип: §f" + (eventType != null ? eventType.getDisplayName() : "Не выбран"),

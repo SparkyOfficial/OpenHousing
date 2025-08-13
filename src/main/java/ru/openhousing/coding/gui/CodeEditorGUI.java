@@ -276,12 +276,17 @@ public class CodeEditorGUI implements InventoryHolder {
      */
     private void setupScriptView() {
         List<CodeBlock> blocks = script.getBlocks();
+        plugin.getLogger().info("Setting up script view. Total blocks: " + blocks.size());
+        
         int startIndex = page * 28;
         int endIndex = Math.min(startIndex + 28, blocks.size());
+        
+        plugin.getLogger().info("Displaying blocks from " + startIndex + " to " + endIndex);
         
         int slot = 10;
         for (int i = startIndex; i < endIndex; i++) {
             CodeBlock block = blocks.get(i);
+            plugin.getLogger().info("Adding block " + i + ": " + block.getType().getDisplayName());
             
             ItemStack item = new ItemBuilder(block.getType().getMaterial())
                 .name("§6" + block.getType().getDisplayName())
@@ -602,12 +607,20 @@ public class CodeEditorGUI implements InventoryHolder {
     
     private void addBlockToScript(BlockType blockType) {
         try {
+            plugin.getLogger().info("Creating block instance for: " + blockType.getDisplayName());
+            
             // Создаем экземпляр блока
             CodeBlock block = createBlockInstance(blockType);
             if (block != null) {
+                plugin.getLogger().info("Adding block to script: " + block.getType().getDisplayName());
                 script.addBlock(block);
+                plugin.getLogger().info("Script now has " + script.getBlocks().size() + " blocks");
+            } else {
+                plugin.getLogger().warning("Failed to create block instance for: " + blockType.getDisplayName());
             }
         } catch (Exception e) {
+            plugin.getLogger().severe("Error creating block: " + e.getMessage());
+            e.printStackTrace();
             player.sendMessage("§cОшибка создания блока: " + e.getMessage());
         }
     }

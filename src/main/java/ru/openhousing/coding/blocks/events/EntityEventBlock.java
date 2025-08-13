@@ -75,7 +75,19 @@ public class EntityEventBlock extends CodeBlock {
     
     @Override
     public List<String> getDescription() {
-        EntityEventType eventType = (EntityEventType) getParameter("eventType");
+        Object eventTypeParam = getParameter("eventType");
+        EntityEventType eventType = null;
+        
+        if (eventTypeParam instanceof EntityEventType) {
+            eventType = (EntityEventType) eventTypeParam;
+        } else if (eventTypeParam instanceof String) {
+            try {
+                eventType = EntityEventType.valueOf((String) eventTypeParam);
+            } catch (IllegalArgumentException e) {
+                // Игнорируем неверные значения
+            }
+        }
+        
         String entityType = (String) getParameter("entityType");
         
         return Arrays.asList(
@@ -92,7 +104,20 @@ public class EntityEventBlock extends CodeBlock {
      * Проверка соответствия события
      */
     public boolean matchesEvent(Class<?> eventClass, Object... params) {
-        EntityEventType eventType = (EntityEventType) getParameter("eventType");
+        Object eventTypeParam = getParameter("eventType");
+        EntityEventType eventType = null;
+        
+        if (eventTypeParam instanceof EntityEventType) {
+            eventType = (EntityEventType) eventTypeParam;
+        } else if (eventTypeParam instanceof String) {
+            try {
+                eventType = EntityEventType.valueOf((String) eventTypeParam);
+            } catch (IllegalArgumentException e) {
+                // Игнорируем неверные значения
+                return false;
+            }
+        }
+        
         if (eventType == null) return false;
         
         switch (eventType) {
@@ -150,7 +175,20 @@ public class EntityEventBlock extends CodeBlock {
     public ExecutionContext createContextFromEvent(Player player, Object event) {
         ExecutionContext context = new ExecutionContext(player);
         
-        EntityEventType eventType = (EntityEventType) getParameter("eventType");
+        Object eventTypeParam = getParameter("eventType");
+        EntityEventType eventType = null;
+        
+        if (eventTypeParam instanceof EntityEventType) {
+            eventType = (EntityEventType) eventTypeParam;
+        } else if (eventTypeParam instanceof String) {
+            try {
+                eventType = EntityEventType.valueOf((String) eventTypeParam);
+            } catch (IllegalArgumentException e) {
+                // Игнорируем неверные значения
+                return context;
+            }
+        }
+        
         if (eventType != null && event instanceof EntityEvent) {
             EntityEvent entityEvent = (EntityEvent) event;
             Entity entity = entityEvent.getEntity();

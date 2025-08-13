@@ -92,7 +92,19 @@ public class WorldEventBlock extends CodeBlock {
     
     @Override
     public List<String> getDescription() {
-        WorldEventType eventType = (WorldEventType) getParameter("eventType");
+        Object eventTypeParam = getParameter("eventType");
+        WorldEventType eventType = null;
+        
+        if (eventTypeParam instanceof WorldEventType) {
+            eventType = (WorldEventType) eventTypeParam;
+        } else if (eventTypeParam instanceof String) {
+            try {
+                eventType = WorldEventType.valueOf((String) eventTypeParam);
+            } catch (IllegalArgumentException e) {
+                // Игнорируем неверные значения
+            }
+        }
+        
         String blockType = (String) getParameter("blockType");
         String world = (String) getParameter("world");
         
@@ -111,7 +123,20 @@ public class WorldEventBlock extends CodeBlock {
      * Проверка соответствия события
      */
     public boolean matchesEvent(Class<?> eventClass, Object... params) {
-        WorldEventType eventType = (WorldEventType) getParameter("eventType");
+        Object eventTypeParam = getParameter("eventType");
+        WorldEventType eventType = null;
+        
+        if (eventTypeParam instanceof WorldEventType) {
+            eventType = (WorldEventType) eventTypeParam;
+        } else if (eventTypeParam instanceof String) {
+            try {
+                eventType = WorldEventType.valueOf((String) eventTypeParam);
+            } catch (IllegalArgumentException e) {
+                // Игнорируем неверные значения
+                return false;
+            }
+        }
+        
         if (eventType == null) return false;
         
         switch (eventType) {
