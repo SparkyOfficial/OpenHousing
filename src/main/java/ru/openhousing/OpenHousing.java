@@ -106,16 +106,16 @@ public class OpenHousing extends JavaPlugin {
      * Проверка зависимостей
      */
     private boolean checkDependencies() {
-        // Проверка Vault
+        // Проверка Vault (опциональная)
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
-            getLogger().severe("Vault plugin not found! Please install Vault.");
-            return false;
-        }
-        
-        // Настройка экономики
-        if (!setupEconomy()) {
-            getLogger().severe("Failed to setup economy! Make sure you have an economy plugin installed.");
-            return false;
+            getLogger().info("Vault plugin not found! Economy features will be disabled.");
+            economy = null;
+        } else {
+            // Настройка экономики
+            if (!setupEconomy()) {
+                getLogger().warning("Failed to setup economy! Economy features will be disabled.");
+                economy = null;
+            }
         }
         
         return true;

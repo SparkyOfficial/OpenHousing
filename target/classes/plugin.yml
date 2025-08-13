@@ -6,8 +6,7 @@ authors: [YourName]
 description: 'Hypixel Housing analog with visual coding and custom games'
 website: 'https://github.com/yourusername/OpenHousing'
 
-depend: [Vault]
-softdepend: [PlaceholderAPI, ReActions, WorldEdit, FAWE]
+softdepend: [Vault, PlaceholderAPI, ReActions, WorldEdit, FAWE]
 
 commands:
   housing:
