@@ -5,8 +5,11 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.configuration.file.FileConfiguration;
 import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.script.CodeScript;
+import ru.openhousing.coding.serialization.ScriptSerializer;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -16,9 +19,11 @@ public class DatabaseManager {
     
     private final OpenHousing plugin;
     private HikariDataSource dataSource;
+    private ScriptSerializer scriptSerializer;
     
     public DatabaseManager(OpenHousing plugin) {
         this.plugin = plugin;
+        this.scriptSerializer = new ScriptSerializer();
     }
     
     /**
@@ -260,21 +265,128 @@ public class DatabaseManager {
     }
     
     /**
-     * Сериализация скрипта в JSON (упрощенная версия)
+     * Сохранение дома
      */
-    private String serializeScript(CodeScript script) {
-        // Здесь должна быть реализация сериализации скрипта в JSON
-        // Для упрощения возвращаем пустую строку
-        return "{}";
+    public void saveHouse(ru.openhousing.housing.House house) {
+        String sql = "INSERT INTO houses (id, owner_id, owner_name, name, world, x, y, z, width, height, length, public, visitors_allowed) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                    "ON DUPLICATE KEY UPDATE " +
+                    "owner_name = VALUES(owner_name), " +
+                    "name = VALUES(name), " +
+                    "public = VALUES(public), " +
+                    "visitors_allowed = VALUES(visitors_allowed), " +
+                    "updated_at = CURRENT_TIMESTAMP";
+        
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            
+            statement.setInt(1, house.getId());
+            statement.setString(2, house.getOwnerId().toString());
+            statement.setString(3, house.getOwnerName());
+            statement.setString(4, house.getName());
+            statement.setString(5, house.getLocation().getWorld().getName());
+            statement.setInt(6, house.getLocation().getBlockX());
+            statement.setInt(7, house.getLocation().getBlockY());
+            statement.setInt(8, house.getLocation().getBlockZ());
+            statement.setInt(9, house.getSize().getWidth());
+            statement.setInt(10, house.getSize().getHeight());
+            statement.setInt(11, house.getSize().getLength());
+            statement.setBoolean(12, house.isPublic());
+            statement.setBoolean(13, house.isVisitorsAllowed());
+            
+            statement.executeUpdate();
+            
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to save house: " + house.getName());
+            e.printStackTrace();
+        }
     }
     
     /**
-     * Десериализация скрипта из JSON (упрощенная версия)
+     * Загрузка всех домов
+     */
+    public List<ru.openhousing.housing.House> loadAllHouses() {
+        List<ru.openhousing.housing.House> houses = new ArrayList<>();
+        String sql = "SELECT * FROM houses";
+        
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            
+            while (resultSet.next()) {
+                try {
+                    int id = resultSet.getInt("id");
+                    UUID ownerId = UUID.fromString(resultSet.getString("owner_id"));
+                    String ownerName = resultSet.getString("owner_name");
+                    String name = resultSet.getString("name");
+                    String worldName = resultSet.getString("world");
+                    int x = resultSet.getInt("x");
+                    int y = resultSet.getInt("y");
+                    int z = resultSet.getInt("z");
+                    int width = resultSet.getInt("width");
+                    int height = resultSet.getInt("height");
+                    int length = resultSet.getInt("length");
+                    boolean isPublic = resultSet.getBoolean("public");
+                    boolean visitorsAllowed = resultSet.getBoolean("visitors_allowed");
+                    
+                    org.bukkit.World world = org.bukkit.Bukkit.getWorld(worldName);
+                    if (world == null) {
+                        plugin.getLogger().warning("World not found for house: " + name + " (world: " + worldName + ")");
+                        continue;
+                    }
+                    
+                    org.bukkit.Location location = new org.bukkit.Location(world, x, y, z);
+                    ru.openhousing.housing.House.HouseSize size = new ru.openhousing.housing.House.HouseSize(width, height, length);
+                    
+                    ru.openhousing.housing.House house = new ru.openhousing.housing.House(id, ownerId, ownerName, name, location, size);
+                    house.setPublic(isPublic);
+                    house.setVisitorsAllowed(visitorsAllowed);
+                    
+                    houses.add(house);
+                    
+                } catch (Exception e) {
+                    plugin.getLogger().warning("Failed to load house from database: " + e.getMessage());
+                }
+            }
+            
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to load houses from database!");
+            e.printStackTrace();
+        }
+        
+        return houses;
+    }
+    
+    /**
+     * Удаление дома
+     */
+    public void deleteHouse(int houseId) {
+        String sql = "DELETE FROM houses WHERE id = ?";
+        
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            
+            statement.setInt(1, houseId);
+            statement.executeUpdate();
+            
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to delete house: " + houseId);
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Сериализация скрипта в JSON
+     */
+    private String serializeScript(CodeScript script) {
+        return scriptSerializer.serialize(script);
+    }
+    
+    /**
+     * Десериализация скрипта из JSON
      */
     private CodeScript deserializeScript(UUID playerId, String playerName, String scriptData) {
-        // Здесь должна быть реализация десериализации скрипта из JSON
-        // Для упрощения возвращаем новый пустой скрипт
-        return new CodeScript(playerId, playerName);
+        return scriptSerializer.deserialize(scriptData, playerId, playerName);
     }
     
     /**

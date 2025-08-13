@@ -594,13 +594,34 @@ public class CodeEditorGUI implements InventoryHolder {
     
     private CodeBlock createBlockInstance(BlockType blockType) {
         switch (blockType) {
+            // События
             case PLAYER_EVENT:
                 return new ru.openhousing.coding.blocks.events.PlayerEventBlock();
+            
+            // Условия
             case IF_PLAYER:
                 return new ru.openhousing.coding.blocks.conditions.IfPlayerBlock();
+            case IF_VARIABLE:
+                return new ru.openhousing.coding.blocks.conditions.IfVariableBlock();
+            
+            // Действия
             case PLAYER_ACTION:
                 return new ru.openhousing.coding.blocks.actions.PlayerActionBlock();
-            // Добавьте другие типы блоков по мере их создания
+            case VARIABLE_ACTION:
+                return new ru.openhousing.coding.blocks.variables.VariableActionBlock();
+            
+            // Функции
+            case FUNCTION:
+                return new ru.openhousing.coding.blocks.functions.FunctionBlock();
+            case CALL_FUNCTION:
+                return new ru.openhousing.coding.blocks.functions.CallFunctionBlock();
+            
+            // Управление
+            case REPEAT:
+                return new ru.openhousing.coding.blocks.control.RepeatBlock();
+            case ELSE:
+                return new ru.openhousing.coding.blocks.control.ElseBlock();
+            
             default:
                 return null;
         }
