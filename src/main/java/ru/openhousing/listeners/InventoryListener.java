@@ -39,7 +39,7 @@ public class InventoryListener implements Listener {
             plugin.getLogger().info("Cancelled inventory click for OpenHousing GUI");
             
             // Обработка редактора кода
-            if (title.startsWith("§6Редактор кода")) {
+            if (title.startsWith("§6Редактор кода") || title.contains("OpenHousing")) {
                 CodeEditorGUI editorGUI = plugin.getCodeManager().getEditorGUI(player);
                 if (editorGUI != null) {
                     plugin.getLogger().info("Handling click in CodeEditorGUI");

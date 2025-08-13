@@ -88,7 +88,20 @@ public class PlayerEventBlock extends CodeBlock {
      * Проверка соответствия события
      */
     public boolean matchesEvent(Class<?> eventClass, Object... params) {
-        PlayerEventType eventType = (PlayerEventType) getParameter("eventType");
+        Object eventTypeParam = getParameter("eventType");
+        PlayerEventType eventType = null;
+        
+        if (eventTypeParam instanceof PlayerEventType) {
+            eventType = (PlayerEventType) eventTypeParam;
+        } else if (eventTypeParam instanceof String) {
+            try {
+                eventType = PlayerEventType.valueOf((String) eventTypeParam);
+            } catch (IllegalArgumentException e) {
+                // Игнорируем неверные значения
+                return false;
+            }
+        }
+        
         if (eventType == null) return false;
         
         switch (eventType) {
@@ -138,7 +151,20 @@ public class PlayerEventBlock extends CodeBlock {
         ExecutionContext context = new ExecutionContext(player);
         
         // Добавляем переменные в зависимости от типа события
-        PlayerEventType eventType = (PlayerEventType) getParameter("eventType");
+        Object eventTypeParam = getParameter("eventType");
+        PlayerEventType eventType = null;
+        
+        if (eventTypeParam instanceof PlayerEventType) {
+            eventType = (PlayerEventType) eventTypeParam;
+        } else if (eventTypeParam instanceof String) {
+            try {
+                eventType = PlayerEventType.valueOf((String) eventTypeParam);
+            } catch (IllegalArgumentException e) {
+                // Игнорируем неверные значения
+                return context;
+            }
+        }
+        
         if (eventType != null) {
             switch (eventType) {
                 case CHAT:

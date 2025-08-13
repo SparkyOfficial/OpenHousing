@@ -437,30 +437,40 @@ public class CodeEditorGUI implements InventoryHolder {
     }
     
     private void handleMainMenuClick(int slot) {
+        plugin.getLogger().info("Main menu click: slot=" + slot);
+        
         switch (slot) {
             case 10: // Просмотр скрипта
+                plugin.getLogger().info("Switching to SCRIPT mode");
                 mode = EditorMode.SCRIPT;
                 page = 0;
                 updateInventory();
                 break;
             case 12: // Добавить блок
+                plugin.getLogger().info("Switching to CATEGORIES mode");
                 mode = EditorMode.CATEGORIES;
                 updateInventory();
                 break;
             case 14: // Выполнить скрипт
+                plugin.getLogger().info("Executing script");
                 plugin.getCodeManager().executeScript(player);
                 player.sendMessage("§aСкрипт выполнен!");
                 break;
             case 16: // Настройки
+                plugin.getLogger().info("Toggling script enabled");
                 script.setEnabled(!script.isEnabled());
                 player.sendMessage(script.isEnabled() ? 
                     "§aСкрипт включен!" : "§cСкрипт отключен!");
                 updateInventory();
                 break;
             case 32: // Очистить скрипт
+                plugin.getLogger().info("Clearing script");
                 script.clear();
                 player.sendMessage("§cСкрипт очищен!");
                 updateInventory();
+                break;
+            default:
+                plugin.getLogger().info("Unhandled main menu slot: " + slot);
                 break;
         }
     }
