@@ -55,6 +55,7 @@ ru\openhousing\coding\gui\LineSettingsGUI.class
 ru\openhousing\coding\blocks\variables\VariableActionBlock$VariableActionType.class
 ru\openhousing\coding\values\NumberValue.class
 ru\openhousing\coding\values\ParticleValue.class
+ru\openhousing\coding\gui\LineBlocksGUI.class
 ru\openhousing\coding\gui\PlayerSelectorGUI.class
 ru\openhousing\coding\script\CodeScript.class
 ru\openhousing\coding\blocks\actions\PlayerActionBlock.class
@@ -79,6 +80,7 @@ ru\openhousing\housing\House$HouseSize.class
 ru\openhousing\coding\CodeManager$1.class
 ru\openhousing\coding\blocks\CodeBlock$ExecutionResult.class
 ru\openhousing\config\ConfigManager.class
+ru\openhousing\utils\AnvilGUIHelper.class
 ru\openhousing\api\OpenHousingAPI.class
 ru\openhousing\coding\values\Value.class
 ru\openhousing\coding\serialization\ScriptSerializer.class

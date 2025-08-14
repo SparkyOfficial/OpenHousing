@@ -24,6 +24,7 @@ C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\Co
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\constants\BlockParams.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\BlockConfigGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\CodeEditorGUI.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\LineBlocksGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\LineSelectorGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\LineSettingsGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\LocationSelectorGUI.java
@@ -57,6 +58,7 @@ C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\listeners
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\listeners\PlayerListener.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\OpenHousing.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\placeholders\OpenHousingPlaceholders.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\utils\AnvilGUIHelper.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\utils\CodeBlockUtils.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\utils\ItemBuilder.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\utils\MessageUtil.java

@@ -584,8 +584,9 @@ public class CodeEditorGUI implements InventoryHolder {
                     settingsGUI.open();
                 } else {
                     // Просмотр блоков в строке
-                    player.sendMessage("§eВ строке '" + selectedLine.getName() + "' блоков: " + selectedLine.getBlockCount());
-                    // TODO: Показать блоки строки
+                    player.closeInventory();
+                    LineBlocksGUI lineBlocksGUI = new LineBlocksGUI(plugin, player, script, selectedLine);
+                    lineBlocksGUI.open();
                 }
             }
         }
@@ -610,7 +611,7 @@ public class CodeEditorGUI implements InventoryHolder {
                         }
                     }
                     if (removed) {
-                        player.sendMessage("§cБлок удален!");
+                    player.sendMessage("§cБлок удален!");
                     } else {
                         player.sendMessage("§cНе удалось найти блок для удаления!");
                     }

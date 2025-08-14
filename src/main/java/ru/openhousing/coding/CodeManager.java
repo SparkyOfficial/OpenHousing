@@ -40,9 +40,14 @@ public class CodeManager {
      */
     public void openCodeEditor(Player player) {
         CodeScript script = getOrCreateScript(player);
-        CodeEditorGUI editor = new CodeEditorGUI(plugin, player, script);
         
-        openEditors.put(player.getUniqueId(), editor);
+        // Если редактор уже открыт, переиспользуем его
+        CodeEditorGUI editor = openEditors.get(player.getUniqueId());
+        if (editor == null) {
+            editor = new CodeEditorGUI(plugin, player, script);
+            openEditors.put(player.getUniqueId(), editor);
+        }
+        
         editor.open();
     }
     

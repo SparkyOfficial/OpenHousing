@@ -125,8 +125,8 @@ public class CodeCommand implements CommandExecutor, TabCompleter {
             return;
         }
         
-        plugin.getCodeManager().executeScript(player);
-        MessageUtil.send(player, "&aСкрипт выполнен!");
+        MessageUtil.send(player, "&cКоманда устарела! Скрипты теперь выполняются автоматически в режиме &e/play&c.");
+        MessageUtil.send(player, "&7Используйте &e/play &7в своем доме для активации скриптов.");
     }
     
     /**
@@ -235,7 +235,7 @@ public class CodeCommand implements CommandExecutor, TabCompleter {
         MessageUtil.send(player,
             "&6&l=== OpenHousing Code - Справка ===",
             "&e/code editor &7- Открыть редактор кода",
-            "&e/code execute &7- Выполнить ваш скрипт",
+            "&c/code execute &7- УСТАРЕЛО! Используйте /play",
             "&e/code toggle &7- Включить/выключить скрипт",
             "&e/code clear &7- Очистить скрипт",
             "&e/code info &7- Информация о скрипте",
