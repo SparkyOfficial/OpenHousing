@@ -215,33 +215,6 @@ public class HousingCommand implements CommandExecutor, TabCompleter {
     }
     
     /**
-     * Настройки дома
-     */
-    private void houseSettings(Player player, String[] args) {
-        List<House> houses = plugin.getHousingManager().getPlayerHouses(player.getUniqueId());
-        
-        if (houses.isEmpty()) {
-            MessageUtil.send(player, "&cУ вас нет домов!");
-            return;
-        }
-        
-        House house = houses.get(0);
-        
-        MessageUtil.send(player,
-            "&6&l=== Настройки дома ===",
-            "&eИмя: &f" + house.getName(),
-            "&eСтатус: " + (house.isPublic() ? "&aПубличный" : "&7Приватный"),
-            "&eПосетители: " + (house.isVisitorsAllowed() ? "&aРазрешены" : "&cЗапрещены"),
-            "&eРазмер: &f" + house.getSize().toString(),
-            "",
-            "&7Команды:",
-            "&e/housing public &7- Переключить публичность",
-            "&e/housing allow <игрок> &7- Разрешить доступ",
-            "&e/housing ban <игрок> &7- Заблокировать игрока"
-        );
-    }
-    
-    /**
      * Разрешить доступ игроку
      */
     private void allowPlayer(Player player, String[] args) {

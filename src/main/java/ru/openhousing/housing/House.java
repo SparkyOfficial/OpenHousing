@@ -361,9 +361,13 @@ public class House {
             return width * height * length;
         }
         
+        public String getDisplayName() {
+            return width + "x" + height + "x" + length;
+        }
+        
         @Override
         public String toString() {
-            return width + "x" + height + "x" + length;
+            return getDisplayName();
         }
     }
     

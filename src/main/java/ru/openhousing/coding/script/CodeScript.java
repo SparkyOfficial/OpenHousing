@@ -441,4 +441,83 @@ public class CodeScript {
             }
         }
     }
+    
+    /**
+     * Вставить строку в определенную позицию
+     */
+    public void insertLine(int position, CodeLine line) {
+        // Сдвигаем все строки с номерами >= position на 1 вверх
+        Map<Integer, CodeLine> newLines = new LinkedHashMap<>();
+        
+        for (Map.Entry<Integer, CodeLine> entry : lines.entrySet()) {
+            int lineNumber = entry.getKey();
+            CodeLine codeLine = entry.getValue();
+            
+            if (lineNumber >= position) {
+                newLines.put(lineNumber + 1, codeLine);
+            } else {
+                newLines.put(lineNumber, codeLine);
+            }
+        }
+        
+        // Добавляем новую строку
+        newLines.put(position, line);
+        
+        // Заменяем карту строк
+        lines.clear();
+        lines.putAll(newLines);
+        
+        // Обновляем nextLineNumber
+        nextLineNumber = Math.max(nextLineNumber, lines.keySet().stream().mapToInt(Integer::intValue).max().orElse(0) + 1);
+        lastModified = System.currentTimeMillis();
+    }
+    
+    /**
+     * Переместить строку вверх
+     */
+    public boolean moveLineUp(int lineNumber) {
+        if (lineNumber <= 1 || !lines.containsKey(lineNumber)) {
+            return false;
+        }
+        
+        CodeLine currentLine = lines.get(lineNumber);
+        CodeLine previousLine = lines.get(lineNumber - 1);
+        
+        if (previousLine == null) {
+            return false;
+        }
+        
+        // Меняем местами в карте
+        lines.put(lineNumber - 1, currentLine);
+        lines.put(lineNumber, previousLine);
+        
+        lastModified = System.currentTimeMillis();
+        return true;
+    }
+    
+    /**
+     * Переместить строку вниз
+     */
+    public boolean moveLineDown(int lineNumber) {
+        if (!lines.containsKey(lineNumber) || !lines.containsKey(lineNumber + 1)) {
+            return false;
+        }
+        
+        CodeLine currentLine = lines.get(lineNumber);
+        CodeLine nextLine = lines.get(lineNumber + 1);
+        
+        // Меняем местами в карте
+        lines.put(lineNumber, nextLine);
+        lines.put(lineNumber + 1, currentLine);
+        
+        lastModified = System.currentTimeMillis();
+        return true;
+    }
+    
+    /**
+     * Получить количество строк
+     */
+    public int getLineCount() {
+        return lines.size();
+    }
 }

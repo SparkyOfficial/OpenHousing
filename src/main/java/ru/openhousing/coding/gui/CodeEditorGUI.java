@@ -834,9 +834,24 @@ public class CodeEditorGUI implements InventoryHolder {
             case ACTION -> "🔧";
             case CONDITION -> "❓";
             case CONTROL -> "🔄";
-            case VARIABLE -> "📦";
+            case UTILITY -> "📦";
             case FUNCTION -> "📋";
             default -> "▪";
+        };
+    }
+    
+    /**
+     * Получить материал для типа блока
+     */
+    private Material getBlockTypeMaterial(BlockType blockType) {
+        return switch (blockType.getCategory()) {
+            case EVENT -> Material.LIGHTNING_ROD;
+            case ACTION -> Material.PISTON;
+            case CONDITION -> Material.COMPARATOR;
+            case CONTROL -> Material.REPEATER;
+            case UTILITY -> Material.CHEST;
+            case FUNCTION -> Material.BOOK;
+            default -> Material.STONE;
         };
     }
     

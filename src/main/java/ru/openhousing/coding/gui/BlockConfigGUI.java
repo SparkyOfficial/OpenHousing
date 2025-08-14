@@ -254,7 +254,7 @@ public class BlockConfigGUI implements Listener {
             .build());
 
         // Тип существа
-        inventory.setItem(20, new ItemBuilder(Material.SPAWN_EGG)
+        inventory.setItem(20, new ItemBuilder(Material.EGG)
             .name("§6Тип существа")
             .lore(Arrays.asList(
                 "§7Текущий: §e" + block.getParameter("entityType"),
