@@ -199,6 +199,17 @@ public class CodeEditorGUI implements InventoryHolder {
             ))
             .build());
         
+        // Запуск скрипта
+        inventory.setItem(33, new ItemBuilder(Material.EMERALD_BLOCK)
+            .name("§aЗапустить скрипт")
+            .lore(Arrays.asList(
+                "§7Выполнить созданный скрипт",
+                "§7немедленно",
+                "",
+                "§aНажмите для запуска"
+            ))
+            .build());
+        
         // Справка
         inventory.setItem(34, new ItemBuilder(Material.ENCHANTED_BOOK)
             .name("§eSправка")
@@ -546,6 +557,11 @@ public class CodeEditorGUI implements InventoryHolder {
                 script.clear();
                 player.sendMessage("§cСкрипт очищен!");
                 updateInventory();
+                break;
+            case 33: // Запустить скрипт
+                plugin.getLogger().info("Running script immediately");
+                plugin.getCodeManager().executeScript(player);
+                player.sendMessage("§aСкрипт запущен!");
                 break;
             default:
                 plugin.getLogger().info("Unhandled main menu slot: " + slot);

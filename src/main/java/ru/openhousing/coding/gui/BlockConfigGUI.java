@@ -321,18 +321,48 @@ public class BlockConfigGUI implements Listener {
     }
     
     /**
-     * Заглушки для остальных обработчиков
+     * Обработчики для событий сущностей и мира
      */
     private void handleEntityEventClick(int slot, boolean isShiftClick) {
-        player.sendMessage("§eНастройка события сущности (в разработке)");
+        if (slot == 10) { // Тип события
+            // Открываем GUI выбора типа события сущности
+            player.closeInventory();
+            new EntityEventSelectorGUI(plugin, player, (eventType) -> {
+                block.setParameter("eventType", eventType.name());
+                player.sendMessage("§aТип события выбран: " + eventType.getDisplayName());
+                this.open(); // Возвращаемся к настройкам блока
+            }).open();
+        } else {
+            player.sendMessage("§eДополнительные настройки события сущности (в разработке)");
+        }
     }
     
     private void handleWorldEventClick(int slot, boolean isShiftClick) {
-        player.sendMessage("§eНастройка события мира (в разработке)");
+        if (slot == 10) { // Тип события
+            // Открываем GUI выбора типа события мира
+            player.closeInventory();
+            new WorldEventSelectorGUI(plugin, player, (eventType) -> {
+                block.setParameter("eventType", eventType.name());
+                player.sendMessage("§aТип события выбран: " + eventType.getDisplayName());
+                this.open(); // Возвращаемся к настройкам блока
+            }).open();
+        } else {
+            player.sendMessage("§eДополнительные настройки события мира (в разработке)");
+        }
     }
     
     private void handlePlayerActionClick(int slot, boolean isShiftClick) {
-        player.sendMessage("§eНастройка действия игрока (в разработке)");
+        if (slot == 10) { // Тип действия
+            // Открываем GUI выбора типа действия игрока
+            player.closeInventory();
+            new PlayerActionSelectorGUI(plugin, player, (actionType) -> {
+                block.setParameter("actionType", actionType.name());
+                player.sendMessage("§aТип действия выбран: " + actionType.getDisplayName());
+                this.open(); // Возвращаемся к настройкам блока
+            }).open();
+        } else {
+            player.sendMessage("§eДополнительные настройки действия игрока (в разработке)");
+        }
     }
     
     private void handleEntityActionClick(int slot, boolean isShiftClick) {
