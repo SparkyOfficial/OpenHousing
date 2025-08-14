@@ -335,54 +335,7 @@ public class House {
         updateModified();
     }
     
-    /**
-     * Получение списка игроков внутри дома
-     */
-    public List<Player> getPlayersInside() {
-        List<Player> playersInside = new ArrayList<>();
-        if (world != null) {
-            for (Player player : world.getPlayers()) {
-                if (isInside(player.getLocation())) {
-                    playersInside.add(player);
-                }
-            }
-        }
-        return playersInside;
-    }
-    
-    /**
-     * Проверка, находится ли локация внутри дома
-     */
-    public boolean isInside(Location location) {
-        if (world == null || location.getWorld() == null || !location.getWorld().equals(world)) {
-            return false;
-        }
-        
-        // Проверяем границы дома
-        Location spawn = getSpawnLocation();
-        if (spawn == null) return false;
-        
-        double halfWidth = size.getWidth() / 2.0;
-        double halfLength = size.getLength() / 2.0;
-        
-        return location.getX() >= spawn.getX() - halfWidth &&
-               location.getX() <= spawn.getX() + halfWidth &&
-               location.getZ() >= spawn.getZ() - halfLength &&
-               location.getZ() <= spawn.getZ() + halfLength &&
-               location.getY() >= spawn.getY() &&
-               location.getY() <= spawn.getY() + size.getHeight();
-    }
-    
-    /**
-     * Получение точки спавна в доме
-     */
-    public Location getSpawnLocation() {
-        if (world == null) {
-            return null;
-        }
-        // Возвращаем центр дома на уровне земли
-        return new Location(world, 0, 64, 0);
-    }
+
     
     /**
      * Класс размера дома

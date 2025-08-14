@@ -1015,31 +1015,7 @@ public class BlockConfigGUI implements Listener {
         }
     }
     
-    /**
-     * Обработка кликов для действий игрока
-     */
-    private void handlePlayerActionClick(int slot, boolean isShiftClick) {
-        if (slot == 10) { // Тип действия
-            player.closeInventory();
-            AnvilGUIHelper.openTextInput(plugin, player, "Тип действия", "SEND_MESSAGE", (actionType) -> {
-                block.setParameter("actionType", actionType);
-                MessageUtil.send(player, "&aТип действия установлен: &e" + actionType);
-                this.open();
-            });
-        } else if (slot == 11) { // Цель
-            new PlayerSelectorGUI(plugin, player, (selectedPlayer) -> {
-                block.setParameter("target", selectedPlayer);
-                MessageUtil.send(player, "&aЦель установлена: &e" + selectedPlayer);
-                this.open();
-            }).open();
-        } else if (slot == 12) { // Значение
-            new ValueSelectorGUI(plugin, player, ValueType.TEXT, (value) -> {
-                block.setParameter("value", value);
-                MessageUtil.send(player, "&aЗначение установлено: &e" + value);
-                this.open();
-            }).open();
-        }
-    }
+
     
     /**
      * Обработка кликов для действий существа
@@ -1053,13 +1029,13 @@ public class BlockConfigGUI implements Listener {
                 this.open();
             });
         } else if (slot == 11) { // Существо
-            new ValueSelectorGUI(plugin, player, ValueType.TEXT, (entity) -> {
+            new ValueSelectorGUI(plugin, player, "Существо", new ValueType[]{ValueType.TEXT}, (entity) -> {
                 block.setParameter("entity", entity);
                 MessageUtil.send(player, "&aСущество установлено: &e" + entity);
                 this.open();
             }).open();
         } else if (slot == 12) { // Значение
-            new ValueSelectorGUI(plugin, player, ValueType.NUMBER, (value) -> {
+            new ValueSelectorGUI(plugin, player, "Значение", new ValueType[]{ValueType.NUMBER}, (value) -> {
                 block.setParameter("value", value);
                 MessageUtil.send(player, "&aЗначение установлено: &e" + value);
                 this.open();
@@ -1085,7 +1061,7 @@ public class BlockConfigGUI implements Listener {
                 this.open();
             }).open();
         } else if (slot == 12) { // Значение
-            new ValueSelectorGUI(plugin, player, ValueType.TEXT, (value) -> {
+            new ValueSelectorGUI(plugin, player, "Значение", new ValueType[]{ValueType.TEXT}, (value) -> {
                 block.setParameter("value", value);
                 MessageUtil.send(player, "&aЗначение установлено: &e" + value);
                 this.open();
@@ -1105,13 +1081,13 @@ public class BlockConfigGUI implements Listener {
                 this.open();
             });
         } else if (slot == 11) { // Существо
-            new ValueSelectorGUI(plugin, player, ValueType.TEXT, (entity) -> {
+            new ValueSelectorGUI(plugin, player, "Существо", new ValueType[]{ValueType.TEXT}, (entity) -> {
                 block.setParameter("entity", entity);
                 MessageUtil.send(player, "&aСущество установлено: &e" + entity);
                 this.open();
             }).open();
         } else if (slot == 12) { // Значение для сравнения
-            new ValueSelectorGUI(plugin, player, ValueType.NUMBER, (compareValue) -> {
+            new ValueSelectorGUI(plugin, player, "Значение", new ValueType[]{ValueType.NUMBER}, (compareValue) -> {
                 block.setParameter("compareValue", compareValue);
                 MessageUtil.send(player, "&aЗначение для сравнения установлено: &e" + compareValue);
                 this.open();
@@ -1128,7 +1104,7 @@ public class BlockConfigGUI implements Listener {
                 block.setParameter("variableName", variable);
                 MessageUtil.send(player, "&aПеременная установлена: &e" + variable);
                 this.open();
-            }).open();
+            }, false).open();
         } else if (slot == 11) { // Оператор сравнения
             player.closeInventory();
             AnvilGUIHelper.openTextInput(plugin, player, "Оператор сравнения", "EQUALS", (operator) -> {
@@ -1137,7 +1113,7 @@ public class BlockConfigGUI implements Listener {
                 this.open();
             });
         } else if (slot == 12) { // Значение для сравнения
-            new ValueSelectorGUI(plugin, player, ValueType.TEXT, (compareValue) -> {
+            new ValueSelectorGUI(plugin, player, "Значение", new ValueType[]{ValueType.TEXT}, (compareValue) -> {
                 block.setParameter("compareValue", compareValue);
                 MessageUtil.send(player, "&aЗначение для сравнения установлено: &e" + compareValue);
                 this.open();
