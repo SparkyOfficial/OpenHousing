@@ -122,16 +122,40 @@ public class CodeLine {
     }
     
     /**
-     * Выполнение всех блоков в строке
+     * Выполнение всех блоков в строке с поддержкой IF-ELSE логики
      */
     public void execute(CodeBlock.ExecutionContext context) {
         if (!enabled) {
             return;
         }
         
-        for (CodeBlock block : blocks) {
+        boolean lastConditionResult = false;
+        
+        for (int i = 0; i < blocks.size(); i++) {
+            CodeBlock block = blocks.get(i);
+            
             try {
+                // Специальная логика для ELSE блоков
+                if (block.getType() == ru.openhousing.coding.blocks.BlockType.ELSE) {
+                    // ELSE выполняется только если предыдущее условие было ложным
+                    if (!lastConditionResult) {
+                        CodeBlock.ExecutionResult result = block.execute(context);
+                        if (result.getType() == CodeBlock.ExecutionResult.Type.ERROR) {
+                            break;
+                        }
+                    }
+                    lastConditionResult = false; // Сбрасываем флаг
+                    continue;
+                }
+                
                 CodeBlock.ExecutionResult result = block.execute(context);
+                
+                // Запоминаем результат условных блоков
+                if (isConditionalBlock(block.getType())) {
+                    lastConditionResult = (result.getType() == CodeBlock.ExecutionResult.Type.SUCCESS);
+                } else {
+                    lastConditionResult = false;
+                }
                 
                 // Если блок запросил остановку выполнения
                 if (result.getType() == CodeBlock.ExecutionResult.Type.ERROR) {
@@ -142,6 +166,16 @@ public class CodeLine {
                 System.err.println("Ошибка выполнения блока в строке " + lineNumber + ": " + e.getMessage());
             }
         }
+    }
+    
+    /**
+     * Проверяет, является ли блок условным
+     */
+    private boolean isConditionalBlock(ru.openhousing.coding.blocks.BlockType blockType) {
+        return blockType == ru.openhousing.coding.blocks.BlockType.IF_PLAYER ||
+               blockType == ru.openhousing.coding.blocks.BlockType.IF_ENTITY ||
+               blockType == ru.openhousing.coding.blocks.BlockType.IF_VARIABLE ||
+               blockType == ru.openhousing.coding.blocks.BlockType.ITEM_CHECK;
     }
     
 

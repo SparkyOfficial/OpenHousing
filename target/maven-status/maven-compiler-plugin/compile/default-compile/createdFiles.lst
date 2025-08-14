@@ -19,6 +19,7 @@ ru\openhousing\coding\gui\LocationSelectorGUI.class
 ru\openhousing\coding\constants\BlockParams.class
 ru\openhousing\coding\gui\LineSelectorGUI$1.class
 ru\openhousing\coding\blocks\events\EntityEventBlock$EntityEventType.class
+ru\openhousing\coding\blocks\inventory\InventoryActionBlock$InventoryAction.class
 ru\openhousing\commands\HousingCommand.class
 ru\openhousing\coding\gui\VariableSelectorGUI.class
 ru\openhousing\coding\values\TextValue.class
@@ -31,6 +32,7 @@ ru\openhousing\coding\gui\WorldEventSelectorGUI.class
 ru\openhousing\coding\blocks\actions\PlayerActionBlock$PlayerActionType.class
 ru\openhousing\coding\CodeManager.class
 ru\openhousing\listeners\CodeListener.class
+ru\openhousing\coding\blocks\inventory\ItemCheckBlock$CheckType.class
 ru\openhousing\coding\script\CodeScript$ScriptStats.class
 ru\openhousing\coding\blocks\events\PlayerEventBlock$PlayerEventType.class
 ru\openhousing\coding\blocks\conditions\IfVariableBlock$VariableConditionType.class

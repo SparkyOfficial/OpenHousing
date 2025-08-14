@@ -102,7 +102,7 @@ public class TargetBlock extends CodeBlock {
                 
             case RANDOM_PLAYER:
                 // Оптимизированный поиск случайного игрока в том же мире
-                List<? extends Player> worldPlayers = player.getWorld().getPlayers();
+                java.util.List<? extends Player> worldPlayers = player.getWorld().getPlayers();
                 if (worldPlayers.isEmpty()) return null;
                 return worldPlayers.get((int) (Math.random() * worldPlayers.size()));
                 

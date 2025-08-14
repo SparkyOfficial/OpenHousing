@@ -105,8 +105,112 @@ public class PlayerEventBlock extends CodeBlock {
         );
     }
     
+    @Override
+    public boolean matchesEvent(Object event) {
+        if (!(event instanceof org.bukkit.event.player.PlayerEvent)) {
+            return false;
+        }
+        
+        Object eventTypeParam = getParameter(ru.openhousing.coding.constants.BlockParams.EVENT_TYPE);
+        PlayerEventType eventType = null;
+        
+        if (eventTypeParam instanceof PlayerEventType) {
+            eventType = (PlayerEventType) eventTypeParam;
+        } else if (eventTypeParam instanceof String) {
+            try {
+                eventType = PlayerEventType.valueOf((String) eventTypeParam);
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+        }
+        
+        if (eventType == null) return false;
+        
+        return matchesEventType(event, eventType);
+    }
+    
+    @Override
+    public ExecutionContext createContextFromEvent(Object event) {
+        if (!(event instanceof org.bukkit.event.player.PlayerEvent)) {
+            return null;
+        }
+        
+        org.bukkit.event.player.PlayerEvent playerEvent = (org.bukkit.event.player.PlayerEvent) event;
+        ExecutionContext context = new ExecutionContext(playerEvent.getPlayer());
+        
+        // Добавляем специфичные для события переменные
+        addEventVariables(context, event);
+        
+        return context;
+    }
+    
     /**
-     * Проверка соответствия события
+     * Проверка соответствия типа события
+     */
+    private boolean matchesEventType(Object event, PlayerEventType eventType) {
+        switch (eventType) {
+            case JOIN:
+                return event instanceof org.bukkit.event.player.PlayerJoinEvent;
+            case QUIT:
+                return event instanceof org.bukkit.event.player.PlayerQuitEvent;
+            case CHAT:
+                return event instanceof org.bukkit.event.player.AsyncPlayerChatEvent;
+            case MOVE:
+                return event instanceof org.bukkit.event.player.PlayerMoveEvent;
+            case INTERACT:
+                return event instanceof org.bukkit.event.player.PlayerInteractEvent;
+            case DAMAGE:
+                return event instanceof org.bukkit.event.entity.EntityDamageEvent && 
+                       ((org.bukkit.event.entity.EntityDamageEvent) event).getEntity() instanceof org.bukkit.entity.Player;
+            case DEATH:
+                return event instanceof org.bukkit.event.entity.PlayerDeathEvent;
+            case SNEAK:
+                return event instanceof org.bukkit.event.player.PlayerToggleSneakEvent;
+            case JUMP:
+                return event instanceof org.bukkit.event.player.PlayerMoveEvent && 
+                       isJumpEvent((org.bukkit.event.player.PlayerMoveEvent) event);
+            default:
+                return false;
+        }
+    }
+    
+    /**
+     * Добавление переменных события в контекст
+     */
+    private void addEventVariables(ExecutionContext context, Object event) {
+        if (event instanceof org.bukkit.event.player.PlayerJoinEvent) {
+            org.bukkit.event.player.PlayerJoinEvent joinEvent = (org.bukkit.event.player.PlayerJoinEvent) event;
+            context.setVariable("join_message", joinEvent.getJoinMessage());
+            
+        } else if (event instanceof org.bukkit.event.player.PlayerQuitEvent) {
+            org.bukkit.event.player.PlayerQuitEvent quitEvent = (org.bukkit.event.player.PlayerQuitEvent) event;
+            context.setVariable("quit_message", quitEvent.getQuitMessage());
+            
+        } else if (event instanceof org.bukkit.event.player.AsyncPlayerChatEvent) {
+            org.bukkit.event.player.AsyncPlayerChatEvent chatEvent = (org.bukkit.event.player.AsyncPlayerChatEvent) event;
+            context.setVariable("chat_message", chatEvent.getMessage());
+            context.setVariable("chat_format", chatEvent.getFormat());
+            
+        } else if (event instanceof org.bukkit.event.player.PlayerMoveEvent) {
+            org.bukkit.event.player.PlayerMoveEvent moveEvent = (org.bukkit.event.player.PlayerMoveEvent) event;
+            context.setVariable("from_x", moveEvent.getFrom().getX());
+            context.setVariable("from_y", moveEvent.getFrom().getY());
+            context.setVariable("from_z", moveEvent.getFrom().getZ());
+            context.setVariable("to_x", moveEvent.getTo().getX());
+            context.setVariable("to_y", moveEvent.getTo().getY());
+            context.setVariable("to_z", moveEvent.getTo().getZ());
+        }
+    }
+    
+    /**
+     * Проверка, является ли движение прыжком
+     */
+    private boolean isJumpEvent(org.bukkit.event.player.PlayerMoveEvent moveEvent) {
+        return moveEvent.getTo().getY() > moveEvent.getFrom().getY() + 0.1;
+    }
+    
+    /**
+     * Проверка соответствия события (старый метод для совместимости)
      */
     public boolean matchesEvent(Class<?> eventClass, Object... params) {
         Object eventTypeParam = getParameter(ru.openhousing.coding.constants.BlockParams.EVENT_TYPE);

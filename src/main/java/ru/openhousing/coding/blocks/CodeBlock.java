@@ -138,6 +138,28 @@ public abstract class CodeBlock {
     }
     
     /**
+     * Замена переменных в строке
+     */
+    protected String replaceVariables(String text, ExecutionContext context) {
+        if (text == null || context == null) {
+            return text;
+        }
+        
+        String result = text;
+        
+        // Заменяем переменные в формате %variableName%
+        for (String varName : context.getVariables().keySet()) {
+            Object value = context.getVariable(varName);
+            String placeholder = "%" + varName + "%";
+            if (result.contains(placeholder)) {
+                result = result.replace(placeholder, value != null ? value.toString() : "");
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
      * Результат выполнения блока
      */
     public static class ExecutionResult {

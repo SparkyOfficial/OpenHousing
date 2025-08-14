@@ -304,12 +304,7 @@ public class RepeatBlock extends CodeBlock {
         }
     }
     
-    /**
-     * Замена переменных в строке
-     */
-    private String replaceVariables(String text, ExecutionContext context) {
-        return ru.openhousing.utils.CodeBlockUtils.replaceVariables(text, context);
-    }
+    // Используем метод из базового класса CodeBlock
     
     @Override
     public boolean validate() {

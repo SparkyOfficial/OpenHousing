@@ -543,9 +543,7 @@ public class PlayerActionBlock extends CodeBlock {
     /**
      * Замена переменных в строке
      */
-    private String replaceVariables(String text, ExecutionContext context) {
-        return ru.openhousing.utils.CodeBlockUtils.replaceVariables(text, context);
-    }
+
     
     @Override
     public boolean validate() {
