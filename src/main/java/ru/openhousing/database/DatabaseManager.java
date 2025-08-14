@@ -371,7 +371,7 @@ public class DatabaseManager {
                     org.bukkit.Location location = new org.bukkit.Location(world, x, y, z);
                     ru.openhousing.housing.House.HouseSize size = new ru.openhousing.housing.House.HouseSize(width, height, length);
                     
-                    ru.openhousing.housing.House house = new ru.openhousing.housing.House(id, ownerId, ownerName, name, worldName, size);
+                    ru.openhousing.housing.House house = new ru.openhousing.housing.House(id, ownerId, ownerName, name, worldName, size, plugin);
                     house.setPublic(isPublic);
                     house.setVisitorsAllowed(visitorsAllowed);
                     

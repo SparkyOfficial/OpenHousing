@@ -6,6 +6,7 @@ ru\openhousing\coding\blocks\CodeBlock.class
 ru\openhousing\coding\values\ValueType.class
 ru\openhousing\coding\blocks\functions\CallFunctionBlock.class
 ru\openhousing\coding\values\SoundValue.class
+ru\openhousing\coding\gui\PlayerEventSelectorGUI.class
 ru\openhousing\housing\HouseMode.class
 ru\openhousing\coding\blocks\text\TextOperationBlock.class
 ru\openhousing\coding\gui\CodeEditorGUI.class
@@ -67,6 +68,7 @@ ru\openhousing\placeholders\OpenHousingPlaceholders.class
 ru\openhousing\coding\blocks\conditions\IfEntityBlock.class
 ru\openhousing\coding\blocks\conditions\IfPlayerBlock.class
 ru\openhousing\coding\blocks\events\WorldEventBlock$WorldEventType.class
+ru\openhousing\coding\gui\PlayerEventSelectorGUI$1.class
 ru\openhousing\listeners\HousingListener$1.class
 ru\openhousing\coding\blocks\actions\WorldActionBlock.class
 ru\openhousing\utils\CodeBlockUtils.class

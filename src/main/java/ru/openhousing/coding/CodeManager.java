@@ -7,6 +7,7 @@ import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.blocks.events.PlayerEventBlock;
 import ru.openhousing.coding.gui.CodeEditorGUI;
 import ru.openhousing.coding.script.CodeScript;
+import ru.openhousing.coding.script.CodeLine;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -125,6 +126,37 @@ public class CodeManager {
             script.execute(new CodeBlock.ExecutionContext(player));
         }
     }
+    
+    /**
+     * Обработка события из CodeListener
+     */
+    public void handleEvent(Object event, Player player) {
+        CodeScript script = getScript(player);
+        if (script == null) return;
+        
+        // Проходим по всем строкам скрипта
+        for (CodeLine line : script.getLines()) {
+            if (!line.isEnabled()) continue;
+            
+            // Проверяем первый блок строки - должен быть событием
+            List<CodeBlock> blocks = line.getBlocks();
+            if (blocks.isEmpty()) continue;
+            
+            CodeBlock firstBlock = blocks.get(0);
+            
+            // Проверяем, соответствует ли событие первому блоку
+            if (firstBlock.matchesEvent(event)) {
+                // Создаем контекст выполнения с данными события
+                CodeBlock.ExecutionContext context = firstBlock.createContextFromEvent(event);
+                if (context != null) {
+                    // Выполняем всю строку
+                    line.execute(context);
+                }
+            }
+        }
+    }
+    
+
     
     /**
      * Регистрация обработчиков событий из скрипта

@@ -40,6 +40,24 @@ public abstract class CodeBlock {
     public abstract List<String> getDescription();
     
     /**
+     * Проверка, соответствует ли событие этому блоку
+     */
+    public boolean matchesEvent(Object event) {
+        return false; // По умолчанию не соответствует
+    }
+    
+    /**
+     * Создание контекста выполнения из события
+     */
+    public ExecutionContext createContextFromEvent(Object event) {
+        if (event instanceof org.bukkit.event.player.PlayerEvent) {
+            org.bukkit.event.player.PlayerEvent playerEvent = (org.bukkit.event.player.PlayerEvent) event;
+            return new ExecutionContext(playerEvent.getPlayer());
+        }
+        return null; // По умолчанию не создаем контекст
+    }
+    
+    /**
      * Добавление дочернего блока
      */
     public void addChild(CodeBlock child) {

@@ -91,6 +91,17 @@ public class CodeLine {
     }
     
     /**
+     * Замена блока по индексу
+     */
+    public boolean replaceBlock(int index, CodeBlock newBlock) {
+        if (index >= 0 && index < blocks.size()) {
+            blocks.set(index, newBlock);
+            return true;
+        }
+        return false;
+    }
+    
+    /**
      * Очистка всех блоков
      */
     public void clearBlocks() {

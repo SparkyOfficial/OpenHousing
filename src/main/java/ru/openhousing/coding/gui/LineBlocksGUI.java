@@ -145,9 +145,16 @@ public class LineBlocksGUI implements Listener {
                     setupGUI(); // Обновляем GUI
                 }
             } else {
-                // Редактирование блока - пока просто показываем информацию
-                player.sendMessage("§eБлок: " + block.getType().getDisplayName());
-                player.sendMessage("§7Редактирование блоков будет добавлено в следующем обновлении");
+                // Редактирование блока - открываем BlockConfigGUI
+                player.closeInventory();
+                new BlockConfigGUI(plugin, player, block, (updatedBlock) -> {
+                    // Обновляем блок в строке
+                    line.replaceBlock(blockIndex, updatedBlock);
+                    player.sendMessage("§aБлок обновлен!");
+                    
+                    // Возвращаемся к просмотру блоков
+                    new LineBlocksGUI(plugin, player, script, line).open();
+                }).open();
             }
         }
     }

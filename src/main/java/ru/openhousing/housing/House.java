@@ -21,6 +21,7 @@ public class House {
     private final String worldName; // Имя мира дома
     private World world; // Кэшированная ссылка на мир
     private final HouseSize size;
+    private final ru.openhousing.OpenHousing plugin;
     private boolean isPublic;
     private boolean visitorsAllowed;
     private final Set<UUID> allowedPlayers;
@@ -30,7 +31,7 @@ public class House {
     private long createdAt;
     private long lastModified;
     
-    public House(int id, UUID ownerId, String ownerName, String name, String worldName, HouseSize size) {
+    public House(int id, UUID ownerId, String ownerName, String name, String worldName, HouseSize size, ru.openhousing.OpenHousing plugin) {
         this.id = id;
         this.ownerId = ownerId;
         this.ownerName = ownerName;
@@ -38,6 +39,7 @@ public class House {
         this.worldName = worldName;
         this.world = null; // Загружается по требованию
         this.size = size;
+        this.plugin = plugin;
         this.isPublic = false;
         this.visitorsAllowed = true;
         this.allowedPlayers = new HashSet<>();
@@ -49,81 +51,101 @@ public class House {
     }
     
     /**
-     * Проверка, может ли игрок зайти в дом
+     * Получение мира дома с автозагрузкой
      */
-    public boolean canVisit(Player player) {
-        UUID playerId = player.getUniqueId();
-        
-        // Владелец всегда может зайти
-        if (playerId.equals(ownerId)) {
-            return true;
+    public World getWorld() {
+        if (world == null) {
+            loadWorld();
         }
-        
-        // Забаненные игроки не могут
-        if (bannedPlayers.contains(playerId)) {
-            return false;
-        }
-        
-        // Если дом публичный
-        if (isPublic) {
-            return true;
-        }
-        
-        // Если разрешены посетители и игрок в списке разрешенных
-        if (visitorsAllowed && allowedPlayers.contains(playerId)) {
-            return true;
-        }
-        
-        // Проверка прав администратора
-        return player.hasPermission("openhousing.admin.bypass");
+        return world;
     }
     
     /**
-     * Получение мира дома (создание или загрузка)
+     * Загрузка мира дома
      */
-    public World getWorld() {
-        if (world == null || !world.getName().equals(worldName)) {
-            world = Bukkit.getWorld(worldName);
-            if (world == null) {
-                // Создаем мир если он не существует
-                WorldCreator creator = new WorldCreator(worldName);
-                creator.type(WorldType.FLAT);
-                creator.generateStructures(false);
-                world = creator.createWorld();
-                
-                if (world != null) {
-                    // Настройки мира дома
-                    world.setDifficulty(org.bukkit.Difficulty.PEACEFUL);
-                    world.setSpawnFlags(false, false); // Отключаем спавн мобов
-                    world.setKeepSpawnInMemory(true);
-                }
+    private void loadWorld() {
+        world = Bukkit.getWorld(worldName);
+        if (world == null) {
+            // Создаем новый мир если не существует
+            WorldCreator creator = new WorldCreator(worldName);
+            creator.type(WorldType.FLAT);
+            creator.generateStructures(false);
+            world = creator.createWorld();
+            
+            if (world != null) {
+                // Устанавливаем спавн в центре
+                world.setSpawnLocation(0, 64, 0);
+                plugin.getLogger().info("Мир дома '" + name + "' создан: " + worldName);
             }
         }
-        return world;
     }
     
     /**
      * Получение точки спавна в доме
      */
     public Location getSpawnLocation() {
-        World houseWorld = getWorld();
+        World houseWorld = getWorld(); // Это загрузит мир если нужно
         if (houseWorld == null) {
             return null;
         }
-        
-        // Центр мира + немного выше для безопасности
-        return new Location(houseWorld, 0, 65, 0);
+        // Возвращаем центр дома на уровне земли
+        return new Location(houseWorld, 0, 64, 0);
     }
     
     /**
-     * Проверка, находится ли игрок в доме
+     * Получение списка игроков внутри дома
      */
-    public boolean isInside(Location loc) {
-        return loc.getWorld() != null && loc.getWorld().getName().equals(worldName);
+    public List<Player> getPlayersInside() {
+        List<Player> playersInside = new ArrayList<>();
+        World houseWorld = getWorld();
+        
+        if (houseWorld != null) {
+            for (Player player : houseWorld.getPlayers()) {
+                playersInside.add(player);
+            }
+        }
+        
+        return playersInside;
     }
     
     /**
-     * Добавление игрока в список разрешенных
+     * Проверка, находится ли локация внутри дома
+     */
+    public boolean isInside(Location location) {
+        World houseWorld = getWorld();
+        if (houseWorld == null || location.getWorld() == null || !location.getWorld().equals(houseWorld)) {
+            return false;
+        }
+        
+        // Если игрок в мире дома, значит он внутри
+        return true;
+    }
+    
+    /**
+     * Проверка, может ли игрок посетить дом
+     */
+    public boolean canVisit(Player player) {
+        // Владелец всегда может войти
+        if (player.getUniqueId().equals(ownerId)) {
+            return true;
+        }
+        
+        // Проверяем бан
+        if (bannedPlayers.contains(player.getUniqueId())) {
+            return false;
+        }
+        
+        // Публичный дом может посетить каждый
+        if (isPublic && visitorsAllowed) {
+            return true;
+        }
+        
+        // Проверяем список разрешенных игроков
+        return allowedPlayers.contains(player.getUniqueId());
+    }
+    
+    /**
+     * Разрешить доступ игроку
      */
     public void allowPlayer(UUID playerId) {
         allowedPlayers.add(playerId);
@@ -132,7 +154,7 @@ public class House {
     }
     
     /**
-     * Добавление игрока в список разрешенных по имени
+     * Разрешить доступ игроку по имени
      */
     public void allowPlayer(String playerName) {
         Player player = Bukkit.getPlayer(playerName);
@@ -142,7 +164,7 @@ public class House {
     }
     
     /**
-     * Удаление игрока из списка разрешенных
+     * Запретить доступ игроку
      */
     public void disallowPlayer(UUID playerId) {
         allowedPlayers.remove(playerId);
@@ -150,44 +172,29 @@ public class House {
     }
     
     /**
-     * Бан игрока
+     * Заблокировать игрока
      */
     public void banPlayer(UUID playerId) {
         bannedPlayers.add(playerId);
         allowedPlayers.remove(playerId); // Убираем из разрешенных
-        updateModified();
         
-        // Кикаем игрока из дома, если он там
+        // Кикаем игрока из дома если он там
         Player player = Bukkit.getPlayer(playerId);
         if (player != null && isInside(player.getLocation())) {
-            // Телепортируем в главный мир
             World mainWorld = Bukkit.getWorlds().get(0);
             player.teleport(mainWorld.getSpawnLocation());
             player.sendMessage("§cВы были исключены из дома!");
         }
-    }
-    
-    /**
-     * Разбан игрока
-     */
-    public void unbanPlayer(UUID playerId) {
-        bannedPlayers.remove(playerId);
+        
         updateModified();
     }
     
     /**
-     * Получение всех игроков в доме
+     * Разблокировать игрока
      */
-    public List<Player> getPlayersInside() {
-        List<Player> playersInside = new ArrayList<>();
-        
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (isInside(player.getLocation())) {
-                playersInside.add(player);
-            }
-        }
-        
-        return playersInside;
+    public void unbanPlayer(UUID playerId) {
+        bannedPlayers.remove(playerId);
+        updateModified();
     }
     
     /**
@@ -207,37 +214,6 @@ public class House {
                 }
             }
         }
-    }
-    
-    /**
-     * Расширение дома
-     */
-    public boolean expandHouse(int newWidth, int newHeight, int newLength) {
-        if (newWidth < size.getWidth() || newHeight < size.getHeight() || newLength < size.getLength()) {
-            return false; // Нельзя уменьшать
-        }
-        
-        size.setWidth(newWidth);
-        size.setHeight(newHeight);
-        size.setLength(newLength);
-        updateModified();
-        
-        return true;
-    }
-    
-    /**
-     * Удаление мира дома
-     */
-    public boolean deleteWorld() {
-        World houseWorld = getWorld();
-        if (houseWorld != null) {
-            // Кикаем всех игроков
-            kickAllPlayers("Дом удаляется");
-            
-            // Выгружаем мир
-            return Bukkit.unloadWorld(houseWorld, false);
-        }
-        return true;
     }
     
     private void updateModified() {
@@ -335,8 +311,6 @@ public class House {
         updateModified();
     }
     
-
-    
     /**
      * Класс размера дома
      */
@@ -372,6 +346,4 @@ public class House {
             return getDisplayName();
         }
     }
-    
-
 }

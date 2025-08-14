@@ -167,7 +167,8 @@ public class HousingManager {
             player.getName(),
             houseName,
             worldName,
-            new House.HouseSize(defaultSize.getWidth(), defaultSize.getHeight(), defaultSize.getLength())
+            new House.HouseSize(defaultSize.getWidth(), defaultSize.getHeight(), defaultSize.getLength()),
+            plugin
         );
         
         // Сохранение в память
