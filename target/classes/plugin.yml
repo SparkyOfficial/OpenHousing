@@ -17,10 +17,7 @@ commands:
     description: 'Visual coding command'
     usage: '/code [help|editor|blocks|functions]'
     aliases: [coding, script]
-  ohgame:
-    description: 'Game management command'
-    usage: '/ohgame [help|create|start|stop|join|leave]'
-    aliases: [game, ohg]
+
   play:
     description: 'Switch house to play mode'
     usage: '/play'
@@ -34,7 +31,7 @@ permissions:
     children:
       openhousing.housing.*: true
       openhousing.code.*: true
-      openhousing.game.*: true
+
       openhousing.admin.*: true
     default: false
   
@@ -83,24 +80,19 @@ permissions:
     description: 'Share code with others'
     default: true
   
-  openhousing.game.*:
-    description: 'All game permissions'
+  openhousing.mode.*:
+    description: 'All house mode permissions'
     children:
-      openhousing.game.create: true
-      openhousing.game.join: true
-      openhousing.game.manage: true
+      openhousing.mode.play: true
+      openhousing.mode.build: true
     default: true
   
-  openhousing.game.create:
-    description: 'Create custom games'
+  openhousing.mode.play:
+    description: 'Switch house to play mode'
     default: true
   
-  openhousing.game.join:
-    description: 'Join games'
-    default: true
-  
-  openhousing.game.manage:
-    description: 'Manage own games'
+  openhousing.mode.build:
+    description: 'Switch house to build mode'
     default: true
   
   openhousing.admin.*:

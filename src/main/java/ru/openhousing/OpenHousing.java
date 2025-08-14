@@ -9,7 +9,7 @@ import ru.openhousing.coding.CodeManager;
 import ru.openhousing.commands.*;
 import ru.openhousing.config.ConfigManager;
 import ru.openhousing.database.DatabaseManager;
-import ru.openhousing.games.GameManager;
+
 import ru.openhousing.housing.HousingManager;
 import ru.openhousing.listeners.*;
 import ru.openhousing.placeholders.OpenHousingPlaceholders;
@@ -30,7 +30,6 @@ public class OpenHousing extends JavaPlugin {
     private DatabaseManager databaseManager;
     private HousingManager housingManager;
     private CodeManager codeManager;
-    private GameManager gameManager;
     
     // Economy
     private Economy economy;
@@ -91,9 +90,7 @@ public class OpenHousing extends JavaPlugin {
             housingManager.saveAll();
         }
         
-        if (gameManager != null) {
-            gameManager.stopAllGames();
-        }
+
         
         if (databaseManager != null) {
             databaseManager.closeConnection();
@@ -154,9 +151,7 @@ public class OpenHousing extends JavaPlugin {
         codeManager = new CodeManager(this);
         codeManager.initialize();
         
-        // Менеджер игр
-        gameManager = new GameManager(this);
-        gameManager.initialize();
+
         
         getLogger().info("All managers initialized successfully!");
     }
@@ -167,7 +162,6 @@ public class OpenHousing extends JavaPlugin {
     private void registerCommands() {
         getCommand("housing").setExecutor(new HousingCommand(this));
         getCommand("code").setExecutor(new CodeCommand(this));
-        getCommand("ohgame").setExecutor(new GameCommand(this));
         
         // Команды режимов дома
         HouseModeCommand modeCommand = new HouseModeCommand(this);
@@ -184,7 +178,6 @@ public class OpenHousing extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new HousingListener(this), this);
         getServer().getPluginManager().registerEvents(new CodeListener(this), this);
-        getServer().getPluginManager().registerEvents(new GameListener(this), this);
         getServer().getPluginManager().registerEvents(new InventoryListener(this), this);
         
         getLogger().info("Listeners registered successfully!");
@@ -211,9 +204,7 @@ public class OpenHousing extends JavaPlugin {
         return codeManager;
     }
     
-    public GameManager getGameManager() {
-        return gameManager;
-    }
+
     
     public Economy getEconomy() {
         return economy;

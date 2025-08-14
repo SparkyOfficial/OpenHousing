@@ -12,6 +12,7 @@ import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.BlockType;
 import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.script.CodeScript;
+import ru.openhousing.coding.script.CodeLine;
 import ru.openhousing.utils.ItemBuilder;
 
 import java.util.ArrayList;
@@ -511,8 +512,8 @@ public class CodeEditorGUI implements InventoryHolder {
                     player.sendMessage("§eПредварительный просмотр: §f" + blockType.getDisplayName());
                     player.sendMessage("§7" + blockType.getDescription());
                 } else {
-                    // Добавить блок
-                    addBlockToScript(blockType);
+                    // Открыть выбор строки
+                    openLineSelectorForBlock(blockType);
                     player.sendMessage("§aБлок добавлен: §f" + blockType.getDisplayName());
                 }
             }
@@ -529,9 +530,19 @@ public class CodeEditorGUI implements InventoryHolder {
                 selectedBlock = blocks.get(actualIndex);
                 
                 if (isRightClick) {
-                    // Удалить блок
-                    script.removeBlock(selectedBlock);
-                    player.sendMessage("§cБлок удален!");
+                    // Удалить блок - найти его строку и удалить
+                    boolean removed = false;
+                    for (CodeLine line : script.getLines()) {
+                        if (script.removeBlockFromLine(line.getLineNumber(), selectedBlock)) {
+                            removed = true;
+                            break;
+                        }
+                    }
+                    if (removed) {
+                        player.sendMessage("§cБлок удален!");
+                    } else {
+                        player.sendMessage("§cНе удалось найти блок для удаления!");
+                    }
                     updateInventory();
                 } else {
                     // Редактировать блок
@@ -552,8 +563,19 @@ public class CodeEditorGUI implements InventoryHolder {
                 break;
             case 42: // Удалить
                 if (selectedBlock != null) {
-                    script.removeBlock(selectedBlock);
-                    player.sendMessage("§cБлок удален!");
+                    // Удалить блок - найти его строку и удалить
+                    boolean removed = false;
+                    for (CodeLine line : script.getLines()) {
+                        if (script.removeBlockFromLine(line.getLineNumber(), selectedBlock)) {
+                            removed = true;
+                            break;
+                        }
+                    }
+                    if (removed) {
+                        player.sendMessage("§cБлок удален!");
+                    } else {
+                        player.sendMessage("§cНе удалось найти блок для удаления!");
+                    }
                     mode = EditorMode.SCRIPT;
                     updateInventory();
                 }
@@ -605,23 +627,17 @@ public class CodeEditorGUI implements InventoryHolder {
         updateInventory();
     }
     
-    private void addBlockToScript(BlockType blockType) {
+    /**
+     * Открытие селектора строк для добавления блока
+     */
+    private void openLineSelectorForBlock(BlockType blockType) {
         try {
-            plugin.getLogger().info("Creating block instance for: " + blockType.getDisplayName());
-            
-            // Создаем экземпляр блока
-            CodeBlock block = createBlockInstance(blockType);
-            if (block != null) {
-                plugin.getLogger().info("Adding block to script: " + block.getType().getDisplayName());
-                script.addBlock(block);
-                plugin.getLogger().info("Script now has " + script.getBlocks().size() + " blocks");
-            } else {
-                plugin.getLogger().warning("Failed to create block instance for: " + blockType.getDisplayName());
-            }
+            LineSelectorGUI lineSelector = new LineSelectorGUI(plugin, player, script, blockType);
+            lineSelector.open();
         } catch (Exception e) {
-            plugin.getLogger().severe("Error creating block: " + e.getMessage());
+            plugin.getLogger().severe("Error opening line selector: " + e.getMessage());
             e.printStackTrace();
-            player.sendMessage("§cОшибка создания блока: " + e.getMessage());
+            player.sendMessage("§cОшибка открытия выбора строки!");
         }
     }
     

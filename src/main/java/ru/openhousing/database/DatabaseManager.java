@@ -306,10 +306,10 @@ public class DatabaseManager {
             statement.setString(2, house.getOwnerId().toString());
             statement.setString(3, house.getOwnerName());
             statement.setString(4, house.getName());
-            statement.setString(5, house.getLocation().getWorld().getName());
-            statement.setInt(6, house.getLocation().getBlockX());
-            statement.setInt(7, house.getLocation().getBlockY());
-            statement.setInt(8, house.getLocation().getBlockZ());
+            statement.setString(5, house.getWorldName());
+            statement.setInt(6, 0); // X координата (не используется для отдельных миров)
+            statement.setInt(7, 65); // Y координата (стандартная высота спавна)
+            statement.setInt(8, 0); // Z координата (не используется для отдельных миров)
             statement.setInt(9, house.getSize().getWidth());
             statement.setInt(10, house.getSize().getHeight());
             statement.setInt(11, house.getSize().getLength());
@@ -371,7 +371,7 @@ public class DatabaseManager {
                     org.bukkit.Location location = new org.bukkit.Location(world, x, y, z);
                     ru.openhousing.housing.House.HouseSize size = new ru.openhousing.housing.House.HouseSize(width, height, length);
                     
-                    ru.openhousing.housing.House house = new ru.openhousing.housing.House(id, ownerId, ownerName, name, location, size);
+                    ru.openhousing.housing.House house = new ru.openhousing.housing.House(id, ownerId, ownerName, name, worldName, size);
                     house.setPublic(isPublic);
                     house.setVisitorsAllowed(visitorsAllowed);
                     

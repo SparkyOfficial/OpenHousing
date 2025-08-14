@@ -5,26 +5,28 @@ import ru.openhousing.coding.blocks.CodeBlock;
 import java.util.*;
 
 /**
- * Скрипт кода игрока
+ * Скрипт кода игрока с системой строк
  */
 public class CodeScript {
     
     private final UUID playerId;
     private String playerName;
-    private final List<CodeBlock> blocks;
+    private final Map<Integer, CodeLine> lines; // Номер строки -> строка
     private final Map<String, Object> globalVariables;
     private final Map<String, CodeBlock> functions;
     private long lastModified;
     private boolean enabled;
+    private int nextLineNumber;
     
     public CodeScript(UUID playerId, String playerName) {
         this.playerId = playerId;
         this.playerName = playerName;
-        this.blocks = new ArrayList<>();
+        this.lines = new LinkedHashMap<>();
         this.globalVariables = new HashMap<>();
         this.functions = new HashMap<>();
         this.lastModified = System.currentTimeMillis();
         this.enabled = true;
+        this.nextLineNumber = 1;
     }
     
     /**
@@ -42,14 +44,10 @@ public class CodeScript {
         context.getFunctions().putAll(functions);
         
         try {
-            for (CodeBlock block : blocks) {
-                CodeBlock.ExecutionResult result = block.execute(context);
-                
-                // Обработка результатов
-                if (result.getType() == CodeBlock.ExecutionResult.Type.ERROR) {
-                    return result;
-                } else if (result.getType() == CodeBlock.ExecutionResult.Type.RETURN) {
-                    return result;
+            // Выполняем все строки в порядке их номеров
+            for (CodeLine line : lines.values()) {
+                if (line.isEnabled()) {
+                    line.execute(context);
                 }
             }
             
@@ -63,82 +61,138 @@ public class CodeScript {
     }
     
     /**
-     * Добавление блока
+     * Создание новой строки
+     */
+    public CodeLine createLine(String name) {
+        CodeLine line = new CodeLine(nextLineNumber++, name);
+        lines.put(line.getLineNumber(), line);
+        updateModified();
+        return line;
+    }
+    
+    /**
+     * Создание новой строки с автоматическим именем
+     */
+    public CodeLine createLine() {
+        return createLine("Строка " + nextLineNumber);
+    }
+    
+    /**
+     * Получение строки по номеру
+     */
+    public CodeLine getLine(int lineNumber) {
+        return lines.get(lineNumber);
+    }
+    
+    /**
+     * Удаление строки
+     */
+    public boolean removeLine(int lineNumber) {
+        CodeLine removed = lines.remove(lineNumber);
+        if (removed != null) {
+            updateModified();
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Добавление блока в строку
+     */
+    public boolean addBlockToLine(int lineNumber, CodeBlock block) {
+        CodeLine line = lines.get(lineNumber);
+        if (line != null) {
+            line.addBlock(block);
+            updateModified();
+            
+            // Если это функция, добавляем в карту функций
+            if (block.getType() == ru.openhousing.coding.blocks.BlockType.FUNCTION) {
+                String functionName = (String) block.getParameter("name");
+                if (functionName != null && !functionName.isEmpty()) {
+                    functions.put(functionName, block);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Добавление блока (создает новую строку если нет)
      */
     public void addBlock(CodeBlock block) {
-        blocks.add(block);
-        updateModified();
-        
-        // Если это функция, добавляем в карту функций
-        if (block.getType() == ru.openhousing.coding.blocks.BlockType.FUNCTION) {
-            String functionName = (String) block.getParameter("name");
-            if (functionName != null && !functionName.isEmpty()) {
-                functions.put(functionName, block);
-            }
+        if (lines.isEmpty()) {
+            createLine();
         }
-    }
-    
-    /**
-     * Удаление блока
-     */
-    public void removeBlock(CodeBlock block) {
-        blocks.remove(block);
-        updateModified();
         
-        // Если это функция, удаляем из карты функций
-        if (block.getType() == ru.openhousing.coding.blocks.BlockType.FUNCTION) {
-            String functionName = (String) block.getParameter("name");
-            if (functionName != null) {
-                functions.remove(functionName);
-            }
-        }
-    }
-    
-    /**
-     * Вставка блока в определенную позицию
-     */
-    public void insertBlock(int index, CodeBlock block) {
-        blocks.add(index, block);
-        updateModified();
-        
-        // Если это функция, добавляем в карту функций
-        if (block.getType() == ru.openhousing.coding.blocks.BlockType.FUNCTION) {
-            String functionName = (String) block.getParameter("name");
-            if (functionName != null && !functionName.isEmpty()) {
-                functions.put(functionName, block);
-            }
-        }
-    }
-    
-    /**
-     * Перемещение блока
-     */
-    public void moveBlock(int fromIndex, int toIndex) {
-        if (fromIndex >= 0 && fromIndex < blocks.size() && 
-            toIndex >= 0 && toIndex < blocks.size() && 
-            fromIndex != toIndex) {
+        // Добавляем в последнюю строку
+        CodeLine lastLine = lines.values().stream()
+            .reduce((first, second) -> second)
+            .orElse(null);
             
-            CodeBlock block = blocks.remove(fromIndex);
-            blocks.add(toIndex, block);
-            updateModified();
+        if (lastLine != null) {
+            addBlockToLine(lastLine.getLineNumber(), block);
         }
     }
     
     /**
-     * Получение блока по индексу
+     * Удаление блока из строки
      */
-    public CodeBlock getBlock(int index) {
-        if (index >= 0 && index < blocks.size()) {
-            return blocks.get(index);
+    public boolean removeBlockFromLine(int lineNumber, CodeBlock block) {
+        CodeLine line = lines.get(lineNumber);
+        if (line != null) {
+            boolean removed = line.removeBlock(block);
+            if (removed) {
+                updateModified();
+                
+                // Если это функция, удаляем из карты функций
+                if (block.getType() == ru.openhousing.coding.blocks.BlockType.FUNCTION) {
+                    String functionName = (String) block.getParameter("name");
+                    if (functionName != null) {
+                        functions.remove(functionName);
+                    }
+                }
+            }
+            return removed;
         }
-        return null;
+        return false;
     }
     
     /**
-     * Поиск блока по ID
+     * Получение всех блоков из всех строк
+     */
+    public List<CodeBlock> getAllBlocks() {
+        List<CodeBlock> allBlocks = new ArrayList<>();
+        for (CodeLine line : lines.values()) {
+            allBlocks.addAll(line.getBlocks());
+        }
+        return allBlocks;
+    }
+    
+    /**
+     * Получение списка всех строк
+     */
+    public List<CodeLine> getLines() {
+        return new ArrayList<>(lines.values());
+    }
+    
+    /**
+     * Поиск блока по ID во всех строках
      */
     public CodeBlock findBlock(UUID blockId) {
-        return findBlockRecursive(blocks, blockId);
+        for (CodeLine line : lines.values()) {
+            for (CodeBlock block : line.getBlocks()) {
+                if (block.getId().equals(blockId)) {
+                    return block;
+                }
+                // Поиск в дочерних блоках
+                CodeBlock found = findBlockRecursive(block.getChildBlocks(), blockId);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
     
     private CodeBlock findBlockRecursive(List<CodeBlock> searchBlocks, UUID blockId) {
@@ -157,11 +211,12 @@ public class CodeScript {
     }
     
     /**
-     * Очистка всех блоков
+     * Очистка всех строк и блоков
      */
     public void clear() {
-        blocks.clear();
+        lines.clear();
         functions.clear();
+        nextLineNumber = 1;
         updateModified();
     }
     
@@ -171,14 +226,18 @@ public class CodeScript {
     public List<String> validate() {
         List<String> errors = new ArrayList<>();
         
-        for (int i = 0; i < blocks.size(); i++) {
-            CodeBlock block = blocks.get(i);
-            if (!block.validate()) {
-                errors.add("Блок " + (i + 1) + " (" + block.getType().getDisplayName() + ") содержит ошибки");
+        for (CodeLine line : lines.values()) {
+            List<CodeBlock> lineBlocks = line.getBlocks();
+            for (int i = 0; i < lineBlocks.size(); i++) {
+                CodeBlock block = lineBlocks.get(i);
+                if (!block.validate()) {
+                    errors.add("Строка " + line.getLineNumber() + ", блок " + (i + 1) + 
+                             " (" + block.getType().getDisplayName() + ") содержит ошибки");
+                }
+                
+                // Валидация дочерних блоков
+                validateChildBlocks(block, errors, "Строка " + line.getLineNumber() + "." + (i + 1));
             }
-            
-            // Валидация дочерних блоков
-            validateChildBlocks(block, errors, String.valueOf(i + 1));
         }
         
         return errors;
@@ -213,9 +272,10 @@ public class CodeScript {
         clone.globalVariables.putAll(this.globalVariables);
         clone.enabled = this.enabled;
         
-        // Клонирование блоков (поверхностное)
-        clone.blocks.addAll(this.blocks);
+        // Клонирование строк (поверхностное)
+        clone.lines.putAll(this.lines);
         clone.functions.putAll(this.functions);
+        clone.nextLineNumber = this.nextLineNumber;
         
         return clone;
     }
@@ -238,7 +298,7 @@ public class CodeScript {
     }
     
     public List<CodeBlock> getBlocks() {
-        return new ArrayList<>(blocks);
+        return getAllBlocks();
     }
     
     public Map<String, Object> getGlobalVariables() {
@@ -277,11 +337,11 @@ public class CodeScript {
     }
     
     public int getBlockCount() {
-        return blocks.size();
+        return getAllBlocks().size();
     }
     
     public boolean isEmpty() {
-        return blocks.isEmpty();
+        return lines.isEmpty() || getAllBlocks().isEmpty();
     }
     
     /**
@@ -297,12 +357,12 @@ public class CodeScript {
         private final int functionCount;
         private final boolean hasErrors;
         
-        public ScriptStats(CodeScript script) {
-            this.totalBlocks = countTotalBlocks(script.blocks);
-            this.eventBlocks = countBlocksByCategory(script.blocks, ru.openhousing.coding.blocks.BlockType.BlockCategory.EVENT);
-            this.conditionBlocks = countBlocksByCategory(script.blocks, ru.openhousing.coding.blocks.BlockType.BlockCategory.CONDITION);
-            this.actionBlocks = countBlocksByCategory(script.blocks, ru.openhousing.coding.blocks.BlockType.BlockCategory.ACTION);
-            this.functionBlocks = countBlocksByCategory(script.blocks, ru.openhousing.coding.blocks.BlockType.BlockCategory.FUNCTION);
+        public ScriptStats(CodeScript script) {            List<CodeBlock> allBlocks = script.getAllBlocks();
+            this.totalBlocks = countTotalBlocks(allBlocks);
+            this.eventBlocks = countBlocksByCategory(allBlocks, ru.openhousing.coding.blocks.BlockType.BlockCategory.EVENT);
+            this.conditionBlocks = countBlocksByCategory(allBlocks, ru.openhousing.coding.blocks.BlockType.BlockCategory.CONDITION);
+            this.actionBlocks = countBlocksByCategory(allBlocks, ru.openhousing.coding.blocks.BlockType.BlockCategory.ACTION);
+            this.functionBlocks = countBlocksByCategory(allBlocks, ru.openhousing.coding.blocks.BlockType.BlockCategory.FUNCTION);
             this.variableCount = script.globalVariables.size();
             this.functionCount = script.functions.size();
             this.hasErrors = !script.validate().isEmpty();

@@ -184,16 +184,15 @@ public class HousingManager {
             }
         }
         
-        // Поиск свободного места
-        Location houseLocation = findNextHouseLocation();
-        if (houseLocation == null) {
-            return new CreateHouseResult(false, "Не удалось найти место для дома!");
-        }
+
         
         // Списание денег
         if (plugin.getEconomy() != null) {
             plugin.getEconomy().withdrawPlayer(player, creationCost);
         }
+        
+        // Создание уникального имени мира
+        String worldName = "house_" + player.getUniqueId().toString().replace("-", "") + "_" + nextHouseId;
         
         // Создание дома
         House house = new House(
@@ -201,7 +200,7 @@ public class HousingManager {
             player.getUniqueId(),
             player.getName(),
             houseName,
-            houseLocation,
+            worldName,
             new House.HouseSize(defaultSize.getWidth(), defaultSize.getHeight(), defaultSize.getLength())
         );
         
@@ -213,92 +212,40 @@ public class HousingManager {
         // Сохранение в базу данных
         plugin.getDatabaseManager().saveHouse(house);
         
-        // Подготовка территории дома
-        prepareHouseArea(house);
+        // Создание и подготовка мира дома
+        prepareHouseWorld(house);
         
         return new CreateHouseResult(true, "Дом '" + houseName + "' успешно создан!", house);
     }
     
     /**
-     * Поиск следующего свободного места для дома
+     * Подготовка мира дома
      */
-    private Location findNextHouseLocation() {
-        if (housingWorld == null) {
-            return null;
-        }
-        
-        // Спиральный поиск места
-        int x = (int) nextHouseLocation.getX();
-        int z = (int) nextHouseLocation.getZ();
-        int y = (int) nextHouseLocation.getY();
-        
-        for (int radius = 0; radius < 100; radius++) {
-            for (int angle = 0; angle < 360; angle += 45) {
-                double radians = Math.toRadians(angle);
-                int newX = x + (int) (radius * houseSpacing * Math.cos(radians));
-                int newZ = z + (int) (radius * houseSpacing * Math.sin(radians));
-                
-                Location testLocation = new Location(housingWorld, newX, y, newZ);
-                if (isLocationFree(testLocation)) {
-                    nextHouseLocation = testLocation;
-                    return testLocation;
-                }
-            }
-        }
-        
-        return null;
-    }
-    
-    /**
-     * Проверка, свободно ли место
-     */
-    private boolean isLocationFree(Location location) {
-        House.HouseSize testSize = defaultSize;
-        
-        for (House house : houses.values()) {
-            if (house.getLocation().getWorld().equals(location.getWorld())) {
-                double distance = house.getLocation().distance(location);
-                if (distance < houseSpacing) {
-                    return false;
-                }
-            }
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Подготовка территории дома
-     */
-    private void prepareHouseArea(House house) {
-        Location loc = house.getLocation();
-        House.HouseSize size = house.getSize();
-        World world = loc.getWorld();
-        
-        // Очистка области и создание платформы
-        for (int x = 0; x < size.getWidth(); x++) {
-            for (int z = 0; z < size.getLength(); z++) {
-                for (int y = 0; y < size.getHeight(); y++) {
-                    Location blockLoc = loc.clone().add(x, y, z);
-                    
-                    if (y == 0) {
-                        // Платформа
-                        world.getBlockAt(blockLoc).setType(Material.GRASS_BLOCK);
-                    } else if (y == 1 && (x == 0 || x == size.getWidth() - 1 || z == 0 || z == size.getLength() - 1)) {
-                        // Границы дома
-                        world.getBlockAt(blockLoc).setType(Material.BARRIER);
-                    } else {
-                        // Воздух
-                        world.getBlockAt(blockLoc).setType(Material.AIR);
+    private void prepareHouseWorld(House house) {
+        try {
+            World world = house.getWorld();
+            if (world != null) {
+                // Создаем базовую платформу
+                Location spawnLoc = house.getSpawnLocation();
+                if (spawnLoc != null) {
+                    // Создаем платформу 5x5 из травы
+                    for (int x = -2; x <= 2; x++) {
+                        for (int z = -2; z <= 2; z++) {
+                            Location blockLoc = spawnLoc.clone().add(x, -1, z);
+                            blockLoc.getBlock().setType(org.bukkit.Material.GRASS_BLOCK);
+                        }
                     }
+                    
+                    // Устанавливаем спавн мира
+                    world.setSpawnLocation(spawnLoc);
+                    
+                    plugin.getLogger().info("Мир дома '" + house.getName() + "' создан: " + world.getName());
                 }
             }
+        } catch (Exception e) {
+            plugin.getLogger().severe("Ошибка создания мира дома: " + e.getMessage());
+            e.printStackTrace();
         }
-        
-        // Табличка с информацией
-        Location signLoc = loc.clone().add(1, 2, 1);
-        world.getBlockAt(signLoc).setType(Material.OAK_SIGN);
-        // TODO: Установить текст на табличке
     }
     
     /**
@@ -339,14 +286,15 @@ public class HousingManager {
      * Очистка территории дома
      */
     private void clearHouseArea(House house) {
-        Location loc = house.getLocation();
+        World world = house.getWorld();
+        if (world == null) return;
+        
         House.HouseSize size = house.getSize();
-        World world = loc.getWorld();
         
         for (int x = 0; x < size.getWidth(); x++) {
             for (int z = 0; z < size.getLength(); z++) {
                 for (int y = 0; y < size.getHeight(); y++) {
-                    Location blockLoc = loc.clone().add(x, y, z);
+                    Location blockLoc = new Location(world, x, y, z);
                     world.getBlockAt(blockLoc).setType(Material.AIR);
                 }
             }

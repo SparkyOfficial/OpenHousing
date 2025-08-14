@@ -3,12 +3,14 @@ package ru.openhousing.housing;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.WorldCreator;
+import org.bukkit.WorldType;
 import org.bukkit.entity.Player;
 
 import java.util.*;
 
 /**
- * Класс дома игрока
+ * Класс дома игрока - каждый дом это отдельный мир
  */
 public class House {
     
@@ -16,7 +18,8 @@ public class House {
     private final UUID ownerId;
     private String ownerName;
     private String name;
-    private final Location location;
+    private final String worldName; // Имя мира дома
+    private World world; // Кэшированная ссылка на мир
     private final HouseSize size;
     private boolean isPublic;
     private boolean visitorsAllowed;
@@ -27,12 +30,13 @@ public class House {
     private long createdAt;
     private long lastModified;
     
-    public House(int id, UUID ownerId, String ownerName, String name, Location location, HouseSize size) {
+    public House(int id, UUID ownerId, String ownerName, String name, String worldName, HouseSize size) {
         this.id = id;
         this.ownerId = ownerId;
         this.ownerName = ownerName;
         this.name = name;
-        this.location = location.clone();
+        this.worldName = worldName;
+        this.world = null; // Загружается по требованию
         this.size = size;
         this.isPublic = false;
         this.visitorsAllowed = true;
@@ -75,35 +79,47 @@ public class House {
     }
     
     /**
-     * Получение точки спавна в доме
+     * Получение мира дома (создание или загрузка)
      */
-    public Location getSpawnLocation() {
-        // Центр дома + немного выше для безопасности
-        double x = location.getX() + size.getWidth() / 2.0;
-        double y = location.getY() + 1;
-        double z = location.getZ() + size.getLength() / 2.0;
-        
-        return new Location(location.getWorld(), x, y, z);
+    public World getWorld() {
+        if (world == null || !world.getName().equals(worldName)) {
+            world = Bukkit.getWorld(worldName);
+            if (world == null) {
+                // Создаем мир если он не существует
+                WorldCreator creator = new WorldCreator(worldName);
+                creator.type(WorldType.FLAT);
+                creator.generateStructures(false);
+                world = creator.createWorld();
+                
+                if (world != null) {
+                    // Настройки мира дома
+                    world.setDifficulty(org.bukkit.Difficulty.PEACEFUL);
+                    world.setSpawnFlags(false, false); // Отключаем спавн мобов
+                    world.setKeepSpawnInMemory(true);
+                }
+            }
+        }
+        return world;
     }
     
     /**
-     * Проверка, находится ли локация в доме
+     * Получение точки спавна в доме
      */
-    public boolean isInside(Location loc) {
-        if (!loc.getWorld().equals(location.getWorld())) {
-            return false;
+    public Location getSpawnLocation() {
+        World houseWorld = getWorld();
+        if (houseWorld == null) {
+            return null;
         }
         
-        double minX = location.getX();
-        double maxX = minX + size.getWidth();
-        double minY = location.getY();
-        double maxY = minY + size.getHeight();
-        double minZ = location.getZ();
-        double maxZ = minZ + size.getLength();
-        
-        return loc.getX() >= minX && loc.getX() <= maxX &&
-               loc.getY() >= minY && loc.getY() <= maxY &&
-               loc.getZ() >= minZ && loc.getZ() <= maxZ;
+        // Центр мира + немного выше для безопасности
+        return new Location(houseWorld, 0, 65, 0);
+    }
+    
+    /**
+     * Проверка, находится ли игрок в доме
+     */
+    public boolean isInside(Location loc) {
+        return loc.getWorld() != null && loc.getWorld().getName().equals(worldName);
     }
     
     /**
@@ -144,7 +160,9 @@ public class House {
         // Кикаем игрока из дома, если он там
         Player player = Bukkit.getPlayer(playerId);
         if (player != null && isInside(player.getLocation())) {
-            player.teleport(player.getWorld().getSpawnLocation());
+            // Телепортируем в главный мир
+            World mainWorld = Bukkit.getWorlds().get(0);
+            player.teleport(mainWorld.getSpawnLocation());
             player.sendMessage("§cВы были исключены из дома!");
         }
     }
@@ -177,10 +195,11 @@ public class House {
      */
     public void kickAllPlayers(String reason) {
         List<Player> playersInside = getPlayersInside();
+        World mainWorld = Bukkit.getWorlds().get(0);
         
         for (Player player : playersInside) {
             if (!player.getUniqueId().equals(ownerId)) { // Не кикаем владельца
-                player.teleport(player.getWorld().getSpawnLocation());
+                player.teleport(mainWorld.getSpawnLocation());
                 if (reason != null && !reason.isEmpty()) {
                     player.sendMessage("§cВы были исключены из дома: " + reason);
                 } else {
@@ -207,13 +226,18 @@ public class House {
     }
     
     /**
-     * Получение границ дома
+     * Удаление мира дома
      */
-    public HouseBounds getBounds() {
-        return new HouseBounds(
-            location.clone(),
-            location.clone().add(size.getWidth(), size.getHeight(), size.getLength())
-        );
+    public boolean deleteWorld() {
+        World houseWorld = getWorld();
+        if (houseWorld != null) {
+            // Кикаем всех игроков
+            kickAllPlayers("Дом удаляется");
+            
+            // Выгружаем мир
+            return Bukkit.unloadWorld(houseWorld, false);
+        }
+        return true;
     }
     
     private void updateModified() {
@@ -247,8 +271,8 @@ public class House {
         updateModified();
     }
     
-    public Location getLocation() {
-        return location.clone();
+    public String getWorldName() {
+        return worldName;
     }
     
     public HouseSize getSize() {
@@ -343,25 +367,5 @@ public class House {
         }
     }
     
-    /**
-     * Границы дома
-     */
-    public static class HouseBounds {
-        private final Location min;
-        private final Location max;
-        
-        public HouseBounds(Location min, Location max) {
-            this.min = min;
-            this.max = max;
-        }
-        
-        public Location getMin() { return min; }
-        public Location getMax() { return max; }
-        
-        public boolean contains(Location location) {
-            return location.getX() >= min.getX() && location.getX() <= max.getX() &&
-                   location.getY() >= min.getY() && location.getY() <= max.getY() &&
-                   location.getZ() >= min.getZ() && location.getZ() <= max.getZ();
-        }
-    }
+
 }
