@@ -267,18 +267,132 @@ public class BlockConfigGUI {
     }
     
     /**
+     * Настройки для блоков событий игрока
+     */
+    private void setupPlayerEventSettings(int startSlot) {
+        // Выбор типа события
+        inventory.setItem(startSlot, new ItemBuilder(Material.PLAYER_HEAD)
+            .name("§6Тип события")
+            .lore(Arrays.asList(
+                "§7Текущий: §e" + (block.getParameter("event_type") != null ? 
+                    block.getParameter("event_type").toString() : "НЕ ВЫБРАН"),
+                "",
+                "§eКлик для изменения"
+            ))
+            .build());
+            
+        // Дополнительные параметры
+        inventory.setItem(startSlot + 1, new ItemBuilder(Material.BOOK)
+            .name("§6Параметры события")
+            .lore(Arrays.asList(
+                "§7Настройки специфичные",
+                "§7для выбранного события",
+                "",
+                "§eКлик для настройки"
+            ))
+            .build());
+    }
+    
+    /**
+     * Настройки для блоков действий игрока
+     */
+    private void setupPlayerActionSettings(int startSlot) {
+        // Выбор типа действия
+        inventory.setItem(startSlot, new ItemBuilder(Material.DIAMOND_SWORD)
+            .name("§6Тип действия")
+            .lore(Arrays.asList(
+                "§7Текущий: §e" + (block.getParameter("action_type") != null ? 
+                    block.getParameter("action_type").toString() : "НЕ ВЫБРАН"),
+                "",
+                "§eКлик для изменения"
+            ))
+            .build());
+            
+        // Цель действия
+        inventory.setItem(startSlot + 1, new ItemBuilder(Material.COMPASS)
+            .name("§6Цель действия")
+            .lore(Arrays.asList(
+                "§7Текущая: §e" + (block.getParameter("target") != null ? 
+                    block.getParameter("target").toString() : "НЕ ВЫБРАНА"),
+                "",
+                "§eКлик для выбора игрока"
+            ))
+            .build());
+            
+        // Значение (текст, число и т.д.)
+        inventory.setItem(startSlot + 2, new ItemBuilder(Material.PAPER)
+            .name("§6Значение")
+            .lore(Arrays.asList(
+                "§7Текущее: §e" + (block.getParameter("value") != null ? 
+                    block.getParameter("value").toString() : "НЕ ЗАДАНО"),
+                "",
+                "§eКлик для ввода"
+            ))
+            .build());
+    }
+    
+    /**
+     * Настройки для условных блоков
+     */
+    private void setupIfPlayerSettings(int startSlot) {
+        // Тип условия
+        inventory.setItem(startSlot, new ItemBuilder(Material.COMPARATOR)
+            .name("§6Условие")
+            .lore(Arrays.asList(
+                "§7Текущее: §e" + (block.getParameter("condition_type") != null ? 
+                    block.getParameter("condition_type").toString() : "НЕ ВЫБРАНО"),
+                "",
+                "§eКлик для изменения"
+            ))
+            .build());
+            
+        // Значение для сравнения
+        inventory.setItem(startSlot + 1, new ItemBuilder(Material.BOOK)
+            .name("§6Значение сравнения")
+            .lore(Arrays.asList(
+                "§7Сравнивать с: §e" + (block.getParameter("compare_value") != null ? 
+                    block.getParameter("compare_value").toString() : "НЕ ЗАДАНО"),
+                "",
+                "§eКлик для ввода"
+            ))
+            .build());
+            
+        // Операция сравнения
+        inventory.setItem(startSlot + 2, new ItemBuilder(Material.REDSTONE_COMPARATOR)
+            .name("§6Операция")
+            .lore(Arrays.asList(
+                "§7Операция: §e" + (block.getParameter("operation") != null ? 
+                    block.getParameter("operation").toString() : "РАВНО"),
+                "§7Доступно: =, >, <, >=, <=, !=",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build());
+    }
+    
+    /**
      * Общие настройки для блоков
      */
     private void setupGenericSettings(int startSlot, String blockTypeName) {
-        ItemStack comingSoon = new ItemBuilder(Material.BARRIER)
-            .name("§cВ разработке")
+        inventory.setItem(startSlot, new ItemBuilder(Material.NAME_TAG)
+            .name("§6Имя блока")
             .lore(Arrays.asList(
-                "§7Настройки для " + blockTypeName,
-                "§7будут добавлены в следующих",
-                "§7обновлениях!"
+                "§7Имя: §e" + (block.getParameter("name") != null ? 
+                    block.getParameter("name").toString() : "Блок " + blockTypeName),
+                "",
+                "§eКлик для изменения"
             ))
-            .build();
-        inventory.setItem(startSlot, comingSoon);
+            .build());
+            
+        inventory.setItem(startSlot + 1, new ItemBuilder(Material.WRITABLE_BOOK)
+            .name("§6Описание")
+            .lore(Arrays.asList(
+                "§7Описание блока",
+                "§7для документации",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build());
     }
     
     /**
@@ -340,8 +454,93 @@ public class BlockConfigGUI {
      * Обработка кликов по параметрам
      */
     private void handleParameterClick(int slot, boolean isShiftClick) {
-        // Здесь будет реализация настройки конкретных параметров
-        MessageUtil.send(player, "&eНастройка параметров будет добавлена в следующих обновлениях!");
+        switch (block.getType()) {
+            case PLAYER_EVENT:
+                handlePlayerEventClick(slot, isShiftClick);
+                break;
+            case PLAYER_ACTION:
+                handlePlayerActionClick(slot, isShiftClick);
+                break;
+            case IF_PLAYER:
+                handleIfPlayerClick(slot, isShiftClick);
+                break;
+            default:
+                handleGenericClick(slot, isShiftClick);
+                break;
+        }
+    }
+    
+    /**
+     * Обработка кликов для событий игрока
+     */
+    private void handlePlayerEventClick(int slot, boolean isShiftClick) {
+        if (slot == 19) { // Тип события
+            player.closeInventory();
+            player.sendMessage("§6Введите тип события (CHAT, MOVE, DAMAGE, JOIN, QUIT):");
+            // TODO: Создать систему ввода через чат или отдельное GUI
+            MessageUtil.send(player, "&eВведите в чат тип события (например: CHAT)");
+        } else if (slot == 20) { // Параметры события
+            player.closeInventory();
+            MessageUtil.send(player, "&eНастройка параметров события");
+        }
+    }
+    
+    /**
+     * Обработка кликов для действий игрока
+     */
+    private void handlePlayerActionClick(int slot, boolean isShiftClick) {
+        if (slot == 19) { // Тип действия
+            player.closeInventory();
+            MessageUtil.send(player, "&6Введите тип действия (SEND_MESSAGE, TELEPORT, GIVE_ITEM):");
+            // TODO: Создать GUI для выбора типа действия
+        } else if (slot == 20) { // Цель действия
+            player.closeInventory();
+            MessageUtil.send(player, "&6Введите имя игрока или используйте @a, @p, @r:");
+        } else if (slot == 21) { // Значение
+            player.closeInventory();
+            MessageUtil.send(player, "&6Введите значение (текст сообщения, координаты и т.д.):");
+        }
+    }
+    
+    /**
+     * Обработка кликов для условий игрока
+     */
+    private void handleIfPlayerClick(int slot, boolean isShiftClick) {
+        if (slot == 19) { // Условие
+            player.closeInventory();
+            MessageUtil.send(player, "&6Введите тип условия (HEALTH, LEVEL, GAMEMODE, HAS_PERMISSION):");
+        } else if (slot == 20) { // Значение сравнения
+            player.closeInventory();
+            MessageUtil.send(player, "&6Введите значение для сравнения:");
+        } else if (slot == 21) { // Операция
+            // Циклически переключаем операции
+            String[] operations = {"=", ">", "<", ">=", "<=", "!="};
+            String currentOp = (String) block.getParameter("operation");
+            int currentIndex = 0;
+            
+            for (int i = 0; i < operations.length; i++) {
+                if (operations[i].equals(currentOp)) {
+                    currentIndex = i;
+                    break;
+                }
+            }
+            
+            int nextIndex = (currentIndex + 1) % operations.length;
+            block.setParameter("operation", operations[nextIndex]);
+            
+            MessageUtil.send(player, "&aОперация изменена на: &e" + operations[nextIndex]);
+            setupInventory(); // Обновляем GUI
+        }
+    }
+    
+    /**
+     * Обработка общих параметров
+     */
+    private void handleGenericClick(int slot, boolean isShiftClick) {
+        if (slot >= 19 && slot <= 21) {
+            player.closeInventory();
+            MessageUtil.send(player, "&6Введите новое значение в чат:");
+        }
     }
     
     /**

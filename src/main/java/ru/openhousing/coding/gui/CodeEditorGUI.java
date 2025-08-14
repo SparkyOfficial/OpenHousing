@@ -273,41 +273,80 @@ public class CodeEditorGUI implements InventoryHolder {
     }
     
     /**
-     * Настройка просмотра скрипта
+     * Настройка просмотра скрипта по строкам
      */
     private void setupScriptView() {
-        List<CodeBlock> blocks = script.getBlocks();
-        plugin.getLogger().info("Setting up script view. Total blocks: " + blocks.size());
+        // Статистика скрипта
+        CodeScript.ScriptStats stats = script.getStats();
+        inventory.setItem(4, new ItemBuilder(Material.BOOK)
+            .name("§6Статистика скрипта")
+            .lore(Arrays.asList(
+                "§7Всего строк: §e" + script.getLines().size(),
+                "§7Всего блоков: §e" + stats.getTotalBlocks(),
+                "§7Блоков событий: §e" + stats.getEventBlocks(),
+                "§7Блоков действий: §e" + stats.getActionBlocks(),
+                "§7Блоков условий: §e" + stats.getConditionBlocks(),
+                "§7Размер: " + (stats.getTotalBlocks() < 50 ? "§aНебольшой" : 
+                               stats.getTotalBlocks() < 100 ? "§eСредний" : "§cБольшой")
+            ))
+            .build());
         
-        int startIndex = page * 28;
-        int endIndex = Math.min(startIndex + 28, blocks.size());
-        
-        plugin.getLogger().info("Displaying blocks from " + startIndex + " to " + endIndex);
-        
-        int slot = 10;
-        for (int i = startIndex; i < endIndex; i++) {
-            CodeBlock block = blocks.get(i);
-            plugin.getLogger().info("Adding block " + i + ": " + block.getType().getDisplayName());
+        // Кнопка добавления новой строки
+        inventory.setItem(1, new ItemBuilder(Material.LIME_DYE)
+            .name("§aДобавить строку")
+            .lore(Arrays.asList(
+                "§7Создать новую строку кода",
+                "",
+                "§eКлик для создания"
+            ))
+            .build());
             
-            ItemStack item = new ItemBuilder(block.getType().getMaterial())
-                .name("§6" + block.getType().getDisplayName())
-                .lore(block.getDescription())
+        // Кнопка поиска блоков
+        inventory.setItem(7, new ItemBuilder(Material.COMPASS)
+            .name("§6Поиск блоков")
+            .lore(Arrays.asList(
+                "§7Поиск блоков по типу",
+                "§7или параметрам",
+                "",
+                "§eВ разработке"
+            ))
+            .build());
+        
+        // Отображение строк с пагинацией
+        List<CodeLine> lines = script.getLines();
+        int maxLines = 21; // 3 ряда по 7 строк
+        int startIndex = page * maxLines;
+        int endIndex = Math.min(startIndex + maxLines, lines.size());
+        
+        int slot = 18; // Начинаем с третьего ряда
+        for (int i = startIndex; i < endIndex; i++) {
+            CodeLine line = lines.get(i);
+            
+            Material lineMaterial = line.isEnabled() ? 
+                (line.isEmpty() ? Material.PAPER : Material.WRITTEN_BOOK) : 
+                Material.BOOK;
+            
+            ItemStack lineItem = new ItemBuilder(lineMaterial)
+                .name("§e" + line.getName())
+                .lore(Arrays.asList(
+                    "§7Номер: §f#" + line.getLineNumber(),
+                    "§7Блоков: §f" + line.getBlockCount(),
+                    "§7Состояние: " + (line.isEnabled() ? "§aВключена" : "§cВыключена"),
+                    "§7Описание: §f" + (line.getDescription().isEmpty() ? "Нет" : line.getDescription()),
+                    "",
+                    "§eЛевый клик - просмотр блоков",
+                    "§eПравый клик - настройки строки",
+                    "§eShift+Клик - добавить блок"
+                ))
                 .build();
             
-            // Добавляем индекс блока в NBT
-            ItemMeta meta = item.getItemMeta();
-            if (meta != null) {
-                meta.setDisplayName(meta.getDisplayName() + " §8(#" + (i + 1) + ")");
-                item.setItemMeta(meta);
-            }
-            
-            inventory.setItem(slot, item);
-            
+            inventory.setItem(slot, lineItem);
             slot++;
-            if (slot == 17) slot = 19;
-            if (slot == 26) slot = 28;
-            if (slot == 35) slot = 37;
-            if (slot >= 44) break;
+            
+            // Пропускаем границы инвентаря
+            if (slot == 26) slot = 27;
+            if (slot == 35) slot = 36;
+            if (slot == 44) slot = 45;
         }
         
         // Навигация по страницам
@@ -317,7 +356,7 @@ public class CodeEditorGUI implements InventoryHolder {
                 .build());
         }
         
-        if (endIndex < blocks.size()) {
+        if (endIndex < lines.size()) {
             inventory.setItem(53, new ItemBuilder(Material.ARROW)
                 .name("§7Следующая страница")
                 .build());

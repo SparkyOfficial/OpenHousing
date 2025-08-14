@@ -152,17 +152,14 @@ public class PlayerEventBlock extends CodeBlock {
             case PLACE_BLOCK:
                 return eventClass == org.bukkit.event.block.BlockPlaceEvent.class;
             case SNEAK:
-                // TODO: Реализовать логику для приседания
-                return false;
+                return eventClass == PlayerToggleSneakEvent.class;
             case JUMP:
-                // TODO: Реализовать логику для прыжка
-                return false;
+                // Jump событие можно отловить через PlayerMoveEvent с проверкой Y координаты
+                return eventClass == PlayerMoveEvent.class;
             case LEFT_CLICK:
-                // TODO: Реализовать логику для левого клика
-                return false;
+                return eventClass == PlayerInteractEvent.class;
             case RIGHT_CLICK:
-                // TODO: Реализовать логику для правого клика
-                return false;
+                return eventClass == PlayerInteractEvent.class;
             default:
                 return false;
         }
@@ -218,6 +215,44 @@ public class PlayerEventBlock extends CodeBlock {
                 case INTERACT_ENTITY:
                     if (event instanceof PlayerInteractEntityEvent) {
                         context.setVariable("entity", ((PlayerInteractEntityEvent) event).getRightClicked());
+                    }
+                    break;
+                case SNEAK:
+                    if (event instanceof PlayerToggleSneakEvent) {
+                        PlayerToggleSneakEvent sneakEvent = (PlayerToggleSneakEvent) event;
+                        context.setVariable("is_sneaking", sneakEvent.isSneaking());
+                    }
+                    break;
+                case JUMP:
+                    if (event instanceof PlayerMoveEvent) {
+                        PlayerMoveEvent moveEvent = (PlayerMoveEvent) event;
+                        // Проверяем, что игрок прыгнул (Y координата увеличилась)
+                        if (moveEvent.getTo() != null && moveEvent.getFrom() != null) {
+                            double yDiff = moveEvent.getTo().getY() - moveEvent.getFrom().getY();
+                            if (yDiff > 0.4) {
+                                context.setVariable("jump_height", yDiff);
+                            }
+                        }
+                    }
+                    break;
+                case LEFT_CLICK:
+                    if (event instanceof PlayerInteractEvent) {
+                        PlayerInteractEvent interactEvent = (PlayerInteractEvent) event;
+                        if (interactEvent.getAction() == org.bukkit.event.block.Action.LEFT_CLICK_AIR || 
+                            interactEvent.getAction() == org.bukkit.event.block.Action.LEFT_CLICK_BLOCK) {
+                            context.setVariable("clicked_block", interactEvent.getClickedBlock());
+                            context.setVariable("item_in_hand", interactEvent.getItem());
+                        }
+                    }
+                    break;
+                case RIGHT_CLICK:
+                    if (event instanceof PlayerInteractEvent) {
+                        PlayerInteractEvent interactEvent = (PlayerInteractEvent) event;
+                        if (interactEvent.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_AIR || 
+                            interactEvent.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) {
+                            context.setVariable("clicked_block", interactEvent.getClickedBlock());
+                            context.setVariable("item_in_hand", interactEvent.getItem());
+                        }
                     }
                     break;
             }

@@ -159,8 +159,8 @@ public class EntityEventBlock extends CodeBlock {
             case COMBUSTION:
                 return eventClass == EntityCombustEvent.class;
             case FREEZE:
-                // TODO: Реализовать логику для замерзания
-                return false;
+                // Для событий заморозки можно использовать EntityDamageEvent с типом FREEZE
+                return eventClass == EntityDamageEvent.class;
             case MOUNT:
                 // EntityMountEvent не существует в стандартном API
                 return false;

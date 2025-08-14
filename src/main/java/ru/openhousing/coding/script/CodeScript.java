@@ -397,4 +397,48 @@ public class CodeScript {
         public int getFunctionCount() { return functionCount; }
         public boolean hasErrors() { return hasErrors; }
     }
+    
+    /**
+     * Получение использованных переменных
+     */
+    public Set<String> getUsedVariables() {
+        Set<String> variables = new HashSet<>();
+        
+        for (CodeLine line : lines.values()) {
+            for (CodeBlock block : line.getBlocks()) {
+                // Анализируем параметры блока на предмет переменных
+                // Переменные обычно имеют формат {variable_name}
+                Map<String, Object> params = block.getParameters();
+                for (Object value : params.values()) {
+                    if (value instanceof String) {
+                        String str = (String) value;
+                        extractVariables(str, variables);
+                    }
+                }
+            }
+        }
+        
+        return variables;
+    }
+    
+    /**
+     * Извлечение переменных из строки
+     */
+    private void extractVariables(String text, Set<String> variables) {
+        if (text == null) return;
+        
+        int start = text.indexOf('{');
+        while (start != -1) {
+            int end = text.indexOf('}', start);
+            if (end != -1) {
+                String variable = text.substring(start + 1, end);
+                if (!variable.isEmpty()) {
+                    variables.add(variable);
+                }
+                start = text.indexOf('{', end);
+            } else {
+                break;
+            }
+        }
+    }
 }

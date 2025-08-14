@@ -337,10 +337,20 @@ public class HousingManager {
     }
     
     /**
-     * Получение домов игрока
+     * Получение домов игрока по UUID
      */
     public List<House> getPlayerHouses(UUID playerId) {
         return new ArrayList<>(playerHouses.getOrDefault(playerId, new ArrayList<>()));
+    }
+    
+    /**
+     * Получение домов игрока по имени
+     */
+    public List<House> getPlayerHouses(String playerName) {
+        // Поиск по имени владельца
+        return houses.values().stream()
+            .filter(house -> house.getOwnerName().equalsIgnoreCase(playerName))
+            .collect(java.util.stream.Collectors.toList());
     }
     
     /**

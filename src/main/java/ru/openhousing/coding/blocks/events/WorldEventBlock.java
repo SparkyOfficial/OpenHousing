@@ -197,20 +197,16 @@ public class WorldEventBlock extends CodeBlock {
                 return eventClass == BlockDispenseEvent.class;
             
             case EXPLOSION:
-                // TODO: Реализовать логику для взрыва
-                return false;
+                return eventClass == org.bukkit.event.entity.EntityExplodeEvent.class || 
+                       eventClass == org.bukkit.event.block.BlockExplodeEvent.class;
             case WATER_LEVEL_CHANGE:
-                // TODO: Реализовать логику для изменения уровня воды
-                return false;
+                return eventClass == org.bukkit.event.block.BlockFromToEvent.class;
             case LAVA_LEVEL_CHANGE:
-                // TODO: Реализовать логику для изменения уровня лавы
-                return false;
+                return eventClass == org.bukkit.event.block.BlockFromToEvent.class;
             case DROPPER_DROP:
-                // TODO: Реализовать логику для сброса дроппера
-                return false;
+                return eventClass == org.bukkit.event.block.BlockDispenseEvent.class;
             case HOPPER_MOVE:
-                // TODO: Реализовать логику для движения воронки
-                return false;
+                return eventClass == org.bukkit.event.inventory.InventoryMoveItemEvent.class;
             
             default:
                 return false;
@@ -305,6 +301,47 @@ public class WorldEventBlock extends CodeBlock {
                 context.setVariable("structure_type", growEvent.getSpecies().name());
                 context.setVariable("blocks_count", growEvent.getBlocks().size());
                 context.setVariable("bonemeal_used", growEvent.isFromBonemeal());
+            }
+            
+            // Обработка взрывов
+            if (event instanceof org.bukkit.event.entity.EntityExplodeEvent) {
+                org.bukkit.event.entity.EntityExplodeEvent explodeEvent = (org.bukkit.event.entity.EntityExplodeEvent) event;
+                context.setVariable("explosion_entity", explodeEvent.getEntity());
+                context.setVariable("explosion_location", explodeEvent.getLocation());
+                context.setVariable("explosion_yield", explodeEvent.getYield());
+                context.setVariable("blocks_destroyed", explodeEvent.blockList().size());
+            }
+            
+            if (event instanceof org.bukkit.event.block.BlockExplodeEvent) {
+                org.bukkit.event.block.BlockExplodeEvent explodeEvent = (org.bukkit.event.block.BlockExplodeEvent) event;
+                context.setVariable("explosion_block", explodeEvent.getBlock());
+                context.setVariable("explosion_location", explodeEvent.getBlock().getLocation());
+                context.setVariable("explosion_yield", explodeEvent.getYield());
+                context.setVariable("blocks_destroyed", explodeEvent.blockList().size());
+            }
+            
+            // Обработка движения жидкостей
+            if (event instanceof org.bukkit.event.block.BlockFromToEvent) {
+                org.bukkit.event.block.BlockFromToEvent fromToEvent = (org.bukkit.event.block.BlockFromToEvent) event;
+                context.setVariable("from_block", fromToEvent.getBlock());
+                context.setVariable("to_block", fromToEvent.getToBlock());
+                context.setVariable("fluid_type", fromToEvent.getBlock().getType().name());
+            }
+            
+            // Обработка событий дроппера/диспенсера
+            if (event instanceof org.bukkit.event.block.BlockDispenseEvent) {
+                org.bukkit.event.block.BlockDispenseEvent dispenseEvent = (org.bukkit.event.block.BlockDispenseEvent) event;
+                context.setVariable("dispensed_item", dispenseEvent.getItem());
+                context.setVariable("dispenser_block", dispenseEvent.getBlock());
+                context.setVariable("dispense_velocity", dispenseEvent.getVelocity());
+            }
+            
+            // Обработка движения предметов в воронке
+            if (event instanceof org.bukkit.event.inventory.InventoryMoveItemEvent) {
+                org.bukkit.event.inventory.InventoryMoveItemEvent moveEvent = (org.bukkit.event.inventory.InventoryMoveItemEvent) event;
+                context.setVariable("moved_item", moveEvent.getItem());
+                context.setVariable("source_inventory", moveEvent.getSource());
+                context.setVariable("destination_inventory", moveEvent.getDestination());
             }
         }
         

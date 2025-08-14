@@ -304,9 +304,17 @@ public class LineSelectorGUI implements Listener {
                 MessageUtil.send(player, "&aБлок §e" + blockTypeToAdd.getDisplayName() + 
                     " &aдобавлен в строку §e" + line.getName());
                 
-                // TODO: Открыть конфигурацию блока когда будет реализовано
-                // BlockConfigGUI configGUI = new BlockConfigGUI(plugin, player, block);
-                // configGUI.open();
+                // Открываем конфигурацию блока
+                try {
+                    // Создаем временный CodeEditorGUI для совместимости
+                    ru.openhousing.coding.gui.CodeEditorGUI tempEditor = 
+                        new ru.openhousing.coding.gui.CodeEditorGUI(plugin, player);
+                    
+                    BlockConfigGUI configGUI = new BlockConfigGUI(plugin, player, block, tempEditor);
+                    configGUI.open();
+                } catch (Exception e) {
+                    MessageUtil.send(player, "&cОшибка открытия настроек блока: " + e.getMessage());
+                }
             } else {
                 MessageUtil.send(player, "&cОшибка создания блока!");
             }
@@ -319,8 +327,9 @@ public class LineSelectorGUI implements Listener {
      * Открытие настроек строки
      */
     private void openLineSettings(CodeLine line) {
-        // TODO: Создать GUI для настроек строки
-        MessageUtil.send(player, "&eНастройки строки будут добавлены в следующем обновлении!");
+        player.closeInventory();
+        LineSettingsGUI settingsGUI = new LineSettingsGUI(plugin, player, script, line);
+        settingsGUI.open();
     }
     
     /**

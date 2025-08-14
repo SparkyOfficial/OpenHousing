@@ -330,4 +330,23 @@ public class ItemBuilder {
             .lore(description)
             .build();
     }
+    
+    /**
+     * Установка головы игрока (статический метод)
+     */
+    public static void setPlayerHead(ItemStack skull, String playerName) {
+        if (skull.getType() != Material.PLAYER_HEAD) {
+            return;
+        }
+        
+        try {
+            org.bukkit.inventory.meta.SkullMeta skullMeta = (org.bukkit.inventory.meta.SkullMeta) skull.getItemMeta();
+            if (skullMeta != null) {
+                skullMeta.setOwningPlayer(org.bukkit.Bukkit.getOfflinePlayer(playerName));
+                skull.setItemMeta(skullMeta);
+            }
+        } catch (Exception e) {
+            // Если не удалось установить скин, оставляем обычную голову
+        }
+    }
 }
