@@ -10,6 +10,7 @@ import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.values.ValueType;
 import ru.openhousing.utils.ItemBuilder;
 import ru.openhousing.utils.MessageUtil;
+import ru.openhousing.utils.AnvilGUIHelper;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -381,9 +382,18 @@ public class BlockConfigGUI implements Listener {
     private void handlePlayerEventClick(int slot, boolean isShiftClick) {
         if (slot == 19) { // Тип события
             player.closeInventory();
-            player.sendMessage("§6Введите тип события (CHAT, MOVE, DAMAGE, JOIN, QUIT):");
-            // TODO: Создать систему ввода через чат или отдельное GUI
-            MessageUtil.send(player, "&eВведите в чат тип события (например: CHAT)");
+            AnvilGUIHelper.openTextInput(plugin, player, "Тип события", "JOIN", (eventType) -> {
+                try {
+                    // Проверяем, что введенный тип события существует
+                    ru.openhousing.coding.blocks.events.PlayerEventBlock.PlayerEventType.valueOf(eventType.toUpperCase());
+                    block.setParameter("eventType", eventType.toUpperCase());
+                    MessageUtil.send(player, "&aТип события установлен: &e" + eventType.toUpperCase());
+                    this.open(); // Возвращаемся к настройкам блока
+                } catch (IllegalArgumentException e) {
+                    MessageUtil.send(player, "&cНеверный тип события! Доступные: JOIN, QUIT, CHAT, MOVE, DAMAGE, SNEAK, JUMP и др.");
+                    this.open();
+                }
+            });
         } else if (slot == 20) { // Параметры события
             player.closeInventory();
             MessageUtil.send(player, "&eНастройка параметров события");
@@ -396,8 +406,18 @@ public class BlockConfigGUI implements Listener {
     private void handlePlayerActionClick(int slot, boolean isShiftClick) {
         if (slot == 19) { // Тип действия
             player.closeInventory();
-            MessageUtil.send(player, "&6Введите тип действия (SEND_MESSAGE, TELEPORT, GIVE_ITEM):");
-            // TODO: Создать GUI для выбора типа действия
+            AnvilGUIHelper.openTextInput(plugin, player, "Тип действия", "SEND_MESSAGE", (actionType) -> {
+                try {
+                    // Проверяем, что введенный тип действия существует
+                    ru.openhousing.coding.blocks.actions.PlayerActionBlock.PlayerActionType.valueOf(actionType.toUpperCase());
+                    block.setParameter("actionType", actionType.toUpperCase());
+                    MessageUtil.send(player, "&aТип действия установлен: &e" + actionType.toUpperCase());
+                    this.open(); // Возвращаемся к настройкам блока
+                } catch (IllegalArgumentException e) {
+                    MessageUtil.send(player, "&cНеверный тип действия! Доступные: SEND_MESSAGE, TELEPORT, GIVE_ITEM, HEAL, DAMAGE и др.");
+                    this.open();
+                }
+            });
         } else if (slot == 20) { // Цель действия
             player.closeInventory();
             ValueType[] playerTypes = {ValueType.TEXT, ValueType.VARIABLE};
@@ -470,7 +490,19 @@ public class BlockConfigGUI implements Listener {
     private void handleGenericClick(int slot, boolean isShiftClick) {
         if (slot >= 19 && slot <= 21) {
             player.closeInventory();
-            MessageUtil.send(player, "&6Введите новое значение в чат:");
+            AnvilGUIHelper.openTextInput(plugin, player, "Новое значение", "", (value) -> {
+                // Определяем какой параметр настраиваем по слоту
+                String paramName = switch (slot) {
+                    case 19 -> "param1";
+                    case 20 -> "param2"; 
+                    case 21 -> "param3";
+                    default -> "value";
+                };
+                
+                block.setParameter(paramName, value);
+                MessageUtil.send(player, "&aЗначение установлено: &e" + value);
+                this.open(); // Возвращаемся к настройкам блока
+            });
         }
     }
     

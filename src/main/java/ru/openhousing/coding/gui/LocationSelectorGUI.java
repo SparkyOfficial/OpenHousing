@@ -10,264 +10,269 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import ru.openhousing.OpenHousing;
+import ru.openhousing.coding.values.LocationValue;
+import ru.openhousing.utils.AnvilGUIHelper;
 import ru.openhousing.utils.ItemBuilder;
-import ru.openhousing.utils.MessageUtil;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
 
 /**
- * GUI для выбора локации
+ * Профессиональный GUI для выбора локаций
  */
 public class LocationSelectorGUI implements Listener {
-    
+
     private final OpenHousing plugin;
     private final Player player;
+    private final Consumer<LocationValue> callback;
     private final Inventory inventory;
-    private final Consumer<String> onLocationSelected;
-    
-    public LocationSelectorGUI(OpenHousing plugin, Player player, Consumer<String> onLocationSelected) {
+
+    public LocationSelectorGUI(OpenHousing plugin, Player player, Consumer<LocationValue> callback) {
         this.plugin = plugin;
         this.player = player;
-        this.onLocationSelected = onLocationSelected;
+        this.callback = callback;
         this.inventory = Bukkit.createInventory(null, 45, "§6Выбор локации");
-        
-        setupGUI();
+
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        setupGUI();
     }
-    
-    public void open() {
-        player.openInventory(inventory);
-    }
-    
+
     private void setupGUI() {
         inventory.clear();
-        
-        // Текущая позиция игрока
-        Location loc = player.getLocation();
-        inventory.setItem(13, new ItemBuilder(Material.COMPASS)
-            .name("§6Текущая позиция")
+
+        // Заголовок
+        inventory.setItem(4, new ItemBuilder(Material.COMPASS)
+            .name("§6Выбор локации")
+            .lore("§7Выберите способ указания координат")
+            .build());
+
+        // Быстрые локации
+        inventory.setItem(10, new ItemBuilder(Material.ENDER_PEARL)
+            .name("§eТекущая позиция")
             .lore(Arrays.asList(
-                "§7Мир: §f" + loc.getWorld().getName(),
-                "§7X: §f" + String.format("%.1f", loc.getX()),
-                "§7Y: §f" + String.format("%.1f", loc.getY()),
-                "§7Z: §f" + String.format("%.1f", loc.getZ()),
+                "§7Использовать текущие координаты",
+                "§7игрока, выполняющего код",
+                "",
+                "§7X: §f" + String.format("%.1f", player.getLocation().getX()),
+                "§7Y: §f" + String.format("%.1f", player.getLocation().getY()),
+                "§7Z: §f" + String.format("%.1f", player.getLocation().getZ()),
                 "",
                 "§eКлик для выбора"
             ))
             .build());
-        
-        // Спавн мира
-        Location worldSpawn = player.getWorld().getSpawnLocation();
-        inventory.setItem(10, new ItemBuilder(Material.BEACON)
-            .name("§6Спавн мира")
+
+        inventory.setItem(11, new ItemBuilder(Material.RED_BED)
+            .name("§eКровать игрока")
+            .lore(Arrays.asList(
+                "§7Позиция кровати/точки спавна",
+                "§7игрока",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build());
+
+        inventory.setItem(12, new ItemBuilder(Material.BEACON)
+            .name("§eСпавн мира")
             .lore(Arrays.asList(
                 "§7Точка спавна текущего мира",
-                "§7X: §f" + worldSpawn.getBlockX(),
-                "§7Y: §f" + worldSpawn.getBlockY(),
-                "§7Z: §f" + worldSpawn.getBlockZ(),
                 "",
                 "§eКлик для выбора"
             ))
             .build());
-        
-        // Кровать игрока
-        Location bedSpawn = player.getBedSpawnLocation();
-        if (bedSpawn != null) {
-            inventory.setItem(12, new ItemBuilder(Material.RED_BED)
-                .name("§6Кровать")
-                .lore(Arrays.asList(
-                    "§7Точка спавна в кровати",
-                    "§7Мир: §f" + bedSpawn.getWorld().getName(),
-                    "§7X: §f" + bedSpawn.getBlockX(),
-                    "§7Y: §f" + bedSpawn.getBlockY(),
-                    "§7Z: §f" + bedSpawn.getBlockZ(),
-                    "",
-                    "§eКлик для выбора"
-                ))
-                .build());
-        } else {
-            inventory.setItem(12, new ItemBuilder(Material.GRAY_BED)
-                .name("§7Кровать не установлена")
-                .lore("§7У вас нет точки спавна в кровати")
-                .build());
-        }
-        
-        // Последняя смерть
-        Location deathLoc = player.getLastDeathLocation();
-        if (deathLoc != null) {
-            inventory.setItem(14, new ItemBuilder(Material.SKELETON_SKULL)
-                .name("§cМесто смерти")
-                .lore(Arrays.asList(
-                    "§7Место последней смерти",
-                    "§7Мир: §f" + deathLoc.getWorld().getName(),
-                    "§7X: §f" + deathLoc.getBlockX(),
-                    "§7Y: §f" + deathLoc.getBlockY(),
-                    "§7Z: §f" + deathLoc.getBlockZ(),
-                    "",
-                    "§eКлик для выбора"
-                ))
-                .build());
-        } else {
-            inventory.setItem(14, new ItemBuilder(Material.BONE)
-                .name("§7Смертей не было")
-                .lore("§7У вас нет записи о смерти")
-                .build());
-        }
-        
-        // Относительные позиции
-        inventory.setItem(19, new ItemBuilder(Material.EMERALD)
-            .name("§6~ ~ ~ (Относительно)")
+
+        inventory.setItem(13, new ItemBuilder(Material.ENDER_EYE)
+            .name("§eВзгляд игрока")
             .lore(Arrays.asList(
-                "§7Позиция относительно",
-                "§7выполняющего команду",
+                "§7Точка, на которую смотрит",
+                "§7игрок (до 100 блоков)",
                 "",
                 "§eКлик для выбора"
             ))
             .build());
-        
-        // Ручной ввод координат
-        inventory.setItem(21, new ItemBuilder(Material.WRITABLE_BOOK)
+
+        // Ввод координат
+        inventory.setItem(19, new ItemBuilder(Material.PAPER)
             .name("§6Ввести координаты")
             .lore(Arrays.asList(
-                "§7Введите координаты вручную",
-                "§7в формате: x y z",
+                "§7Ввести точные координаты",
+                "§7в формате: X Y Z",
+                "§7Пример: 100 64 -50",
                 "",
                 "§eКлик для ввода"
             ))
             .build());
-        
-        // Выбор блока взглядом
-        inventory.setItem(23, new ItemBuilder(Material.SPYGLASS)
-            .name("§6Блок перед собой")
+
+        inventory.setItem(20, new ItemBuilder(Material.WRITABLE_BOOK)
+            .name("§6Относительные координаты")
             .lore(Arrays.asList(
-                "§7Блок, на который",
-                "§7вы смотрите",
+                "§7Координаты относительно игрока",
+                "§7Формат: ~X ~Y ~Z",
+                "§7Пример: ~10 ~0 ~-5",
+                "",
+                "§eКлик для ввода"
+            ))
+            .build());
+
+        // Переменные
+        inventory.setItem(21, new ItemBuilder(Material.CHEST)
+            .name("§dИз переменной")
+            .lore(Arrays.asList(
+                "§7Использовать локацию",
+                "§7сохраненную в переменной",
                 "",
                 "§eКлик для выбора"
             ))
             .build());
-        
-        // Случайная позиция
-        inventory.setItem(25, new ItemBuilder(Material.ENDER_PEARL)
-            .name("§6Случайная позиция")
+
+        // Специальные локации
+        inventory.setItem(28, new ItemBuilder(Material.NETHER_PORTAL)
+            .name("§5Портал в Нижний мир")
             .lore(Arrays.asList(
-                "§7Случайная позиция",
-                "§7в радиусе 100 блоков",
+                "§7Найти ближайший портал",
+                "§7в Нижний мир",
                 "",
                 "§eКлик для выбора"
             ))
             .build());
-        
-        // Кнопка закрытия
-        inventory.setItem(40, new ItemBuilder(Material.BARRIER)
+
+        inventory.setItem(29, new ItemBuilder(Material.END_PORTAL_FRAME)
+            .name("§5Портал в Край")
+            .lore(Arrays.asList(
+                "§7Найти портал в Край",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build());
+
+        inventory.setItem(30, new ItemBuilder(Material.STRUCTURE_BLOCK)
+            .name("§5Ближайшая структура")
+            .lore(Arrays.asList(
+                "§7Найти ближайшую структуру",
+                "§7(деревня, храм, и т.д.)",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build());
+
+        // Кнопки управления
+        inventory.setItem(40, new ItemBuilder(Material.ARROW)
+            .name("§7Назад")
+            .build());
+
+        inventory.setItem(44, new ItemBuilder(Material.BARRIER)
             .name("§cОтмена")
-            .lore("§7Закрыть без выбора")
             .build());
     }
-    
+
+    public void open() {
+        player.openInventory(inventory);
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!event.getView().getTitle().equals("§6Выбор локации")) {
-            return;
-        }
-        
+        if (!event.getView().getTitle().equals("§6Выбор локации")) return;
+        if (!(event.getWhoClicked() instanceof Player)) return;
+        if (!event.getWhoClicked().getUniqueId().equals(player.getUniqueId())) return;
+
         event.setCancelled(true);
-        
-        if (!(event.getWhoClicked() instanceof Player)) {
-            return;
-        }
-        
-        Player clicker = (Player) event.getWhoClicked();
-        if (!clicker.equals(player)) {
-            return;
-        }
-        
-        ItemStack clickedItem = event.getCurrentItem();
-        if (clickedItem == null || clickedItem.getType() == Material.AIR) {
-            return;
-        }
-        
+
         int slot = event.getSlot();
-        
+        ItemStack clicked = event.getCurrentItem();
+        if (clicked == null || clicked.getType() == Material.AIR) return;
+
         switch (slot) {
-            case 10: // Спавн мира
-                Location worldSpawn = player.getWorld().getSpawnLocation();
-                selectLocation(formatLocation(worldSpawn));
+            case 10: // Текущая позиция
+                player.closeInventory();
+                callback.accept(new LocationValue(player.getLocation()));
                 break;
-                
-            case 12: // Кровать
-                Location bedSpawn = player.getBedSpawnLocation();
-                if (bedSpawn != null) {
-                    selectLocation(formatLocation(bedSpawn));
+
+            case 11: // Кровать игрока
+                player.closeInventory();
+                Location bedLocation = player.getBedSpawnLocation();
+                if (bedLocation != null) {
+                    callback.accept(new LocationValue(bedLocation));
                 } else {
-                    MessageUtil.send(player, "§cУ вас нет установленной кровати!");
+                    callback.accept(new LocationValue("bed"));
                 }
                 break;
-                
-            case 13: // Текущая позиция
-                Location current = player.getLocation();
-                selectLocation(formatLocation(current));
-                break;
-                
-            case 14: // Место смерти
-                Location deathLoc = player.getLastDeathLocation();
-                if (deathLoc != null) {
-                    selectLocation(formatLocation(deathLoc));
-                } else {
-                    MessageUtil.send(player, "§cУ вас нет записи о смерти!");
-                }
-                break;
-                
-            case 19: // Относительная позиция
-                selectLocation("~ ~ ~");
-                break;
-                
-            case 21: // Ручной ввод
+
+            case 12: // Спавн мира
                 player.closeInventory();
-                MessageUtil.send(player, "§6Введите координаты в формате: x y z");
-                MessageUtil.send(player, "§7Пример: 100 64 -50");
-                // TODO: Система ввода координат через чат
+                callback.accept(new LocationValue(player.getWorld().getSpawnLocation()));
                 break;
-                
-            case 23: // Блок перед собой
-                Location targetBlock = player.getTargetBlock(null, 100).getLocation();
-                selectLocation(formatLocation(targetBlock));
-                break;
-                
-            case 25: // Случайная позиция
-                Location randomLoc = generateRandomLocation(player.getLocation());
-                selectLocation(formatLocation(randomLoc));
-                break;
-                
-            case 40: // Отмена
+
+            case 13: // Взгляд игрока
                 player.closeInventory();
-                MessageUtil.send(player, "§7Выбор локации отменен");
+                Location target = player.getTargetBlock(null, 100).getLocation();
+                callback.accept(new LocationValue(target));
+                break;
+
+            case 19: // Ввести координаты
+                player.closeInventory();
+                AnvilGUIHelper.openTextInput(plugin, player, "Введите координаты (X Y Z)", "", (coords) -> {
+                    try {
+                        String[] parts = coords.split(" ");
+                        if (parts.length == 3) {
+                            double x = Double.parseDouble(parts[0]);
+                            double y = Double.parseDouble(parts[1]);
+                            double z = Double.parseDouble(parts[2]);
+                            Location loc = new Location(player.getWorld(), x, y, z);
+                            callback.accept(new LocationValue(loc));
+                        } else {
+                            player.sendMessage("§cНеверный формат! Используйте: X Y Z");
+                        }
+                    } catch (NumberFormatException e) {
+                        player.sendMessage("§cНеверный формат координат!");
+                    }
+                });
+                break;
+
+            case 20: // Относительные координаты
+                player.closeInventory();
+                AnvilGUIHelper.openTextInput(plugin, player, "Относительные координаты (~X ~Y ~Z)", "~0 ~0 ~0", (coords) -> {
+                    if (coords.matches("^~-?\\d+(\\.\\d+)? ~-?\\d+(\\.\\d+)? ~-?\\d+(\\.\\d+)?$")) {
+                        callback.accept(new LocationValue(coords));
+                    } else {
+                        player.sendMessage("§cНеверный формат! Используйте: ~X ~Y ~Z");
+                    }
+                });
+                break;
+
+            case 21: // Из переменной
+                player.closeInventory();
+                AnvilGUIHelper.openTextInput(plugin, player, "Имя переменной с локацией", "", (varName) -> {
+                    callback.accept(new LocationValue("${" + varName + "}"));
+                });
+                break;
+
+            case 28: // Портал в Нижний мир
+                player.closeInventory();
+                callback.accept(new LocationValue("nether_portal"));
+                break;
+
+            case 29: // Портал в Край
+                player.closeInventory();
+                callback.accept(new LocationValue("end_portal"));
+                break;
+
+            case 30: // Ближайшая структура
+                player.closeInventory();
+                openStructureSelector();
+                break;
+
+            case 40: // Назад
+                player.closeInventory();
+                break;
+
+            case 44: // Отмена
+                player.closeInventory();
                 break;
         }
     }
-    
-    private String formatLocation(Location loc) {
-        return String.format("%.1f %.1f %.1f", loc.getX(), loc.getY(), loc.getZ());
-    }
-    
-    private Location generateRandomLocation(Location center) {
-        double x = center.getX() + (Math.random() - 0.5) * 200; // ±100 блоков
-        double z = center.getZ() + (Math.random() - 0.5) * 200;
-        double y = center.getWorld().getHighestBlockYAt((int)x, (int)z) + 1;
-        
-        return new Location(center.getWorld(), x, y, z);
-    }
-    
-    private void selectLocation(String location) {
-        player.closeInventory();
-        MessageUtil.send(player, "§aВыбрана локация: §e" + location);
-        
-        if (onLocationSelected != null) {
-            onLocationSelected.accept(location);
-        }
-        
-        // Отменяем регистрацию листенера
-        InventoryClickEvent.getHandlerList().unregister(this);
+
+    private void openStructureSelector() {
+        AnvilGUIHelper.openTextInput(plugin, player, "Тип структуры", "village", (structureType) -> {
+            callback.accept(new LocationValue("structure:" + structureType));
+        });
     }
 }

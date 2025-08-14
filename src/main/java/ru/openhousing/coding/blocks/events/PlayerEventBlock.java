@@ -35,7 +35,16 @@ public class PlayerEventBlock extends CodeBlock {
         LEFT_CLICK("Левый клик", "Когда игрок кликает левой кнопкой"),
         RIGHT_CLICK("Правый клик", "Когда игрок кликает правой кнопкой"),
         BREAK_BLOCK("Разрушение блока", "Когда игрок ломает блок"),
-        PLACE_BLOCK("Установка блока", "Когда игрок ставит блок");
+        PLACE_BLOCK("Установка блока", "Когда игрок ставит блок"),
+        CHANGE_GAMEMODE("Смена режима игры", "Когда игрок меняет режим игры"),
+        LEVEL_CHANGE("Изменение уровня", "Когда игрок получает/теряет уровень"),
+        FOOD_CHANGE("Изменение голода", "Когда меняется уровень голода игрока"),
+        ITEM_CONSUME("Потребление предмета", "Когда игрок съедает/выпивает предмет"),
+        FISH("Рыбалка", "Когда игрок ловит рыбу"),
+        ENCHANT_ITEM("Зачарование предмета", "Когда игрок зачаровывает предмет"),
+        ANVIL_USE("Использование наковальни", "Когда игрок использует наковальню"),
+        CRAFT_ITEM("Создание предмета", "Когда игрок создает предмет"),
+        PORTAL_USE("Использование портала", "Когда игрок использует портал");
         
         private final String displayName;
         private final String description;
@@ -160,6 +169,24 @@ public class PlayerEventBlock extends CodeBlock {
                 return eventClass == PlayerInteractEvent.class;
             case RIGHT_CLICK:
                 return eventClass == PlayerInteractEvent.class;
+            case CHANGE_GAMEMODE:
+                return eventClass == PlayerGameModeChangeEvent.class;
+            case LEVEL_CHANGE:
+                return eventClass == PlayerLevelChangeEvent.class;
+            case FOOD_CHANGE:
+                return eventClass == org.bukkit.event.entity.FoodLevelChangeEvent.class;
+            case ITEM_CONSUME:
+                return eventClass == PlayerItemConsumeEvent.class;
+            case FISH:
+                return eventClass == PlayerFishEvent.class;
+            case ENCHANT_ITEM:
+                return eventClass == org.bukkit.event.enchantment.EnchantItemEvent.class;
+            case ANVIL_USE:
+                return eventClass == org.bukkit.event.inventory.InventoryClickEvent.class;
+            case CRAFT_ITEM:
+                return eventClass == org.bukkit.event.inventory.CraftItemEvent.class;
+            case PORTAL_USE:
+                return eventClass == PlayerPortalEvent.class;
             default:
                 return false;
         }
@@ -252,6 +279,65 @@ public class PlayerEventBlock extends CodeBlock {
                             interactEvent.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) {
                             context.setVariable("clicked_block", interactEvent.getClickedBlock());
                             context.setVariable("item_in_hand", interactEvent.getItem());
+                        }
+                    }
+                    break;
+                case CHANGE_GAMEMODE:
+                    if (event instanceof PlayerGameModeChangeEvent) {
+                        PlayerGameModeChangeEvent gamemodeEvent = (PlayerGameModeChangeEvent) event;
+                        context.setVariable("old_gamemode", gamemodeEvent.getPlayer().getGameMode().name());
+                        context.setVariable("new_gamemode", gamemodeEvent.getNewGameMode().name());
+                    }
+                    break;
+                case LEVEL_CHANGE:
+                    if (event instanceof PlayerLevelChangeEvent) {
+                        PlayerLevelChangeEvent levelEvent = (PlayerLevelChangeEvent) event;
+                        context.setVariable("old_level", levelEvent.getOldLevel());
+                        context.setVariable("new_level", levelEvent.getNewLevel());
+                    }
+                    break;
+                case FOOD_CHANGE:
+                    if (event instanceof org.bukkit.event.entity.FoodLevelChangeEvent) {
+                        org.bukkit.event.entity.FoodLevelChangeEvent foodEvent = (org.bukkit.event.entity.FoodLevelChangeEvent) event;
+                        context.setVariable("old_food", ((Player) foodEvent.getEntity()).getFoodLevel());
+                        context.setVariable("new_food", foodEvent.getFoodLevel());
+                    }
+                    break;
+                case ITEM_CONSUME:
+                    if (event instanceof PlayerItemConsumeEvent) {
+                        PlayerItemConsumeEvent consumeEvent = (PlayerItemConsumeEvent) event;
+                        context.setVariable("item", consumeEvent.getItem());
+                    }
+                    break;
+                case FISH:
+                    if (event instanceof PlayerFishEvent) {
+                        PlayerFishEvent fishEvent = (PlayerFishEvent) event;
+                        context.setVariable("state", fishEvent.getState().name());
+                        if (fishEvent.getCaught() != null) {
+                            context.setVariable("caught", fishEvent.getCaught());
+                        }
+                    }
+                    break;
+                case ENCHANT_ITEM:
+                    if (event instanceof org.bukkit.event.enchantment.EnchantItemEvent) {
+                        org.bukkit.event.enchantment.EnchantItemEvent enchantEvent = (org.bukkit.event.enchantment.EnchantItemEvent) event;
+                        context.setVariable("item", enchantEvent.getItem());
+                        context.setVariable("enchants", enchantEvent.getEnchantsToAdd());
+                        context.setVariable("cost", enchantEvent.getExpLevelCost());
+                    }
+                    break;
+                case CRAFT_ITEM:
+                    if (event instanceof org.bukkit.event.inventory.CraftItemEvent) {
+                        org.bukkit.event.inventory.CraftItemEvent craftEvent = (org.bukkit.event.inventory.CraftItemEvent) event;
+                        context.setVariable("result", craftEvent.getRecipe().getResult());
+                    }
+                    break;
+                case PORTAL_USE:
+                    if (event instanceof PlayerPortalEvent) {
+                        PlayerPortalEvent portalEvent = (PlayerPortalEvent) event;
+                        context.setVariable("from_world", portalEvent.getFrom().getWorld().getName());
+                        if (portalEvent.getTo() != null) {
+                            context.setVariable("to_world", portalEvent.getTo().getWorld().getName());
                         }
                     }
                     break;

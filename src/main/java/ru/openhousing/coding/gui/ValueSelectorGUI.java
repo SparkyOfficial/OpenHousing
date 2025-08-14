@@ -185,47 +185,85 @@ public class ValueSelectorGUI implements Listener {
     }
 
     private void openVariableSelector() {
-        // Простой выбор переменных
-        player.sendMessage("§eВыберите тип переменной:");
-        player.sendMessage("§7- §eglobal:<имя> §7- глобальная переменная");
-        player.sendMessage("§7- §elocal:<имя> §7- локальная переменная");
-        player.sendMessage("§7- §esystem:<имя> §7- системная переменная");
-        player.sendMessage("§7Введите в чат имя переменной:");
+        new VariableSelectorGUI(plugin, player, (variableValue) -> {
+            callback.accept(variableValue);
+        }, false).open();
     }
 
     private void openLocationSelector() {
-        // Простой выбор локаций
-        player.sendMessage("§eВыберите локацию:");
-        player.sendMessage("§7- §ecurrent §7- текущая позиция");
-        player.sendMessage("§7- §espawn §7- точка спавна мира");
-        player.sendMessage("§7- §ebed §7- кровать игрока");
-        player.sendMessage("§7- §ex,y,z §7- координаты (например: 100,64,200)");
-        player.sendMessage("§7Введите в чат тип локации:");
+        new LocationSelectorGUI(plugin, player, (locationValue) -> {
+            callback.accept(locationValue);
+        }).open();
     }
 
     private void openItemSelector() {
-        // Предмет в руке или по ID
+        // Создаем GUI для выбора предметов
+        Inventory itemInventory = Bukkit.createInventory(null, 45, "§6Выбор предмета");
+
+        // Предмет в руке
         ItemStack inHand = player.getInventory().getItemInMainHand();
         if (inHand != null && inHand.getType() != Material.AIR) {
-            callback.accept(inHand);
-            player.sendMessage("§aВыбран предмет из руки: " + inHand.getType().name());
-        } else {
-            player.sendMessage("§cВозьмите предмет в руку или введите ID материала в чат:");
+            itemInventory.setItem(10, new ItemBuilder(inHand.getType())
+                .name("§eПредмет в руке")
+                .lore(Arrays.asList(
+                    "§7" + inHand.getType().name(),
+                    "§7Количество: " + inHand.getAmount(),
+                    "",
+                    "§eКлик для выбора"
+                ))
+                .build());
         }
+
+        // Популярные предметы
+        itemInventory.setItem(12, new ItemBuilder(Material.STONE)
+            .name("§eКамень")
+            .lore("§eКлик для выбора")
+            .build());
+
+        itemInventory.setItem(13, new ItemBuilder(Material.DIRT)
+            .name("§eЗемля")
+            .lore("§eКлик для выбора")
+            .build());
+
+        itemInventory.setItem(14, new ItemBuilder(Material.DIAMOND)
+            .name("§eАлмаз")
+            .lore("§eКлик для выбора")
+            .build());
+
+        // Ввод ID материала
+        itemInventory.setItem(22, new ItemBuilder(Material.NAME_TAG)
+            .name("§6Ввести ID материала")
+            .lore(Arrays.asList(
+                "§7Ввести название материала",
+                "§7Пример: DIAMOND, STONE, DIRT",
+                "",
+                "§eКлик для ввода"
+            ))
+            .build());
+
+        // Кнопки управления
+        itemInventory.setItem(40, new ItemBuilder(Material.ARROW)
+            .name("§7Назад")
+            .build());
+
+        player.openInventory(itemInventory);
     }
 
     private void openSoundSelector() {
-        player.sendMessage("§eВведите название звука в чат:");
-        player.sendMessage("§7Примеры: ENTITY_PLAYER_LEVELUP, BLOCK_NOTE_BLOCK_PLING");
+        AnvilGUIHelper.openTextInput(plugin, player, "Название звука", "ENTITY_PLAYER_LEVELUP", (soundName) -> {
+            callback.accept(soundName);
+        });
     }
 
     private void openParticleSelector() {
-        player.sendMessage("§eВведите название частицы в чат:");
-        player.sendMessage("§7Примеры: FLAME, HEART, EXPLOSION_LARGE");
+        AnvilGUIHelper.openTextInput(plugin, player, "Название частицы", "FLAME", (particleName) -> {
+            callback.accept(particleName);
+        });
     }
 
     private void openPotionEffectSelector() {
-        player.sendMessage("§eВведите эффект зелья в чат:");
-        player.sendMessage("§7Примеры: SPEED, STRENGTH, REGENERATION");
+        AnvilGUIHelper.openTextInput(plugin, player, "Эффект зелья", "SPEED", (effectName) -> {
+            callback.accept(effectName);
+        });
     }
 }

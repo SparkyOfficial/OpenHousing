@@ -31,6 +31,15 @@
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
         
+        <!-- Sonatype OSS Snapshots -->
+        <repository>
+            <id>sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        
         <!-- PlaceholderAPI -->
         <repository>
             <id>placeholderapi</id>
@@ -123,6 +132,12 @@
             <version>2.2.224</version>
         </dependency>
         
+        <!-- AnvilGUI for text input -->
+        <dependency>
+            <groupId>net.wesjd</groupId>
+            <artifactId>anvilgui</artifactId>
+            <version>1.9.4-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 

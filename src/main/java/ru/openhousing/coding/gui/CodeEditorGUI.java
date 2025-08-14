@@ -14,6 +14,7 @@ import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.script.CodeScript;
 import ru.openhousing.coding.script.CodeLine;
 import ru.openhousing.utils.ItemBuilder;
+import ru.openhousing.utils.AnvilGUIHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -781,7 +782,7 @@ public class CodeEditorGUI implements InventoryHolder {
      */
     private void openBlockSearch() {
         player.closeInventory();
-        plugin.getChatListener().expectInput(player, "Введите название блока для поиска", (searchTerm) -> {
+        AnvilGUIHelper.openTextInput(plugin, player, "Поиск блоков", "", (searchTerm) -> {
             // Создаем список найденных блоков
             List<BlockType> foundBlocks = new ArrayList<>();
             
