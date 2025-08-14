@@ -332,4 +332,26 @@ public class MessageUtil {
     public static String createProgressBar(double percentage) {
         return createProgressBar(percentage, 20, "█", "█");
     }
+    
+    /**
+     * Форматирование времени в удобочитаемый вид
+     */
+    public static String formatTime(long milliseconds) {
+        if (milliseconds < 0) return "неизвестно";
+        
+        long seconds = milliseconds / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        long days = hours / 24;
+        
+        if (days > 0) {
+            return days + " дн. " + (hours % 24) + " ч.";
+        } else if (hours > 0) {
+            return hours + " ч. " + (minutes % 60) + " мин.";
+        } else if (minutes > 0) {
+            return minutes + " мин. " + (seconds % 60) + " сек.";
+        } else {
+            return seconds + " сек.";
+        }
+    }
 }

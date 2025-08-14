@@ -378,31 +378,304 @@ public class BlockConfigGUI implements Listener {
     }
     
     private void setupIfEntitySettings(int startSlot) {
-        setupGenericSettings(startSlot, "условие существа");
+        // Тип условия
+        ItemStack conditionType = new ItemBuilder(Material.SPIDER_EYE)
+            .name("§6Тип условия")
+            .lore(Arrays.asList(
+                "§7Текущий: §e" + block.getParameter("conditionType"),
+                "",
+                "§7Доступные условия:",
+                "§7• HEALTH - здоровье",
+                "§7• TYPE - тип существа",
+                "§7• DISTANCE - расстояние",
+                "§7• IS_ALIVE - живое ли",
+                "§7• HAS_AI - есть ли ИИ",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build();
+        inventory.setItem(startSlot, conditionType);
+        
+        // Существо
+        ItemStack entity = new ItemBuilder(Material.EGG)
+            .name("§6Существо")
+            .lore(Arrays.asList(
+                "§7Текущее: §e" + block.getParameter("entity"),
+                "",
+                "§7Выберите существо для проверки",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build();
+        inventory.setItem(startSlot + 1, entity);
+        
+        // Значение для сравнения
+        ItemStack compareValue = new ItemBuilder(Material.PAPER)
+            .name("§6Значение для сравнения")
+            .lore(Arrays.asList(
+                "§7Текущее: §e" + block.getParameter("compareValue"),
+                "",
+                "§7Значение для сравнения с условием",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build();
+        inventory.setItem(startSlot + 2, compareValue);
     }
     
     private void setupIfVariableSettings(int startSlot) {
-        setupGenericSettings(startSlot, "условие переменной");
+        // Имя переменной
+        ItemStack variableName = new ItemBuilder(Material.BOOK)
+            .name("§6Имя переменной")
+            .lore(Arrays.asList(
+                "§7Текущее: §e" + block.getParameter("variableName"),
+                "",
+                "§7Введите имя переменной",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build();
+        inventory.setItem(startSlot, variableName);
+        
+        // Оператор сравнения
+        ItemStack operator = new ItemBuilder(Material.COMPARATOR)
+            .name("§6Оператор сравнения")
+            .lore(Arrays.asList(
+                "§7Текущий: §e" + block.getParameter("operator"),
+                "",
+                "§7Доступные операторы:",
+                "§7• EQUALS (==) - равно",
+                "§7• NOT_EQUALS (!=) - не равно",
+                "§7• GREATER (>) - больше",
+                "§7• LESS (<) - меньше",
+                "§7• CONTAINS - содержит",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build();
+        inventory.setItem(startSlot + 1, operator);
+        
+        // Значение для сравнения
+        ItemStack compareValue = new ItemBuilder(Material.PAPER)
+            .name("§6Значение для сравнения")
+            .lore(Arrays.asList(
+                "§7Текущее: §e" + block.getParameter("compareValue"),
+                "",
+                "§7Значение для сравнения с переменной",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build();
+        inventory.setItem(startSlot + 2, compareValue);
     }
     
     private void setupPlayerActionSettings(int startSlot) {
-        setupGenericSettings(startSlot, "действие игрока");
+        // Тип действия
+        ItemStack actionType = new ItemBuilder(Material.GOLDEN_SWORD)
+            .name("§6Тип действия")
+            .lore(Arrays.asList(
+                "§7Текущий: §e" + block.getParameter("actionType"),
+                "",
+                "§7Доступные действия:",
+                "§7• SEND_MESSAGE - отправить сообщение",
+                "§7• TELEPORT - телепортировать",
+                "§7• GIVE_ITEM - выдать предмет",
+                "§7• SET_HEALTH - установить здоровье",
+                "§7• PLAY_SOUND - воспроизвести звук",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build();
+        inventory.setItem(startSlot, actionType);
+        
+        // Цель
+        ItemStack target = new ItemBuilder(Material.TARGET)
+            .name("§6Цель действия")
+            .lore(Arrays.asList(
+                "§7Текущая: §e" + block.getParameter("target"),
+                "",
+                "§7Выберите цель для действия",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build();
+        inventory.setItem(startSlot + 1, target);
+        
+        // Значение/параметр
+        ItemStack value = new ItemBuilder(Material.PAPER)
+            .name("§6Значение")
+            .lore(Arrays.asList(
+                "§7Текущее: §e" + block.getParameter("value"),
+                "",
+                "§7Значение для действия",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build();
+        inventory.setItem(startSlot + 2, value);
     }
     
     private void setupEntityActionSettings(int startSlot) {
-        setupGenericSettings(startSlot, "действие существа");
+        // Тип действия
+        ItemStack actionType = new ItemBuilder(Material.BONE)
+            .name("§6Тип действия")
+            .lore(Arrays.asList(
+                "§7Текущий: §e" + block.getParameter("actionType"),
+                "",
+                "§7Доступные действия:",
+                "§7• DAMAGE - нанести урон",
+                "§7• HEAL - лечить",
+                "§7• REMOVE - удалить",
+                "§7• SPAWN - заспавнить",
+                "§7• SET_AI - включить/отключить ИИ",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build();
+        inventory.setItem(startSlot, actionType);
+        
+        // Существо
+        ItemStack entity = new ItemBuilder(Material.EGG)
+            .name("§6Цель существо")
+            .lore(Arrays.asList(
+                "§7Текущее: §e" + block.getParameter("entity"),
+                "",
+                "§7Выберите существо для действия",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build();
+        inventory.setItem(startSlot + 1, entity);
+        
+        // Значение/параметр
+        ItemStack value = new ItemBuilder(Material.PAPER)
+            .name("§6Значение")
+            .lore(Arrays.asList(
+                "§7Текущее: §e" + block.getParameter("value"),
+                "",
+                "§7Значение для действия",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build();
+        inventory.setItem(startSlot + 2, value);
     }
     
     private void setupWorldActionSettings(int startSlot) {
-        setupGenericSettings(startSlot, "действие мира");
+        // Тип действия
+        ItemStack actionType = new ItemBuilder(Material.GRASS_BLOCK)
+            .name("§6Тип действия")
+            .lore(Arrays.asList(
+                "§7Текущий: §e" + block.getParameter("actionType"),
+                "",
+                "§7Доступные действия:",
+                "§7• SET_BLOCK - установить блок",
+                "§7• BREAK_BLOCK - сломать блок",
+                "§7• EXPLODE - взрыв",
+                "§7• SET_TIME - установить время",
+                "§7• SET_WEATHER - установить погоду",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build();
+        inventory.setItem(startSlot, actionType);
+        
+        // Местоположение
+        ItemStack location = new ItemBuilder(Material.COMPASS)
+            .name("§6Местоположение")
+            .lore(Arrays.asList(
+                "§7Текущее: §e" + block.getParameter("location"),
+                "",
+                "§7Выберите местоположение",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build();
+        inventory.setItem(startSlot + 1, location);
+        
+        // Значение/параметр
+        ItemStack value = new ItemBuilder(Material.PAPER)
+            .name("§6Значение")
+            .lore(Arrays.asList(
+                "§7Текущее: §e" + block.getParameter("value"),
+                "",
+                "§7Значение для действия",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build();
+        inventory.setItem(startSlot + 2, value);
     }
     
     private void setupFunctionSettings(int startSlot) {
-        setupGenericSettings(startSlot, "функция");
+        // Имя функции
+        ItemStack functionName = new ItemBuilder(Material.COMMAND_BLOCK)
+            .name("§6Имя функции")
+            .lore(Arrays.asList(
+                "§7Текущее: §e" + block.getParameter("functionName"),
+                "",
+                "§7Уникальное имя для функции",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build();
+        inventory.setItem(startSlot, functionName);
+        
+        // Параметры функции
+        ItemStack parameters = new ItemBuilder(Material.PAPER)
+            .name("§6Параметры функции")
+            .lore(Arrays.asList(
+                "§7Текущие: §e" + block.getParameter("parameters"),
+                "",
+                "§7Параметры через запятую",
+                "§7Пример: player, message, amount",
+                "",
+                "§eКлик для настройки"
+            ))
+            .build();
+        inventory.setItem(startSlot + 1, parameters);
+        
+        // Описание
+        ItemStack description = new ItemBuilder(Material.BOOK)
+            .name("§6Описание")
+            .lore(Arrays.asList(
+                "§7Текущее: §e" + block.getParameter("description"),
+                "",
+                "§7Описание функции",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build();
+        inventory.setItem(startSlot + 2, description);
     }
     
     private void setupCallFunctionSettings(int startSlot) {
-        setupGenericSettings(startSlot, "вызов функции");
+        // Имя функции для вызова
+        ItemStack functionName = new ItemBuilder(Material.REPEATING_COMMAND_BLOCK)
+            .name("§6Имя функции")
+            .lore(Arrays.asList(
+                "§7Текущее: §e" + block.getParameter("functionName"),
+                "",
+                "§7Выберите функцию для вызова",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build();
+        inventory.setItem(startSlot, functionName);
+        
+        // Аргументы
+        ItemStack arguments = new ItemBuilder(Material.PAPER)
+            .name("§6Аргументы")
+            .lore(Arrays.asList(
+                "§7Текущие: §e" + block.getParameter("arguments"),
+                "",
+                "§7Аргументы через запятую",
+                "§7Пример: {player}, \"Привет!\", 10",
+                "",
+                "§eКлик для настройки"
+            ))
+            .build();
+        inventory.setItem(startSlot + 1, arguments);
     }
     
 
@@ -509,6 +782,24 @@ public class BlockConfigGUI implements Listener {
                 break;
             case VARIABLE_ACTION:
                 handleVariableActionClick(slot, isShiftClick);
+                break;
+            case ENTITY_ACTION:
+                handleEntityActionClick(slot, isShiftClick);
+                break;
+            case WORLD_ACTION:
+                handleWorldActionClick(slot, isShiftClick);
+                break;
+            case IF_ENTITY:
+                handleIfEntityClick(slot, isShiftClick);
+                break;
+            case IF_VARIABLE:
+                handleIfVariableClick(slot, isShiftClick);
+                break;
+            case FUNCTION:
+                handleFunctionClick(slot, isShiftClick);
+                break;
+            case CALL_FUNCTION:
+                handleCallFunctionClick(slot, isShiftClick);
                 break;
             default:
                 handleGenericClick(slot, isShiftClick);
@@ -721,6 +1012,185 @@ public class BlockConfigGUI implements Listener {
                 this.open();
             });
             selector.open();
+        }
+    }
+    
+    /**
+     * Обработка кликов для действий игрока
+     */
+    private void handlePlayerActionClick(int slot, boolean isShiftClick) {
+        if (slot == 10) { // Тип действия
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Тип действия", "SEND_MESSAGE", (actionType) -> {
+                block.setParameter("actionType", actionType);
+                MessageUtil.send(player, "&aТип действия установлен: &e" + actionType);
+                this.open();
+            });
+        } else if (slot == 11) { // Цель
+            new PlayerSelectorGUI(plugin, player, (selectedPlayer) -> {
+                block.setParameter("target", selectedPlayer);
+                MessageUtil.send(player, "&aЦель установлена: &e" + selectedPlayer);
+                this.open();
+            }).open();
+        } else if (slot == 12) { // Значение
+            new ValueSelectorGUI(plugin, player, ValueType.TEXT, (value) -> {
+                block.setParameter("value", value);
+                MessageUtil.send(player, "&aЗначение установлено: &e" + value);
+                this.open();
+            }).open();
+        }
+    }
+    
+    /**
+     * Обработка кликов для действий существа
+     */
+    private void handleEntityActionClick(int slot, boolean isShiftClick) {
+        if (slot == 10) { // Тип действия
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Тип действия", "DAMAGE", (actionType) -> {
+                block.setParameter("actionType", actionType);
+                MessageUtil.send(player, "&aТип действия установлен: &e" + actionType);
+                this.open();
+            });
+        } else if (slot == 11) { // Существо
+            new ValueSelectorGUI(plugin, player, ValueType.TEXT, (entity) -> {
+                block.setParameter("entity", entity);
+                MessageUtil.send(player, "&aСущество установлено: &e" + entity);
+                this.open();
+            }).open();
+        } else if (slot == 12) { // Значение
+            new ValueSelectorGUI(plugin, player, ValueType.NUMBER, (value) -> {
+                block.setParameter("value", value);
+                MessageUtil.send(player, "&aЗначение установлено: &e" + value);
+                this.open();
+            }).open();
+        }
+    }
+    
+    /**
+     * Обработка кликов для действий мира
+     */
+    private void handleWorldActionClick(int slot, boolean isShiftClick) {
+        if (slot == 10) { // Тип действия
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Тип действия", "SET_BLOCK", (actionType) -> {
+                block.setParameter("actionType", actionType);
+                MessageUtil.send(player, "&aТип действия установлен: &e" + actionType);
+                this.open();
+            });
+        } else if (slot == 11) { // Местоположение
+            new LocationSelectorGUI(plugin, player, (location) -> {
+                block.setParameter("location", location);
+                MessageUtil.send(player, "&aМестоположение установлено: &e" + location);
+                this.open();
+            }).open();
+        } else if (slot == 12) { // Значение
+            new ValueSelectorGUI(plugin, player, ValueType.TEXT, (value) -> {
+                block.setParameter("value", value);
+                MessageUtil.send(player, "&aЗначение установлено: &e" + value);
+                this.open();
+            }).open();
+        }
+    }
+    
+    /**
+     * Обработка кликов для условий существа
+     */
+    private void handleIfEntityClick(int slot, boolean isShiftClick) {
+        if (slot == 10) { // Тип условия
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Тип условия", "HEALTH", (conditionType) -> {
+                block.setParameter("conditionType", conditionType);
+                MessageUtil.send(player, "&aТип условия установлен: &e" + conditionType);
+                this.open();
+            });
+        } else if (slot == 11) { // Существо
+            new ValueSelectorGUI(plugin, player, ValueType.TEXT, (entity) -> {
+                block.setParameter("entity", entity);
+                MessageUtil.send(player, "&aСущество установлено: &e" + entity);
+                this.open();
+            }).open();
+        } else if (slot == 12) { // Значение для сравнения
+            new ValueSelectorGUI(plugin, player, ValueType.NUMBER, (compareValue) -> {
+                block.setParameter("compareValue", compareValue);
+                MessageUtil.send(player, "&aЗначение для сравнения установлено: &e" + compareValue);
+                this.open();
+            }).open();
+        }
+    }
+    
+    /**
+     * Обработка кликов для условий переменной
+     */
+    private void handleIfVariableClick(int slot, boolean isShiftClick) {
+        if (slot == 10) { // Имя переменной
+            new VariableSelectorGUI(plugin, player, (variable) -> {
+                block.setParameter("variableName", variable);
+                MessageUtil.send(player, "&aПеременная установлена: &e" + variable);
+                this.open();
+            }).open();
+        } else if (slot == 11) { // Оператор сравнения
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Оператор сравнения", "EQUALS", (operator) -> {
+                block.setParameter("operator", operator);
+                MessageUtil.send(player, "&aОператор установлен: &e" + operator);
+                this.open();
+            });
+        } else if (slot == 12) { // Значение для сравнения
+            new ValueSelectorGUI(plugin, player, ValueType.TEXT, (compareValue) -> {
+                block.setParameter("compareValue", compareValue);
+                MessageUtil.send(player, "&aЗначение для сравнения установлено: &e" + compareValue);
+                this.open();
+            }).open();
+        }
+    }
+    
+    /**
+     * Обработка кликов для функций
+     */
+    private void handleFunctionClick(int slot, boolean isShiftClick) {
+        if (slot == 10) { // Имя функции
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Имя функции", "myFunction", (functionName) -> {
+                block.setParameter("functionName", functionName);
+                MessageUtil.send(player, "&aИмя функции установлено: &e" + functionName);
+                this.open();
+            });
+        } else if (slot == 11) { // Параметры функции
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Параметры функции", "player, message", (parameters) -> {
+                block.setParameter("parameters", parameters);
+                MessageUtil.send(player, "&aПараметры функции установлены: &e" + parameters);
+                this.open();
+            });
+        } else if (slot == 12) { // Описание
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Описание функции", "", (description) -> {
+                block.setParameter("description", description);
+                MessageUtil.send(player, "&aОписание функции установлено: &e" + description);
+                this.open();
+            });
+        }
+    }
+    
+    /**
+     * Обработка кликов для вызова функций
+     */
+    private void handleCallFunctionClick(int slot, boolean isShiftClick) {
+        if (slot == 10) { // Имя функции
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Имя функции для вызова", "", (functionName) -> {
+                block.setParameter("functionName", functionName);
+                MessageUtil.send(player, "&aФункция для вызова установлена: &e" + functionName);
+                this.open();
+            });
+        } else if (slot == 11) { // Аргументы
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Аргументы", "", (arguments) -> {
+                block.setParameter("arguments", arguments);
+                MessageUtil.send(player, "&aАргументы установлены: &e" + arguments);
+                this.open();
+            });
         }
     }
     

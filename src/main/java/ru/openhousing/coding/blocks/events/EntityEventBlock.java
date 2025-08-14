@@ -261,6 +261,18 @@ public class EntityEventBlock extends CodeBlock {
                         context.setVariable("spawn_reason", spawnEvent.getSpawnReason().name());
                     }
                     break;
+                    
+                case FREEZE:
+                    if (event instanceof EntityDamageEvent) {
+                        EntityDamageEvent damageEvent = (EntityDamageEvent) event;
+                        // Проверяем, что это урон от замерзания
+                        if (damageEvent.getCause() == EntityDamageEvent.DamageCause.FREEZE) {
+                            context.setVariable("freeze_damage", damageEvent.getDamage());
+                            context.setVariable("freeze_ticks", entity.getFreezeTicks());
+                            context.setVariable("freeze_max_ticks", entity.getMaxFreezeTicks());
+                        }
+                    }
+                    break;
             }
         }
         
