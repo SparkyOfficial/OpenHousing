@@ -3,250 +3,229 @@ package ru.openhousing.coding.gui;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import ru.openhousing.OpenHousing;
-import ru.openhousing.coding.values.Value;
 import ru.openhousing.coding.values.ValueType;
 import ru.openhousing.utils.ItemBuilder;
-import ru.openhousing.utils.MessageUtil;
+import ru.openhousing.utils.AnvilGUIHelper;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
 
 /**
- * GUI для выбора и настройки значений
+ * Универсальный GUI для выбора значений
  */
-public class ValueSelectorGUI {
-    
+public class ValueSelectorGUI implements Listener {
+
     private final OpenHousing plugin;
     private final Player player;
     private final String title;
-    private final Consumer<Value> callback;
-    private Inventory inventory;
-    private Value currentValue;
-    
-    public ValueSelectorGUI(OpenHousing plugin, Player player, String title, Value currentValue, Consumer<Value> callback) {
+    private final ValueType[] allowedTypes;
+    private final Consumer<Object> callback;
+    private final Inventory inventory;
+
+    public ValueSelectorGUI(OpenHousing plugin, Player player, String title, ValueType[] allowedTypes, Consumer<Object> callback) {
         this.plugin = plugin;
         this.player = player;
         this.title = title;
-        this.currentValue = currentValue;
+        this.allowedTypes = allowedTypes;
         this.callback = callback;
-        this.inventory = Bukkit.createInventory(null, 54, "§6Выбор значения: " + title);
+        this.inventory = Bukkit.createInventory(null, 54, "§6" + title);
+
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        setupGUI();
     }
-    
-    /**
-     * Открытие GUI
-     */
-    public void open() {
-        setupInventory();
-        player.openInventory(inventory);
-    }
-    
-    /**
-     * Настройка интерфейса
-     */
-    private void setupInventory() {
+
+    private void setupGUI() {
         inventory.clear();
-        
-        // Заполнение фона
-        ItemStack filler = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE)
-            .name(" ")
-            .build();
-        
-        for (int i = 0; i < inventory.getSize(); i++) {
-            inventory.setItem(i, filler);
-        }
-        
+
         // Заголовок
-        ItemStack titleItem = new ItemBuilder(Material.NAME_TAG)
+        inventory.setItem(4, new ItemBuilder(Material.BOOK)
             .name("§6" + title)
-            .lore(Arrays.asList(
-                "§7Выберите тип значения",
-                "§7для настройки параметра",
-                "",
-                currentValue != null ? "§7Текущее: §f" + currentValue.getDisplayValue() : "§7Не установлено"
-            ))
-            .build();
-        inventory.setItem(4, titleItem);
-        
-        // Типы значений
-        setupValueTypes();
-        
-        // Кнопки управления
-        setupControlButtons();
-    }
-    
-    /**
-     * Настройка типов значений
-     */
-    private void setupValueTypes() {
-        ValueType[] types = ValueType.values();
-        int startSlot = 19; // Начинаем с третьего ряда
-        
-        for (int i = 0; i < types.length && i < 7; i++) {
-            ValueType type = types[i];
+            .lore("§7Выберите тип значения")
+            .build());
+
+        int slot = 10;
+        for (ValueType type : allowedTypes) {
+            Material material = getValueTypeMaterial(type);
             
-            ItemStack typeItem = new ItemBuilder(type.getIcon())
+            inventory.setItem(slot, new ItemBuilder(material)
                 .name("§e" + type.getDisplayName())
                 .lore(Arrays.asList(
                     "§7" + type.getDescription(),
                     "",
-                    "§7Клик для выбора"
+                    "§eНажмите для выбора"
                 ))
-                .build();
+                .build());
             
-            inventory.setItem(startSlot + i, typeItem);
+            slot++;
+            if (slot == 17) slot = 19;
+            if (slot == 26) slot = 28;
         }
-        
-        // Второй ряд для остальных типов
-        if (types.length > 7) {
-            for (int i = 7; i < types.length && i < 14; i++) {
-                ValueType type = types[i];
-                
-                ItemStack typeItem = new ItemBuilder(type.getIcon())
-                    .name("§e" + type.getDisplayName())
-                    .lore(Arrays.asList(
-                        "§7" + type.getDescription(),
-                        "",
-                        "§7Клик для выбора"
-                    ))
-                    .build();
-                
-                inventory.setItem(startSlot + 9 + (i - 7), typeItem);
-            }
-        }
-    }
-    
-    /**
-     * Кнопки управления
-     */
-    private void setupControlButtons() {
-        // Текущее значение (если есть)
-        if (currentValue != null) {
-            ItemStack current = new ItemBuilder(Material.WRITABLE_BOOK)
-                .name("§aТекущее значение")
-                .lore(Arrays.asList(
-                    "§7Тип: §f" + currentValue.getType().getDisplayName(),
-                    "§7Значение: §f" + currentValue.getDisplayValue(),
-                    "",
-                    "§7Клик для редактирования"
-                ))
-                .build();
-            inventory.setItem(48, current);
-        }
-        
-        // Удалить значение
-        ItemStack remove = new ItemBuilder(Material.BARRIER)
-            .name("§cУдалить значение")
-            .lore(Arrays.asList(
-                "§7Очистить параметр"
-            ))
-            .build();
-        inventory.setItem(49, remove);
-        
-        // Отмена
-        ItemStack cancel = new ItemBuilder(Material.ARROW)
+
+        // Кнопки управления
+        inventory.setItem(49, new ItemBuilder(Material.ARROW)
             .name("§7Назад")
-            .lore(Arrays.asList(
-                "§7Вернуться без изменений"
-            ))
-            .build();
-        inventory.setItem(50, cancel);
+            .build());
+
+        inventory.setItem(50, new ItemBuilder(Material.BARRIER)
+            .name("§cОтмена")
+            .build());
     }
-    
-    /**
-     * Обработка кликов
-     */
-    public void handleClick(int slot) {
-        if (slot == 48 && currentValue != null) {
-            // Редактирование текущего значения
-            openValueEditor(currentValue.getType(), currentValue.getRawValue());
-        } else if (slot == 49) {
-            // Удаление значения
-            callback.accept(null);
+
+    private Material getValueTypeMaterial(ValueType type) {
+        return switch (type) {
+            case TEXT -> Material.PAPER;
+            case NUMBER -> Material.GOLD_NUGGET;
+            case VARIABLE -> Material.CHEST;
+            case LOCATION -> Material.COMPASS;
+            case ITEM -> Material.DIAMOND;
+            case SOUND -> Material.NOTE_BLOCK;
+            case PARTICLE -> Material.BLAZE_POWDER;
+            case POTION_EFFECT -> Material.POTION;
+            default -> Material.STONE;
+        };
+    }
+
+    public void open() {
+        player.openInventory(inventory);
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!event.getView().getTitle().equals("§6" + title)) return;
+        if (!(event.getWhoClicked() instanceof Player)) return;
+        if (!event.getWhoClicked().getUniqueId().equals(player.getUniqueId())) return;
+
+        event.setCancelled(true);
+
+        int slot = event.getSlot();
+        ItemStack clicked = event.getCurrentItem();
+        if (clicked == null || clicked.getType() == Material.AIR) return;
+
+        // Кнопки управления
+        if (slot == 49) {
+            // Назад - пока просто закрываем
             player.closeInventory();
-            MessageUtil.send(player, "&cЗначение удалено");
-        } else if (slot == 50) {
+            return;
+        }
+
+        if (slot == 50) {
             // Отмена
             player.closeInventory();
-        } else {
-            // Проверка типов значений
-            ValueType selectedType = getValueTypeBySlot(slot);
-            if (selectedType != null) {
-                openValueEditor(selectedType, "");
-            }
+            return;
+        }
+
+        // Выбор типа значения
+        ValueType selectedType = getValueTypeFromSlot(slot);
+        if (selectedType != null) {
+            player.closeInventory();
+            openValueInput(selectedType);
         }
     }
-    
-    /**
-     * Получение типа значения по слоту
-     */
-    private ValueType getValueTypeBySlot(int slot) {
-        ValueType[] types = ValueType.values();
-        
-        // Первый ряд (слоты 19-25)
-        if (slot >= 19 && slot <= 25) {
-            int index = slot - 19;
-            return index < types.length ? types[index] : null;
+
+    private ValueType getValueTypeFromSlot(int slot) {
+        int index = -1;
+        if (slot >= 10 && slot <= 16) index = slot - 10;
+        else if (slot >= 19 && slot <= 25) index = slot - 19 + 7;
+        else if (slot >= 28 && slot <= 34) index = slot - 28 + 14;
+
+        if (index >= 0 && index < allowedTypes.length) {
+            return allowedTypes[index];
         }
-        
-        // Второй ряд (слоты 28-34)
-        if (slot >= 28 && slot <= 34) {
-            int index = (slot - 28) + 7;
-            return index < types.length ? types[index] : null;
-        }
-        
         return null;
     }
-    
-    /**
-     * Открытие редактора значения
-     */
-    private void openValueEditor(ValueType type, String initialValue) {
-        player.closeInventory();
-        
-        // В будущем здесь будет полноценный редактор
-        // Пока что показываем простое сообщение
-        MessageUtil.send(player, "&eВведите значение для типа: &f" + type.getDisplayName());
-        MessageUtil.send(player, "&7Пример: " + getExampleValue(type));
-        
-        // Создаем значение по умолчанию
-        Value defaultValue = Value.create(type, getExampleValue(type));
-        callback.accept(defaultValue);
-    }
-    
-    /**
-     * Получение примера значения для типа
-     */
-    private String getExampleValue(ValueType type) {
+
+    private void openValueInput(ValueType type) {
         switch (type) {
             case TEXT:
-                return "Привет, %player%!";
+                AnvilGUIHelper.openTextInput(plugin, player, "Введите текст", "", (text) -> {
+                    callback.accept(text);
+                });
+                break;
+
             case NUMBER:
-                return "10";
+                AnvilGUIHelper.openNumberInput(plugin, player, "Введите число", "0", (number) -> {
+                    callback.accept(number);
+                });
+                break;
+
             case VARIABLE:
-                return "%player_health%";
+                openVariableSelector();
+                break;
+
             case LOCATION:
-                return "world,0,64,0,0,0";
-            case POTION_EFFECT:
-                return "SPEED,600,0,false,true";
-            case PARTICLE:
-                return "FLAME,10,0.5,0.5,0.5,0.1";
+                openLocationSelector();
+                break;
+
             case ITEM:
-                return "DIAMOND,1,&bСпециальный алмаз";
+                openItemSelector();
+                break;
+
             case SOUND:
-                return "ENTITY_EXPERIENCE_ORB_PICKUP,1.0,1.0";
+                openSoundSelector();
+                break;
+
+            case PARTICLE:
+                openParticleSelector();
+                break;
+
+            case POTION_EFFECT:
+                openPotionEffectSelector();
+                break;
+
             default:
-                return "";
+                player.sendMessage("§cТип значения не поддерживается");
+                break;
         }
     }
-    
-    public Inventory getInventory() {
-        return inventory;
+
+    private void openVariableSelector() {
+        // Простой выбор переменных
+        player.sendMessage("§eВыберите тип переменной:");
+        player.sendMessage("§7- §eglobal:<имя> §7- глобальная переменная");
+        player.sendMessage("§7- §elocal:<имя> §7- локальная переменная");
+        player.sendMessage("§7- §esystem:<имя> §7- системная переменная");
+        player.sendMessage("§7Введите в чат имя переменной:");
     }
-    
-    public Player getPlayer() {
-        return player;
+
+    private void openLocationSelector() {
+        // Простой выбор локаций
+        player.sendMessage("§eВыберите локацию:");
+        player.sendMessage("§7- §ecurrent §7- текущая позиция");
+        player.sendMessage("§7- §espawn §7- точка спавна мира");
+        player.sendMessage("§7- §ebed §7- кровать игрока");
+        player.sendMessage("§7- §ex,y,z §7- координаты (например: 100,64,200)");
+        player.sendMessage("§7Введите в чат тип локации:");
+    }
+
+    private void openItemSelector() {
+        // Предмет в руке или по ID
+        ItemStack inHand = player.getInventory().getItemInMainHand();
+        if (inHand != null && inHand.getType() != Material.AIR) {
+            callback.accept(inHand);
+            player.sendMessage("§aВыбран предмет из руки: " + inHand.getType().name());
+        } else {
+            player.sendMessage("§cВозьмите предмет в руку или введите ID материала в чат:");
+        }
+    }
+
+    private void openSoundSelector() {
+        player.sendMessage("§eВведите название звука в чат:");
+        player.sendMessage("§7Примеры: ENTITY_PLAYER_LEVELUP, BLOCK_NOTE_BLOCK_PLING");
+    }
+
+    private void openParticleSelector() {
+        player.sendMessage("§eВведите название частицы в чат:");
+        player.sendMessage("§7Примеры: FLAME, HEART, EXPLOSION_LARGE");
+    }
+
+    private void openPotionEffectSelector() {
+        player.sendMessage("§eВведите эффект зелья в чат:");
+        player.sendMessage("§7Примеры: SPEED, STRENGTH, REGENERATION");
     }
 }

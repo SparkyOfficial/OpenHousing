@@ -7,6 +7,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.CodeBlock;
+import ru.openhousing.coding.values.ValueType;
 import ru.openhousing.utils.ItemBuilder;
 import ru.openhousing.utils.MessageUtil;
 import org.bukkit.event.EventHandler;
@@ -399,10 +400,24 @@ public class BlockConfigGUI implements Listener {
             // TODO: Создать GUI для выбора типа действия
         } else if (slot == 20) { // Цель действия
             player.closeInventory();
-            MessageUtil.send(player, "&6Введите имя игрока или используйте @a, @p, @r:");
+            ValueType[] playerTypes = {ValueType.TEXT, ValueType.VARIABLE};
+            ValueSelectorGUI selector = new ValueSelectorGUI(plugin, player, "Выбор игрока", playerTypes, (value) -> {
+                block.setParameter("target", value);
+                MessageUtil.send(player, "&aЦель установлена: &e" + value);
+                // Возвращаемся к настройке блока
+                this.open();
+            });
+            selector.open();
         } else if (slot == 21) { // Значение
             player.closeInventory();
-            MessageUtil.send(player, "&6Введите значение (текст сообщения, координаты и т.д.):");
+            ValueType[] valueTypes = {ValueType.TEXT, ValueType.NUMBER, ValueType.VARIABLE, ValueType.LOCATION};
+            ValueSelectorGUI selector = new ValueSelectorGUI(plugin, player, "Выбор значения", valueTypes, (value) -> {
+                block.setParameter("value", value);
+                MessageUtil.send(player, "&aЗначение установлено: &e" + value);
+                // Возвращаемся к настройке блока
+                this.open();
+            });
+            selector.open();
         }
     }
     
@@ -412,10 +427,22 @@ public class BlockConfigGUI implements Listener {
     private void handleIfPlayerClick(int slot, boolean isShiftClick) {
         if (slot == 19) { // Условие
             player.closeInventory();
-            MessageUtil.send(player, "&6Введите тип условия (HEALTH, LEVEL, GAMEMODE, HAS_PERMISSION):");
+            ValueType[] conditionTypes = {ValueType.TEXT};
+            ValueSelectorGUI selector = new ValueSelectorGUI(plugin, player, "Тип условия", conditionTypes, (value) -> {
+                block.setParameter("condition", value);
+                MessageUtil.send(player, "&aУсловие установлено: &e" + value);
+                this.open();
+            });
+            selector.open();
         } else if (slot == 20) { // Значение сравнения
             player.closeInventory();
-            MessageUtil.send(player, "&6Введите значение для сравнения:");
+            ValueType[] valueTypes = {ValueType.TEXT, ValueType.NUMBER, ValueType.VARIABLE};
+            ValueSelectorGUI selector = new ValueSelectorGUI(plugin, player, "Значение сравнения", valueTypes, (value) -> {
+                block.setParameter("compareValue", value);
+                MessageUtil.send(player, "&aЗначение сравнения установлено: &e" + value);
+                this.open();
+            });
+            selector.open();
         } else if (slot == 21) { // Операция
             // Циклически переключаем операции
             String[] operations = {"=", ">", "<", ">=", "<=", "!="};
