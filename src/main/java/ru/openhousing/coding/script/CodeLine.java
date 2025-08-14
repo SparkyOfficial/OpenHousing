@@ -227,29 +227,4 @@ public class CodeLine {
     public int hashCode() {
         return Objects.hash(lineNumber);
     }
-    
-    public String getDescription() {
-        return description != null ? description : "";
-    }
-    
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    
-    public int getBlockCount() {
-        return blocks.size();
-    }
-    
-    public boolean isEmpty() {
-        return blocks.isEmpty();
-    }
-    
-    public boolean isValid() {
-        // Простая валидация - строка валидна если пуста или содержит хотя бы один блок
-        return blocks.isEmpty() || blocks.stream().allMatch(block -> block != null);
-    }
-    
-    public void clearBlocks() {
-        blocks.clear();
-    }
 }

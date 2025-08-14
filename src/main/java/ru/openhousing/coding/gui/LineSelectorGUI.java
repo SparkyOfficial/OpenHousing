@@ -308,7 +308,7 @@ public class LineSelectorGUI implements Listener {
                 try {
                     // Создаем временный CodeEditorGUI для совместимости
                     ru.openhousing.coding.gui.CodeEditorGUI tempEditor = 
-                        new ru.openhousing.coding.gui.CodeEditorGUI(plugin, player);
+                        new ru.openhousing.coding.gui.CodeEditorGUI(plugin, player, script);
                     
                     BlockConfigGUI configGUI = new BlockConfigGUI(plugin, player, block, tempEditor);
                     configGUI.open();
