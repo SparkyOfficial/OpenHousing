@@ -244,10 +244,18 @@ public class LineSettingsGUI implements Listener {
                 break;
                 
             case 24: // Дублировать строку
-                CodeLine duplicate = line.clone();
-                duplicate.setName(line.getName() + " (копия)");
-                // TODO: Добавить дублированную строку в скрипт
-                MessageUtil.send(player, "&aСтрока дублирована");
+                try {
+                    CodeLine duplicate = line.clone();
+                    duplicate.setName(line.getName() + " (копия)");
+                    
+                    // Добавляем дублированную строку после текущей
+                    script.insertLine(line.getLineNumber() + 1, duplicate);
+                    
+                    MessageUtil.send(player, "&aСтрока дублирована и добавлена под номером " + (line.getLineNumber() + 1));
+                    setupGUI(); // Обновляем GUI
+                } catch (Exception e) {
+                    MessageUtil.send(player, "&cОшибка дублирования строки: " + e.getMessage());
+                }
                 break;
                 
             case 25: // Удалить строку
@@ -264,13 +272,29 @@ public class LineSettingsGUI implements Listener {
                 break;
                 
             case 37: // Переместить вверх
-                // TODO: Реализовать перемещение строк
-                MessageUtil.send(player, "&eПеремещение строк будет добавлено в следующих обновлениях");
+                if (line.getLineNumber() > 1) {
+                    if (script.moveLineUp(line.getLineNumber())) {
+                        MessageUtil.send(player, "&aСтрока перемещена вверх");
+                        setupGUI(); // Обновляем GUI
+                    } else {
+                        MessageUtil.send(player, "&cОшибка перемещения строки");
+                    }
+                } else {
+                    MessageUtil.send(player, "&eСтрока уже находится в самом верху");
+                }
                 break;
                 
             case 43: // Переместить вниз
-                // TODO: Реализовать перемещение строк
-                MessageUtil.send(player, "&eПеремещение строк будет добавлено в следующих обновлениях");
+                if (line.getLineNumber() < script.getLineCount()) {
+                    if (script.moveLineDown(line.getLineNumber())) {
+                        MessageUtil.send(player, "&aСтрока перемещена вниз");
+                        setupGUI(); // Обновляем GUI
+                    } else {
+                        MessageUtil.send(player, "&cОшибка перемещения строки");
+                    }
+                } else {
+                    MessageUtil.send(player, "&eСтрока уже находится в самом низу");
+                }
                 break;
                 
             case 40: // Сохранить

@@ -365,6 +365,36 @@ public class HousingCommand implements CommandExecutor, TabCompleter {
     }
     
     /**
+     * Настройки дома
+     */
+    private void houseSettings(Player player, String[] args) {
+        List<House> houses = plugin.getHousingManager().getPlayerHouses(player.getUniqueId());
+        if (houses.isEmpty()) {
+            MessageUtil.send(player, "&cУ вас нет домов!");
+            return;
+        }
+        
+        House house = houses.get(0);
+        
+        MessageUtil.send(player,
+            "&6&l=== Настройки дома ===",
+            "&eНазвание: &f" + house.getName(),
+            "&eВладелец: &f" + house.getOwnerName(),
+            "&eРазмер: &f" + house.getSize().getDisplayName(),
+            "&eПубличный: " + (house.isPublic() ? "&aДа" : "&cНет"),
+            "&eРазрешенные игроки: &f" + house.getAllowedPlayers().size(),
+            "&eЗаблокированные игроки: &f" + house.getBannedPlayers().size(),
+            "",
+            "&7Доступные команды:",
+            "&e/housing public &7- переключить публичность",
+            "&e/housing allow <игрок> &7- разрешить доступ",
+            "&e/housing ban <игрок> &7- заблокировать игрока"
+        );
+        
+        // TODO: В будущем можно добавить GUI для настроек
+    }
+    
+    /**
      * Информация о доме
      */
     private void houseInfo(Player player, String[] args) {

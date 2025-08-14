@@ -340,18 +340,38 @@ public class CodeEditorGUI implements InventoryHolder {
                 (line.isEmpty() ? Material.PAPER : Material.WRITTEN_BOOK) : 
                 Material.BOOK;
             
+            // Анализируем связи строки
+            List<String> lore = new ArrayList<>();
+            lore.add("§7Номер: §f#" + line.getLineNumber());
+            lore.add("§7Блоков: §f" + line.getBlockCount());
+            lore.add("§7Состояние: " + (line.isEnabled() ? "§aВключена" : "§cВыключена"));
+            lore.add("§7Описание: §f" + (line.getDescription().isEmpty() ? "Нет" : line.getDescription()));
+            
+            // Добавляем информацию о связях
+            if (line.getBlockCount() > 0) {
+                lore.add("");
+                lore.add("§6Структура строки:");
+                
+                // Показываем первые несколько блоков
+                for (int j = 0; j < Math.min(3, line.getBlocks().size()); j++) {
+                    CodeBlock block = line.getBlocks().get(j);
+                    String blockIcon = getBlockIcon(block.getType());
+                    lore.add("§8" + (j + 1) + ". " + blockIcon + " §f" + block.getType().getDisplayName());
+                }
+                
+                if (line.getBlocks().size() > 3) {
+                    lore.add("§8... и еще " + (line.getBlocks().size() - 3) + " блоков");
+                }
+            }
+            
+            lore.add("");
+            lore.add("§eЛевый клик - просмотр блоков");
+            lore.add("§eПравый клик - настройки строки");
+            lore.add("§eShift+Клик - добавить блок");
+            
             ItemStack lineItem = new ItemBuilder(lineMaterial)
                 .name("§e" + line.getName())
-                .lore(Arrays.asList(
-                    "§7Номер: §f#" + line.getLineNumber(),
-                    "§7Блоков: §f" + line.getBlockCount(),
-                    "§7Состояние: " + (line.isEnabled() ? "§aВключена" : "§cВыключена"),
-                    "§7Описание: §f" + (line.getDescription().isEmpty() ? "Нет" : line.getDescription()),
-                    "",
-                    "§eЛевый клик - просмотр блоков",
-                    "§eПравый клик - настройки строки",
-                    "§eShift+Клик - добавить блок"
-                ))
+                .lore(lore)
                 .build();
             
             inventory.setItem(slot, lineItem);
@@ -800,9 +820,60 @@ public class CodeEditorGUI implements InventoryHolder {
                 return;
             }
             
-            player.sendMessage("§aНайдено " + foundBlocks.size() + " блоков по запросу '" + searchTerm + "'");
-            this.open();
+            // Показываем результаты поиска в GUI
+            showSearchResults(foundBlocks, searchTerm);
         });
+    }
+    
+    /**
+     * Получить иконку для типа блока
+     */
+    private String getBlockIcon(BlockType blockType) {
+        return switch (blockType.getCategory()) {
+            case EVENT -> "⚡";
+            case ACTION -> "🔧";
+            case CONDITION -> "❓";
+            case CONTROL -> "🔄";
+            case VARIABLE -> "📦";
+            case FUNCTION -> "📋";
+            default -> "▪";
+        };
+    }
+    
+    /**
+     * Показать результаты поиска блоков
+     */
+    private void showSearchResults(List<BlockType> foundBlocks, String searchTerm) {
+        Inventory searchInventory = Bukkit.createInventory(null, 54, "§6Результаты поиска: " + searchTerm);
+        
+        int slot = 10;
+        for (BlockType blockType : foundBlocks) {
+            if (slot >= 44) break; // Ограничиваем количество результатов
+            
+            Material material = getBlockTypeMaterial(blockType);
+            searchInventory.setItem(slot, new ItemBuilder(material)
+                .name("§e" + blockType.getDisplayName())
+                .lore(Arrays.asList(
+                    "§7" + blockType.getDescription(),
+                    "§7Категория: §f" + blockType.getCategory().getDisplayName(),
+                    "",
+                    "§eЛевый клик - добавить в текущую строку",
+                    "§eПравый клик - создать новую строку"
+                ))
+                .build());
+                
+            slot++;
+            if (slot == 17) slot = 19; // Пропускаем ряд
+            if (slot == 26) slot = 28;
+            if (slot == 35) slot = 37;
+        }
+        
+        // Кнопка назад
+        searchInventory.setItem(49, new ItemBuilder(Material.ARROW)
+            .name("§7Назад к редактору")
+            .build());
+            
+        player.openInventory(searchInventory);
     }
     
     /**

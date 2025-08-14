@@ -235,15 +235,146 @@ public class BlockConfigGUI implements Listener {
      * Заглушки для остальных типов блоков
      */
     private void setupEntityEventSettings(int startSlot) {
-        setupGenericSettings(startSlot, "событие существа");
+        // Тип события существа
+        inventory.setItem(19, new ItemBuilder(Material.ZOMBIE_HEAD)
+            .name("§6Тип события")
+            .lore(Arrays.asList(
+                "§7Текущий: §e" + block.getParameter("eventType"),
+                "",
+                "§7Доступные события:",
+                "§7• SPAWN - спавн существа",
+                "§7• DEATH - смерть существа", 
+                "§7• DAMAGE - получение урона",
+                "§7• EXPLODE - взрыв существа",
+                "§7• FREEZE - замерзание",
+                "§7• MOUNT/DISMOUNT - сесть/слезть",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build());
+
+        // Тип существа
+        inventory.setItem(20, new ItemBuilder(Material.SPAWN_EGG)
+            .name("§6Тип существа")
+            .lore(Arrays.asList(
+                "§7Текущий: §e" + block.getParameter("entityType"),
+                "",
+                "§7Выберите тип существа:",
+                "§7• ANY - любое существо",
+                "§7• ZOMBIE, SKELETON, CREEPER",
+                "§7• PLAYER - только игроки",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build());
+
+        // Мир
+        inventory.setItem(21, new ItemBuilder(Material.GRASS_BLOCK)
+            .name("§6Мир события")
+            .lore(Arrays.asList(
+                "§7Текущий: §e" + block.getParameter("world"),
+                "",
+                "§7Укажите мир или оставьте пустым",
+                "§7для любого мира",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build());
     }
     
     private void setupWorldEventSettings(int startSlot) {
-        setupGenericSettings(startSlot, "событие мира");
+        // Тип события мира
+        inventory.setItem(19, new ItemBuilder(Material.GRASS_BLOCK)
+            .name("§6Тип события")
+            .lore(Arrays.asList(
+                "§7Текущий: §e" + block.getParameter("eventType"),
+                "",
+                "§7Доступные события:",
+                "§7• BLOCK_BREAK - разрушение блока",
+                "§7• BLOCK_PLACE - установка блока",
+                "§7• WEATHER_CHANGE - смена погоды",
+                "§7• EXPLOSION - взрыв",
+                "§7• WATER_LEVEL_CHANGE - изменение воды",
+                "§7• DROPPER_DROP - сброс дроппера",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build());
+
+        // Тип блока
+        inventory.setItem(20, new ItemBuilder(Material.STONE)
+            .name("§6Тип блока")
+            .lore(Arrays.asList(
+                "§7Текущий: §e" + block.getParameter("blockType"),
+                "",
+                "§7Укажите тип блока или оставьте",
+                "§7пустым для любого блока",
+                "§7Примеры: STONE, DIRT, DIAMOND_ORE",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build());
+
+        // Мир
+        inventory.setItem(21, new ItemBuilder(Material.COMPASS)
+            .name("§6Мир события")
+            .lore(Arrays.asList(
+                "§7Текущий: §e" + block.getParameter("world"),
+                "",
+                "§7Укажите мир или оставьте пустым",
+                "§7для любого мира",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build());
     }
     
     private void setupIfPlayerSettings(int startSlot) {
-        setupGenericSettings(startSlot, "условие игрока");
+        // Тип условия
+        inventory.setItem(19, new ItemBuilder(Material.COMPARATOR)
+            .name("§6Тип условия")
+            .lore(Arrays.asList(
+                "§7Текущий: §e" + block.getParameter("conditionType"),
+                "",
+                "§7Доступные условия:",
+                "§7• HEALTH - здоровье игрока",
+                "§7• LEVEL - уровень игрока",
+                "§7• GAMEMODE - режим игры",
+                "§7• PERMISSION - права игрока",
+                "§7• ITEM_IN_HAND - предмет в руке",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build());
+
+        // Игрок для проверки
+        inventory.setItem(20, new ItemBuilder(Material.PLAYER_HEAD)
+            .name("§6Игрок")
+            .lore(Arrays.asList(
+                "§7Текущий: §e" + block.getParameter("target"),
+                "",
+                "§7Выберите игрока для проверки:",
+                "§7• @s - сам игрок",
+                "§7• @p - ближайший игрок",
+                "§7• имя игрока",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build());
+
+        // Значение для сравнения
+        inventory.setItem(21, new ItemBuilder(Material.PAPER)
+            .name("§6Значение сравнения")
+            .lore(Arrays.asList(
+                "§7Текущее: §e" + block.getParameter("compareValue"),
+                "",
+                "§7Значение для сравнения с условием",
+                "§7Например: 20 (для здоровья)",
+                "§7или CREATIVE (для режима игры)",
+                "",
+                "§eКлик для изменения"
+            ))
+            .build());
     }
     
     private void setupIfEntitySettings(int startSlot) {
@@ -370,6 +501,15 @@ public class BlockConfigGUI implements Listener {
             case IF_PLAYER:
                 handleIfPlayerClick(slot, isShiftClick);
                 break;
+            case ENTITY_EVENT:
+                handleEntityEventClick(slot, isShiftClick);
+                break;
+            case WORLD_EVENT:
+                handleWorldEventClick(slot, isShiftClick);
+                break;
+            case VARIABLE_ACTION:
+                handleVariableActionClick(slot, isShiftClick);
+                break;
             default:
                 handleGenericClick(slot, isShiftClick);
                 break;
@@ -481,6 +621,106 @@ public class BlockConfigGUI implements Listener {
             
             MessageUtil.send(player, "&aОперация изменена на: &e" + operations[nextIndex]);
             setupInventory(); // Обновляем GUI
+        }
+    }
+    
+    /**
+     * Обработка кликов для событий существ
+     */
+    private void handleEntityEventClick(int slot, boolean isShiftClick) {
+        if (slot == 19) { // Тип события
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Тип события существа", "SPAWN", (eventType) -> {
+                try {
+                    // Проверяем, что введенный тип события существует
+                    ru.openhousing.coding.blocks.events.EntityEventBlock.EntityEventType.valueOf(eventType.toUpperCase());
+                    block.setParameter("eventType", eventType.toUpperCase());
+                    MessageUtil.send(player, "&aТип события установлен: &e" + eventType.toUpperCase());
+                    this.open();
+                } catch (IllegalArgumentException e) {
+                    MessageUtil.send(player, "&cНеверный тип события! Доступные: SPAWN, DEATH, DAMAGE, EXPLODE, FREEZE и др.");
+                    this.open();
+                }
+            });
+        } else if (slot == 20) { // Тип существа
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Тип существа", "ANY", (entityType) -> {
+                block.setParameter("entityType", entityType.toUpperCase());
+                MessageUtil.send(player, "&aТип существа установлен: &e" + entityType.toUpperCase());
+                this.open();
+            });
+        } else if (slot == 21) { // Мир
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Мир события", "", (world) -> {
+                block.setParameter("world", world);
+                MessageUtil.send(player, "&aМир установлен: &e" + world);
+                this.open();
+            });
+        }
+    }
+    
+    /**
+     * Обработка кликов для событий мира
+     */
+    private void handleWorldEventClick(int slot, boolean isShiftClick) {
+        if (slot == 19) { // Тип события
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Тип события мира", "BLOCK_BREAK", (eventType) -> {
+                try {
+                    // Проверяем, что введенный тип события существует
+                    ru.openhousing.coding.blocks.events.WorldEventBlock.WorldEventType.valueOf(eventType.toUpperCase());
+                    block.setParameter("eventType", eventType.toUpperCase());
+                    MessageUtil.send(player, "&aТип события установлен: &e" + eventType.toUpperCase());
+                    this.open();
+                } catch (IllegalArgumentException e) {
+                    MessageUtil.send(player, "&cНеверный тип события! Доступные: BLOCK_BREAK, WEATHER_CHANGE, EXPLOSION и др.");
+                    this.open();
+                }
+            });
+        } else if (slot == 20) { // Тип блока
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Тип блока", "ANY", (blockType) -> {
+                block.setParameter("blockType", blockType.toUpperCase());
+                MessageUtil.send(player, "&aТип блока установлен: &e" + blockType.toUpperCase());
+                this.open();
+            });
+        } else if (slot == 21) { // Мир
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Мир события", "", (world) -> {
+                block.setParameter("world", world);
+                MessageUtil.send(player, "&aМир установлен: &e" + world);
+                this.open();
+            });
+        }
+    }
+    
+    /**
+     * Обработка кликов для действий с переменными
+     */
+    private void handleVariableActionClick(int slot, boolean isShiftClick) {
+        if (slot == 19) { // Тип действия
+            player.closeInventory();
+            AnvilGUIHelper.openTextInput(plugin, player, "Тип действия", "SET", (actionType) -> {
+                block.setParameter("actionType", actionType.toUpperCase());
+                MessageUtil.send(player, "&aТип действия установлен: &e" + actionType.toUpperCase());
+                this.open();
+            });
+        } else if (slot == 20) { // Имя переменной
+            player.closeInventory();
+            new VariableSelectorGUI(plugin, player, (variableValue) -> {
+                block.setParameter("variableName", variableValue.toString());
+                MessageUtil.send(player, "&aПеременная выбрана: &e" + variableValue.toString());
+                this.open();
+            }, true).open(); // true = для установки переменной
+        } else if (slot == 21) { // Значение
+            player.closeInventory();
+            ValueType[] valueTypes = {ValueType.TEXT, ValueType.NUMBER, ValueType.VARIABLE};
+            ValueSelectorGUI selector = new ValueSelectorGUI(plugin, player, "Значение переменной", valueTypes, (value) -> {
+                block.setParameter("value", value);
+                MessageUtil.send(player, "&aЗначение установлено: &e" + value);
+                this.open();
+            });
+            selector.open();
         }
     }
     
