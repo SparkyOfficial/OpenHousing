@@ -141,15 +141,28 @@ public class CodeEditorGUI implements InventoryHolder {
             ))
             .build());
         
-        // Настройки
-        inventory.setItem(16, new ItemBuilder(Material.REDSTONE)
-            .name("§6Настройки")
+        // Поиск блоков
+        inventory.setItem(16, new ItemBuilder(Material.SPYGLASS)
+            .name("§eПоиск блоков")
             .lore(Arrays.asList(
-                "§7Настройки вашего скрипта",
+                "§7Быстрый поиск блоков",
+                "§7по названию или типу",
                 "",
+                "§eНажмите для поиска"
+            ))
+            .build());
+            
+        // Настройки
+        inventory.setItem(28, new ItemBuilder(Material.REDSTONE)
+            .name("§6Настройки скрипта")
+            .lore(Arrays.asList(
                 "§7Статус: " + (script.isEnabled() ? "§aВключен" : "§cОтключен"),
                 "",
-                "§eНажмите, чтобы открыть настройки"
+                "§7Включить/выключить скрипт",
+                "§7Очистить скрипт",
+                "§7Статистика и диагностика",
+                "",
+                "§eНажмите, чтобы открыть"
             ))
             .build());
         
@@ -501,12 +514,11 @@ public class CodeEditorGUI implements InventoryHolder {
                 plugin.getCodeManager().executeScript(player);
                 player.sendMessage("§aСкрипт выполнен!");
                 break;
-            case 16: // Настройки
-                plugin.getLogger().info("Toggling script enabled");
-                script.setEnabled(!script.isEnabled());
-                player.sendMessage(script.isEnabled() ? 
-                    "§aСкрипт включен!" : "§cСкрипт отключен!");
-                updateInventory();
+            case 16: // Поиск блоков
+                openBlockSearch();
+                break;
+            case 28: // Настройки
+                openScriptSettings();
                 break;
             case 32: // Очистить скрипт
                 plugin.getLogger().info("Clearing script");
@@ -569,10 +581,22 @@ public class CodeEditorGUI implements InventoryHolder {
             return;
         }
         
-        int lineIndex = getLineIndexFromSlot(slot);
-        if (lineIndex >= 0) {
-            int actualIndex = page * 21 + lineIndex; // 21 строк на страницу
-            List<CodeLine> lines = script.getLines();
+        // Проверяем клик по строке (слоты 18-44)
+        if (slot >= 18 && slot <= 44) {
+            int lineIndex = -1;
+            
+            // Вычисляем индекс строки из слота
+            if (slot >= 18 && slot <= 25) {
+                lineIndex = slot - 18;
+            } else if (slot >= 27 && slot <= 34) {
+                lineIndex = 8 + (slot - 27);
+            } else if (slot >= 36 && slot <= 43) {
+                lineIndex = 16 + (slot - 36);
+            }
+            
+            if (lineIndex >= 0) {
+                int actualIndex = page * 21 + lineIndex; // 21 строк на страницу
+                List<CodeLine> lines = script.getLines();
             
             if (actualIndex < lines.size()) {
                 CodeLine selectedLine = lines.get(actualIndex);
@@ -590,6 +614,7 @@ public class CodeEditorGUI implements InventoryHolder {
                 }
             }
         }
+    }
     }
     
     private void handleBlockEditClick(int slot) {
@@ -751,22 +776,54 @@ public class CodeEditorGUI implements InventoryHolder {
         return -1;
     }
     
-    private int getLineIndexFromSlot(int slot) {
-        // Слоты для строк: 18-44 (пропуская границы)
-        if (slot >= 18 && slot <= 25) {
-            return slot - 18; // Первый ряд строк: 0-7
-        }
-        if (slot >= 27 && slot <= 34) {
-            return 8 + (slot - 27); // Второй ряд строк: 8-15  
-        }
-        if (slot >= 36 && slot <= 43) {
-            return 16 + (slot - 36); // Третий ряд строк: 16-23
-        }
-        return -1;
+    /**
+     * Открыть поиск блоков
+     */
+    private void openBlockSearch() {
+        player.closeInventory();
+        plugin.getChatListener().expectInput(player, "Введите название блока для поиска", (searchTerm) -> {
+            // Создаем список найденных блоков
+            List<BlockType> foundBlocks = new ArrayList<>();
+            
+            for (BlockType blockType : BlockType.values()) {
+                if (blockType.getDisplayName().toLowerCase().contains(searchTerm.toLowerCase()) ||
+                    blockType.name().toLowerCase().contains(searchTerm.toLowerCase()) ||
+                    blockType.getDescription().toLowerCase().contains(searchTerm.toLowerCase())) {
+                    foundBlocks.add(blockType);
+                }
+            }
+            
+            if (foundBlocks.isEmpty()) {
+                player.sendMessage("§cПо запросу '" + searchTerm + "' ничего не найдено");
+                this.open();
+                return;
+            }
+            
+            player.sendMessage("§aНайдено " + foundBlocks.size() + " блоков по запросу '" + searchTerm + "'");
+            this.open();
+        });
     }
+    
+    /**
+     * Открыть настройки скрипта
+     */
+    private void openScriptSettings() {
+        player.sendMessage("§6=== Настройки скрипта ===");
+        player.sendMessage("§7Статус: " + (script.isEnabled() ? "§aВключен" : "§cВыключен"));
+        
+        CodeScript.ScriptStats stats = script.getStats();
+        player.sendMessage("§7Блоков: §f" + stats.getTotalBlocks());
+        player.sendMessage("§7Строк: §f" + script.getLines().size());
+        player.sendMessage("§7Состояние: " + (stats.hasErrors() ? "§cЕсть ошибки" : "§aВсе в порядке"));
+        
+        this.open();
+    }
+    
+
     
     @Override
     public Inventory getInventory() {
         return inventory;
     }
 }
+

@@ -203,6 +203,16 @@ public class ItemBuilder {
     }
     
     /**
+     * Установка головы игрока (только для PLAYER_HEAD)
+     */
+    public ItemBuilder playerHead(String playerName) {
+        if (itemStack.getType() == Material.PLAYER_HEAD) {
+            setPlayerHead(itemStack, playerName);
+        }
+        return this;
+    }
+    
+    /**
      * Создание ItemStack
      */
     public ItemStack build() {

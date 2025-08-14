@@ -40,6 +40,7 @@ ru\openhousing\listeners\InventoryListener.class
 ru\openhousing\coding\blocks\conditions\IfPlayerBlock$PlayerConditionType.class
 ru\openhousing\housing\HousingManager$CreateHouseResult.class
 ru\openhousing\OpenHousing.class
+ru\openhousing\listeners\ChatListener$ChatInputSession.class
 ru\openhousing\coding\serialization\ScriptSerializer$CodeScriptAdapter.class
 ru\openhousing\coding\blocks\inventory\ItemCheckBlock.class
 ru\openhousing\coding\blocks\actions\EntityActionBlock.class
@@ -85,6 +86,7 @@ ru\openhousing\api\OpenHousingAPI.class
 ru\openhousing\coding\values\Value.class
 ru\openhousing\coding\serialization\ScriptSerializer.class
 ru\openhousing\coding\values\Value$1.class
+ru\openhousing\listeners\ChatListener.class
 ru\openhousing\coding\serialization\ScriptSerializer$CodeBlockAdapter.class
 ru\openhousing\coding\blocks\CodeBlock$ExecutionResult$Type.class
 ru\openhousing\coding\gui\BlockConfigGUI$1.class

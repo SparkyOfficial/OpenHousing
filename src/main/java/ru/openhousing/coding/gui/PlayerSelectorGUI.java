@@ -9,210 +9,218 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import ru.openhousing.OpenHousing;
+import ru.openhousing.utils.AnvilGUIHelper;
 import ru.openhousing.utils.ItemBuilder;
-import ru.openhousing.utils.MessageUtil;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * GUI для выбора игрока
+ * Специализированный GUI для выбора игроков
  */
 public class PlayerSelectorGUI implements Listener {
-    
+
     private final OpenHousing plugin;
     private final Player player;
+    private final Consumer<String> callback;
     private final Inventory inventory;
-    private final Consumer<String> onPlayerSelected;
-    private int page = 0;
-    
-    public PlayerSelectorGUI(OpenHousing plugin, Player player, Consumer<String> onPlayerSelected) {
+
+    public PlayerSelectorGUI(OpenHousing plugin, Player player, Consumer<String> callback) {
         this.plugin = plugin;
         this.player = player;
-        this.onPlayerSelected = onPlayerSelected;
-        this.inventory = Bukkit.createInventory(null, 54, "§6Выбор игрока");
-        
-        setupGUI();
+        this.callback = callback;
+        this.inventory = Bukkit.createInventory(null, 45, "§6Выбор игрока");
+
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        setupGUI();
     }
-    
+
+    private void setupGUI() {
+        inventory.clear();
+
+        // Заголовок
+        inventory.setItem(4, new ItemBuilder(Material.PLAYER_HEAD)
+            .name("§6Выбор игрока")
+            .lore("§7Выберите цель для действия")
+            .build());
+
+        // Селекторы игроков
+        inventory.setItem(10, new ItemBuilder(Material.COMPASS)
+            .name("§e@p - Ближайший игрок")
+            .lore(Arrays.asList(
+                "§7Выбрать ближайшего игрока",
+                "§7к месту выполнения",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build());
+
+        inventory.setItem(11, new ItemBuilder(Material.ENDER_EYE)
+            .name("§e@s - Сам игрок")
+            .lore(Arrays.asList(
+                "§7Выбрать игрока, который",
+                "§7запустил скрипт",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build());
+
+        inventory.setItem(12, new ItemBuilder(Material.FIREWORK_STAR)
+            .name("§e@r - Случайный игрок")
+            .lore(Arrays.asList(
+                "§7Выбрать случайного игрока",
+                "§7из онлайна",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build());
+
+        inventory.setItem(13, new ItemBuilder(Material.BEACON)
+            .name("§e@a - Все игроки")
+            .lore(Arrays.asList(
+                "§7Применить действие ко",
+                "§7всем онлайн игрокам",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build());
+
+        // Онлайн игроки
+        inventory.setItem(19, new ItemBuilder(Material.EMERALD)
+            .name("§aОнлайн игроки")
+            .lore(Arrays.asList(
+                "§7Выбрать конкретного",
+                "§7игрока из онлайна",
+                "",
+                "§eКлик для просмотра"
+            ))
+            .build());
+
+        // Ввод имени
+        inventory.setItem(20, new ItemBuilder(Material.NAME_TAG)
+            .name("§6Ввести имя игрока")
+            .lore(Arrays.asList(
+                "§7Ввести имя игрока",
+                "§7вручную",
+                "",
+                "§eКлик для ввода"
+            ))
+            .build());
+
+        // Переменная
+        inventory.setItem(21, new ItemBuilder(Material.CHEST)
+            .name("§dИз переменной")
+            .lore(Arrays.asList(
+                "§7Использовать значение",
+                "§7из переменной",
+                "",
+                "§eКлик для выбора"
+            ))
+            .build());
+
+        // Кнопки управления
+        inventory.setItem(40, new ItemBuilder(Material.ARROW)
+            .name("§7Назад")
+            .build());
+
+        inventory.setItem(44, new ItemBuilder(Material.BARRIER)
+            .name("§cОтмена")
+            .build());
+    }
+
     public void open() {
         player.openInventory(inventory);
     }
-    
-    private void setupGUI() {
-        inventory.clear();
-        
-        // Специальные селекторы
-        inventory.setItem(4, new ItemBuilder(Material.EMERALD)
-            .name("§6@p - Ближайший игрок")
-            .lore(Arrays.asList(
-                "§7Выбирает ближайшего игрока",
-                "§7к выполняющему скрипт",
-                "",
-                "§eКлик для выбора"
-            ))
-            .build());
-            
-        inventory.setItem(2, new ItemBuilder(Material.DIAMOND)
-            .name("§6@a - Все игроки")
-            .lore(Arrays.asList(
-                "§7Выбирает всех игроков",
-                "§7на сервере",
-                "",
-                "§eКлик для выбора"
-            ))
-            .build());
-            
-        inventory.setItem(6, new ItemBuilder(Material.GOLD_INGOT)
-            .name("§6@r - Случайный игрок")
-            .lore(Arrays.asList(
-                "§7Выбирает случайного игрока",
-                "§7из онлайн игроков",
-                "",
-                "§eКлик для выбора"
-            ))
-            .build());
-            
-        inventory.setItem(8, new ItemBuilder(Material.IRON_INGOT)
-            .name("§6@s - Себя")
-            .lore(Arrays.asList(
-                "§7Выбирает игрока,",
-                "§7который выполняет скрипт",
-                "",
-                "§eКлик для выбора"
-            ))
-            .build());
-        
-        // Онлайн игроки
-        List<Player> onlinePlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
-        int maxPlayers = 28; // 4 ряда по 7 игроков
-        int startIndex = page * maxPlayers;
-        int endIndex = Math.min(startIndex + maxPlayers, onlinePlayers.size());
-        
-        int slot = 18; // Начинаем с третьего ряда
-        for (int i = startIndex; i < endIndex; i++) {
-            Player onlinePlayer = onlinePlayers.get(i);
-            
-            ItemStack playerItem = new ItemBuilder(Material.PLAYER_HEAD)
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!event.getView().getTitle().equals("§6Выбор игрока")) return;
+        if (!(event.getWhoClicked() instanceof Player)) return;
+        if (!event.getWhoClicked().getUniqueId().equals(player.getUniqueId())) return;
+
+        event.setCancelled(true);
+
+        int slot = event.getSlot();
+        ItemStack clicked = event.getCurrentItem();
+        if (clicked == null || clicked.getType() == Material.AIR) return;
+
+        switch (slot) {
+            case 10: // @p
+                player.closeInventory();
+                callback.accept("@p");
+                break;
+
+            case 11: // @s
+                player.closeInventory();
+                callback.accept("@s");
+                break;
+
+            case 12: // @r
+                player.closeInventory();
+                callback.accept("@r");
+                break;
+
+            case 13: // @a
+                player.closeInventory();
+                callback.accept("@a");
+                break;
+
+            case 19: // Онлайн игроки
+                showOnlinePlayers();
+                break;
+
+            case 20: // Ввод имени
+                player.closeInventory();
+                AnvilGUIHelper.openTextInput(plugin, player, "Введите имя игрока", "", callback);
+                break;
+
+            case 21: // Переменная
+                player.closeInventory();
+                AnvilGUIHelper.openTextInput(plugin, player, "Введите имя переменной (например: player_name)", "", (varName) -> {
+                    callback.accept("${" + varName + "}");
+                });
+                break;
+
+            case 40: // Назад
+                player.closeInventory();
+                break;
+
+            case 44: // Отмена
+                player.closeInventory();
+                break;
+        }
+    }
+
+    private void showOnlinePlayers() {
+        // Создаем новый инвентарь для онлайн игроков
+        Inventory onlineInventory = Bukkit.createInventory(null, 54, "§6Онлайн игроки");
+
+        int slot = 10;
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            if (slot >= 44) break;
+
+            onlineInventory.setItem(slot, new ItemBuilder(Material.PLAYER_HEAD)
                 .name("§e" + onlinePlayer.getName())
                 .lore(Arrays.asList(
                     "§7Уровень: §f" + onlinePlayer.getLevel(),
                     "§7Мир: §f" + onlinePlayer.getWorld().getName(),
-                    "§7Игровой режим: §f" + onlinePlayer.getGameMode().name(),
                     "",
                     "§eКлик для выбора"
                 ))
-                .build();
-            
-            // Попытка установить скин игрока
-            try {
-                ItemBuilder.setPlayerHead(playerItem, onlinePlayer.getName());
-            } catch (Exception e) {
-                // Если не удалось установить скин, оставляем обычную голову
-            }
-            
-            inventory.setItem(slot, playerItem);
+                .playerHead(onlinePlayer.getName())
+                .build());
+
             slot++;
-            
-            // Пропускаем границы инвентаря
-            if (slot == 26) slot = 27;
-            if (slot == 35) slot = 36;
-            if (slot == 44) slot = 45;
+            if (slot == 17) slot = 19;
+            if (slot == 26) slot = 28;
+            if (slot == 35) slot = 37;
         }
-        
-        // Навигация
-        if (page > 0) {
-            inventory.setItem(45, new ItemBuilder(Material.ARROW)
-                .name("§7Предыдущая страница")
-                .build());
-        }
-        
-        if (endIndex < onlinePlayers.size()) {
-            inventory.setItem(53, new ItemBuilder(Material.ARROW)
-                .name("§7Следующая страница")
-                .build());
-        }
-        
-        // Кнопка закрытия
-        inventory.setItem(49, new ItemBuilder(Material.BARRIER)
-            .name("§cОтмена")
-            .lore("§7Закрыть без выбора")
+
+        // Кнопка назад
+        onlineInventory.setItem(49, new ItemBuilder(Material.ARROW)
+            .name("§7Назад к выбору")
             .build());
-    }
-    
-    @EventHandler
-    public void onInventoryClick(InventoryClickEvent event) {
-        if (!event.getView().getTitle().equals("§6Выбор игрока")) {
-            return;
-        }
-        
-        event.setCancelled(true);
-        
-        if (!(event.getWhoClicked() instanceof Player)) {
-            return;
-        }
-        
-        Player clicker = (Player) event.getWhoClicked();
-        if (!clicker.equals(player)) {
-            return;
-        }
-        
-        ItemStack clickedItem = event.getCurrentItem();
-        if (clickedItem == null || clickedItem.getType() == Material.AIR) {
-            return;
-        }
-        
-        int slot = event.getSlot();
-        
-        // Обработка кликов
-        if (slot == 2) { // @a
-            selectPlayer("@a");
-        } else if (slot == 4) { // @p
-            selectPlayer("@p");
-        } else if (slot == 6) { // @r
-            selectPlayer("@r");
-        } else if (slot == 8) { // @s
-            selectPlayer("@s");
-        } else if (slot == 45 && page > 0) { // Предыдущая страница
-            page--;
-            setupGUI();
-        } else if (slot == 53) { // Следующая страница
-            List<Player> onlinePlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
-            if ((page + 1) * 28 < onlinePlayers.size()) {
-                page++;
-                setupGUI();
-            }
-        } else if (slot == 49) { // Отмена
-            player.closeInventory();
-            MessageUtil.send(player, "§7Выбор игрока отменен");
-        } else if (slot >= 18 && slot < 45) { // Клик по игроку
-            // Вычисляем индекс игрока
-            int relativeSlot = slot - 18;
-            if (relativeSlot >= 9) relativeSlot -= 9;
-            if (relativeSlot >= 18) relativeSlot -= 9;
-            
-            int playerIndex = page * 28 + relativeSlot;
-            List<Player> onlinePlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
-            
-            if (playerIndex >= 0 && playerIndex < onlinePlayers.size()) {
-                Player selectedPlayer = onlinePlayers.get(playerIndex);
-                selectPlayer(selectedPlayer.getName());
-            }
-        }
-    }
-    
-    private void selectPlayer(String playerName) {
-        player.closeInventory();
-        MessageUtil.send(player, "§aВыбран игрок: §e" + playerName);
-        
-        if (onPlayerSelected != null) {
-            onPlayerSelected.accept(playerName);
-        }
-        
-        // Отменяем регистрацию листенера
-        InventoryClickEvent.getHandlerList().unregister(this);
+
+        player.openInventory(onlineInventory);
     }
 }

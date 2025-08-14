@@ -133,20 +133,7 @@ public class CodeLine {
         }
     }
     
-    /**
-     * Создание копии строки
-     */
-    public CodeLine clone() {
-        CodeLine copy = new CodeLine(lineNumber, name);
-        copy.description = this.description;
-        copy.enabled = this.enabled;
-        copy.metadata.putAll(this.metadata);
-        
-        // Копируем блоки (shallow copy)
-        copy.blocks.addAll(this.blocks);
-        
-        return copy;
-    }
+
     
     // Геттеры и сеттеры
     public int getLineNumber() {
@@ -226,5 +213,25 @@ public class CodeLine {
     @Override
     public int hashCode() {
         return Objects.hash(lineNumber);
+    }
+    
+    /**
+     * Создание копии строки
+     */
+    public CodeLine clone() {
+        CodeLine copy = new CodeLine(this.lineNumber + 1000, this.name + " (копия)"); // Временный номер
+        copy.setDescription(this.description);
+        copy.setEnabled(this.enabled);
+        
+        // Копируем блоки
+        for (CodeBlock block : this.blocks) {
+            // TODO: Реализовать клонирование блоков когда будет метод clone() в CodeBlock
+            // copy.addBlock(block.clone());
+        }
+        
+        // Копируем метаданные
+        copy.metadata.putAll(this.metadata);
+        
+        return copy;
     }
 }

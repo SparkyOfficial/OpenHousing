@@ -30,6 +30,7 @@ public class OpenHousing extends JavaPlugin {
     private DatabaseManager databaseManager;
     private HousingManager housingManager;
     private CodeManager codeManager;
+    private ru.openhousing.listeners.ChatListener chatListener;
     
     // Economy
     private Economy economy;
@@ -179,6 +180,8 @@ public class OpenHousing extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new HousingListener(this), this);
         getServer().getPluginManager().registerEvents(new CodeListener(this), this);
         getServer().getPluginManager().registerEvents(new InventoryListener(this), this);
+        chatListener = new ru.openhousing.listeners.ChatListener(this);
+        getServer().getPluginManager().registerEvents(chatListener, this);
         
         getLogger().info("Listeners registered successfully!");
     }
@@ -204,6 +207,9 @@ public class OpenHousing extends JavaPlugin {
         return codeManager;
     }
     
+    public ru.openhousing.listeners.ChatListener getChatListener() {
+        return chatListener;
+    }
 
     
     public Economy getEconomy() {
