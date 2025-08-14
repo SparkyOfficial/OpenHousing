@@ -33,6 +33,8 @@ public class InventoryListener implements Listener {
         // Проверка наших GUI по заголовкам
         if (title.startsWith("§6Редактор кода") || 
             title.startsWith("§6Настройка блока") ||
+            title.startsWith("§6Настройки строки") ||
+            title.startsWith("§6Выбор строки") ||
             title.contains("OpenHousing")) {
             
             event.setCancelled(true);
@@ -49,7 +51,11 @@ public class InventoryListener implements Listener {
                 }
             }
             
-            // Обработка настроек блока будет добавлена позже
+            // Обработка настроек блока
+            if (title.startsWith("§6Настройка блока")) {
+                // BlockConfigGUI обрабатывается через собственный listener
+                plugin.getLogger().info("BlockConfigGUI click handled by own listener");
+            }
         }
     }
     

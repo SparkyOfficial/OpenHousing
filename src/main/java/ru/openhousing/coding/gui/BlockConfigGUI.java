@@ -9,6 +9,9 @@ import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.utils.ItemBuilder;
 import ru.openhousing.utils.MessageUtil;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +19,7 @@ import java.util.List;
 /**
  * GUI для настройки параметров блока кода
  */
-public class BlockConfigGUI {
+public class BlockConfigGUI implements Listener {
     
     private final OpenHousing plugin;
     private final Player player;
@@ -30,6 +33,9 @@ public class BlockConfigGUI {
         this.block = block;
         this.editorGUI = editorGUI;
         this.inventory = Bukkit.createInventory(null, 54, "§6Настройка блока: " + block.getType().getDisplayName());
+        
+        // Регистрируем листенер
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
     
     /**
@@ -471,5 +477,33 @@ public class BlockConfigGUI {
     
     public Player getPlayer() {
         return player;
+    }
+    
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!event.getView().getTitle().startsWith("§6Настройка блока:")) {
+            return;
+        }
+        
+        event.setCancelled(true);
+        
+        if (!(event.getWhoClicked() instanceof Player)) {
+            return;
+        }
+        
+        Player clicker = (Player) event.getWhoClicked();
+        if (!clicker.equals(player)) {
+            return;
+        }
+        
+        ItemStack clickedItem = event.getCurrentItem();
+        if (clickedItem == null || clickedItem.getType() == Material.AIR) {
+            return;
+        }
+        
+        int slot = event.getSlot();
+        boolean isShiftClick = event.isShiftClick();
+        
+        handleClick(slot, isShiftClick);
     }
 }

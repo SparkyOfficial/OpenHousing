@@ -44,7 +44,7 @@ public class HousingManager {
      */
     public void initialize() {
         loadConfiguration();
-        setupHousingWorld();
+        // Отдельные миры для каждого дома создаются по требованию
         
         // Асинхронно загружаем дома из базы данных
         plugin.getDatabaseManager().loadAllHousesAsync(loadedHouses -> {
@@ -97,41 +97,7 @@ public class HousingManager {
         houseSpacing = config.getInt("house-spacing", 200);
     }
     
-    /**
-     * Настройка мира для домов
-     */
-    private void setupHousingWorld() {
-        FileConfiguration config = plugin.getConfigManager().getHousingConfig();
-        String worldName = config.getString("world-name", "housing_world");
-        boolean autoCreate = config.getBoolean("auto-create-world", true);
-        
-        housingWorld = Bukkit.getWorld(worldName);
-        
-        if (housingWorld == null && autoCreate) {
-            plugin.getLogger().info("Creating housing world: " + worldName);
-            
-            WorldCreator creator = new WorldCreator(worldName);
-            creator.type(WorldType.FLAT);
-            creator.generateStructures(false);
-            housingWorld = creator.createWorld();
-            
-            if (housingWorld != null) {
-                housingWorld.setSpawnFlags(false, false);
-                housingWorld.setGameRule(GameRule.DO_MOB_SPAWNING, false);
-                housingWorld.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-                housingWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-                housingWorld.setTime(6000); // День
-                
-                plugin.getLogger().info("Housing world created successfully!");
-            } else {
-                plugin.getLogger().severe("Failed to create housing world!");
-            }
-        }
-        
-        if (housingWorld != null) {
-            nextHouseLocation = new Location(housingWorld, 0, 100, 0);
-        }
-    }
+
     
     /**
      * Загрузка домов из базы данных

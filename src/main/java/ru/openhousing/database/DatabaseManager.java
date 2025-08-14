@@ -135,7 +135,7 @@ public class DatabaseManager {
                     "owner_id VARCHAR(36) NOT NULL, " +
                     "owner_name VARCHAR(16) NOT NULL, " +
                     "name VARCHAR(32) NOT NULL, " +
-                    "world VARCHAR(32) NOT NULL, " +
+                    "world_name VARCHAR(64) NOT NULL, " +
                     "x INT NOT NULL, " +
                     "y INT NOT NULL, " +
                     "z INT NOT NULL, " +
@@ -290,7 +290,7 @@ public class DatabaseManager {
      * Сохранение дома
      */
     public void saveHouse(ru.openhousing.housing.House house) {
-        String sql = "INSERT INTO houses (id, owner_id, owner_name, name, world, x, y, z, width, height, length, public, visitors_allowed) " +
+        String sql = "INSERT INTO houses (id, owner_id, owner_name, name, world_name, x, y, z, width, height, length, public, visitors_allowed) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                     "ON DUPLICATE KEY UPDATE " +
                     "owner_name = VALUES(owner_name), " +
@@ -352,7 +352,7 @@ public class DatabaseManager {
                     UUID ownerId = UUID.fromString(resultSet.getString("owner_id"));
                     String ownerName = resultSet.getString("owner_name");
                     String name = resultSet.getString("name");
-                    String worldName = resultSet.getString("world");
+                    String worldName = resultSet.getString("world_name");
                     int x = resultSet.getInt("x");
                     int y = resultSet.getInt("y");
                     int z = resultSet.getInt("z");

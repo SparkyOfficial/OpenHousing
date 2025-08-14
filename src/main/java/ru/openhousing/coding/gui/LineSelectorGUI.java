@@ -57,14 +57,26 @@ public class LineSelectorGUI implements Listener {
         inventory.clear();
         
         // Заголовок
-        inventory.setItem(4, new ItemBuilder(blockTypeToAdd.getMaterial())
-            .name("§6Добавление блока: " + blockTypeToAdd.getDisplayName())
-            .lore(Arrays.asList(
-                "§7" + blockTypeToAdd.getDescription(),
-                "",
-                "§eВыберите строку для добавления блока"
-            ))
-            .build());
+        if (blockTypeToAdd != null) {
+            inventory.setItem(4, new ItemBuilder(blockTypeToAdd.getMaterial())
+                .name("§6Добавление блока: " + blockTypeToAdd.getDisplayName())
+                .lore(Arrays.asList(
+                    "§7" + blockTypeToAdd.getDescription(),
+                    "",
+                    "§eВыберите строку для добавления блока"
+                ))
+                .build());
+        } else {
+            inventory.setItem(4, new ItemBuilder(Material.PAPER)
+                .name("§6Управление строками")
+                .lore(Arrays.asList(
+                    "§7Просмотр и редактирование",
+                    "§7строк вашего скрипта",
+                    "",
+                    "§eВыберите строку для настройки"
+                ))
+                .build());
+        }
         
         // Получаем строки скрипта
         List<CodeLine> lines = new ArrayList<>();

@@ -560,33 +560,32 @@ public class CodeEditorGUI implements InventoryHolder {
     }
     
     private void handleScriptClick(int slot, boolean isRightClick) {
-        int blockIndex = getBlockIndexFromSlot(slot);
-        if (blockIndex >= 0) {
-            int actualIndex = page * 28 + blockIndex;
-            List<CodeBlock> blocks = script.getBlocks();
+        // Обработка кликов по строкам
+        if (slot == 1) { // Добавить новую строку
+            String lineName = "Строка " + (script.getLines().size() + 1);
+            script.createLine(lineName);
+            player.sendMessage("§aСоздана новая строка: " + lineName);
+            updateInventory();
+            return;
+        }
+        
+        int lineIndex = getLineIndexFromSlot(slot);
+        if (lineIndex >= 0) {
+            int actualIndex = page * 21 + lineIndex; // 21 строк на страницу
+            List<CodeLine> lines = script.getLines();
             
-            if (actualIndex < blocks.size()) {
-                selectedBlock = blocks.get(actualIndex);
+            if (actualIndex < lines.size()) {
+                CodeLine selectedLine = lines.get(actualIndex);
                 
                 if (isRightClick) {
-                    // Удалить блок - найти его строку и удалить
-                    boolean removed = false;
-                    for (CodeLine line : script.getLines()) {
-                        if (script.removeBlockFromLine(line.getLineNumber(), selectedBlock)) {
-                            removed = true;
-                            break;
-                        }
-                    }
-                    if (removed) {
-                        player.sendMessage("§cБлок удален!");
-                    } else {
-                        player.sendMessage("§cНе удалось найти блок для удаления!");
-                    }
-                    updateInventory();
+                    // Открыть настройки строки
+                    player.closeInventory();
+                    LineSettingsGUI settingsGUI = new LineSettingsGUI(plugin, player, script, selectedLine);
+                    settingsGUI.open();
                 } else {
-                    // Редактировать блок
-                    mode = EditorMode.BLOCK_EDIT;
-                    updateInventory();
+                    // Просмотр блоков в строке
+                    player.sendMessage("§eВ строке '" + selectedLine.getName() + "' блоков: " + selectedLine.getBlockCount());
+                    // TODO: Показать блоки строки
                 }
             }
         }
@@ -748,6 +747,20 @@ public class CodeEditorGUI implements InventoryHolder {
         if (slot >= 19 && slot <= 25) return slot - 19 + 7;
         if (slot >= 28 && slot <= 34) return slot - 28 + 14;
         if (slot >= 37 && slot <= 43) return slot - 37 + 21;
+        return -1;
+    }
+    
+    private int getLineIndexFromSlot(int slot) {
+        // Слоты для строк: 18-44 (пропуская границы)
+        if (slot >= 18 && slot <= 25) {
+            return slot - 18; // Первый ряд строк: 0-7
+        }
+        if (slot >= 27 && slot <= 34) {
+            return 8 + (slot - 27); // Второй ряд строк: 8-15  
+        }
+        if (slot >= 36 && slot <= 43) {
+            return 16 + (slot - 36); // Третий ряд строк: 16-23
+        }
         return -1;
     }
     
