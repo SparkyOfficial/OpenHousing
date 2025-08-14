@@ -100,8 +100,110 @@ public class EntityEventBlock extends CodeBlock {
         );
     }
     
+    @Override
+    public boolean matchesEvent(Object event) {
+        Object eventTypeParam = getParameter("eventType");
+        EntityEventType eventType = null;
+        
+        if (eventTypeParam instanceof EntityEventType) {
+            eventType = (EntityEventType) eventTypeParam;
+        } else if (eventTypeParam instanceof String) {
+            try {
+                eventType = EntityEventType.valueOf((String) eventTypeParam);
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+        }
+        
+        if (eventType == null) return false;
+        
+        return matchesEventType(event, eventType);
+    }
+    
+    @Override
+    public ExecutionContext createContextFromEvent(Object event) {
+        // Для событий существ создаем контекст
+        ExecutionContext context = new ExecutionContext(null);
+        
+        // Добавляем специфичные для события переменные
+        addEventVariables(context, event);
+        
+        return context;
+    }
+    
     /**
-     * Проверка соответствия события
+     * Проверка соответствия типа события
+     */
+    private boolean matchesEventType(Object event, EntityEventType eventType) {
+        switch (eventType) {
+            case SPAWN:
+                return event instanceof EntitySpawnEvent;
+            case DEATH:
+                return event instanceof EntityDeathEvent;
+            case DAMAGE:
+                return event instanceof EntityDamageEvent;
+            case DAMAGE_ENTITY:
+                return event instanceof EntityDamageByEntityEvent;
+            case TARGET:
+                return event instanceof EntityTargetEvent;
+            case INTERACT:
+                return event instanceof PlayerInteractEntityEvent;
+            case TAME:
+                return event instanceof EntityTameEvent;
+            case BREED:
+                return event instanceof EntityBreedEvent;
+            case EXPLODE:
+                return event instanceof EntityExplodeEvent;
+            case TRANSFORM:
+                return event instanceof EntityTransformEvent;
+            case TELEPORT:
+                return event instanceof EntityTeleportEvent;
+            case PICKUP_ITEM:
+                return event instanceof EntityPickupItemEvent;
+            case DROP_ITEM:
+                return event instanceof EntityDropItemEvent;
+            case CHANGE_BLOCK:
+                return event instanceof EntityChangeBlockEvent;
+            case ENTER_PORTAL:
+                return event instanceof EntityPortalEnterEvent;
+            case REGAIN_HEALTH:
+                return event instanceof EntityRegainHealthEvent;
+            case POTION_EFFECT:
+                return event instanceof EntityPotionEffectEvent;
+            case COMBUSTION:
+                return event instanceof EntityCombustEvent;
+            case FREEZE:
+                return event instanceof org.bukkit.event.entity.EntityDamageByBlockEvent && 
+                       ((org.bukkit.event.entity.EntityDamageByBlockEvent) event).getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.FREEZE;
+            case MOUNT:
+                return event instanceof EntityMountEvent;
+            case DISMOUNT:
+                return event instanceof EntityDismountEvent;
+            default:
+                return false;
+        }
+    }
+    
+    /**
+     * Добавление переменных события в контекст
+     */
+    private void addEventVariables(ExecutionContext context, Object event) {
+        if (event instanceof EntityDeathEvent) {
+            EntityDeathEvent deathEvent = (EntityDeathEvent) event;
+            context.setVariable("entity_type", deathEvent.getEntityType().name());
+            context.setVariable("entity_name", deathEvent.getEntity().getName());
+            context.setVariable("death_location_x", deathEvent.getEntity().getLocation().getX());
+            context.setVariable("death_location_y", deathEvent.getEntity().getLocation().getY());
+            context.setVariable("death_location_z", deathEvent.getEntity().getLocation().getZ());
+        } else if (event instanceof EntityDamageEvent) {
+            EntityDamageEvent damageEvent = (EntityDamageEvent) event;
+            context.setVariable("damage_amount", damageEvent.getDamage());
+            context.setVariable("damage_cause", damageEvent.getCause().name());
+        }
+    }
+    
+    /**
+     * Проверка соответствия события (старый метод для совместимости)
      */
     public boolean matchesEvent(Class<?> eventClass, Object... params) {
         Object eventTypeParam = getParameter("eventType");

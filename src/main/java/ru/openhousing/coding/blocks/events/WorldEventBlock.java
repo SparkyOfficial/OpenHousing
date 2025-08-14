@@ -119,8 +119,143 @@ public class WorldEventBlock extends CodeBlock {
         );
     }
     
+    @Override
+    public boolean matchesEvent(Object event) {
+        Object eventTypeParam = getParameter("eventType");
+        WorldEventType eventType = null;
+        
+        if (eventTypeParam instanceof WorldEventType) {
+            eventType = (WorldEventType) eventTypeParam;
+        } else if (eventTypeParam instanceof String) {
+            try {
+                eventType = WorldEventType.valueOf((String) eventTypeParam);
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+        }
+        
+        if (eventType == null) return false;
+        
+        return matchesEventType(event, eventType);
+    }
+    
+    @Override
+    public ExecutionContext createContextFromEvent(Object event) {
+        // Для событий мира создаем контекст с игроком, если он есть
+        ExecutionContext context = new ExecutionContext(null);
+        
+        // Добавляем специфичные для события переменные
+        addEventVariables(context, event);
+        
+        return context;
+    }
+    
     /**
-     * Проверка соответствия события
+     * Проверка соответствия типа события
+     */
+    private boolean matchesEventType(Object event, WorldEventType eventType) {
+        switch (eventType) {
+            case BLOCK_BREAK:
+                return event instanceof BlockBreakEvent;
+            case BLOCK_PLACE:
+                return event instanceof BlockPlaceEvent;
+            case BLOCK_BURN:
+                return event instanceof BlockBurnEvent;
+            case BLOCK_EXPLODE:
+                return event instanceof BlockExplodeEvent;
+            case BLOCK_FADE:
+                return event instanceof BlockFadeEvent;
+            case BLOCK_FORM:
+                return event instanceof BlockFormEvent;
+            case BLOCK_GROW:
+                return event instanceof BlockGrowEvent;
+            case LEAVES_DECAY:
+                return event instanceof LeavesDecayEvent;
+            case REDSTONE_CHANGE:
+                return event instanceof BlockRedstoneEvent;
+            case PISTON_EXTEND:
+                return event instanceof BlockPistonExtendEvent;
+            case PISTON_RETRACT:
+                return event instanceof BlockPistonRetractEvent;
+            
+            case WEATHER_CHANGE:
+                return event instanceof WeatherChangeEvent;
+            case THUNDER_CHANGE:
+                return event instanceof ThunderChangeEvent;
+            case LIGHTNING_STRIKE:
+                return event instanceof LightningStrikeEvent;
+            
+            case TIME_SKIP:
+                return event instanceof TimeSkipEvent;
+            
+            case WORLD_LOAD:
+                return event instanceof WorldLoadEvent;
+            case WORLD_UNLOAD:
+                return event instanceof WorldUnloadEvent;
+            case WORLD_SAVE:
+                return event instanceof WorldSaveEvent;
+            
+            case STRUCTURE_GROW:
+                return event instanceof StructureGrowEvent;
+            case CHUNK_LOAD:
+                return event instanceof ChunkLoadEvent;
+            case CHUNK_UNLOAD:
+                return event instanceof ChunkUnloadEvent;
+            
+            case PORTAL_CREATE:
+                return event instanceof PortalCreateEvent;
+            
+            case SIGN_CHANGE:
+                return event instanceof SignChangeEvent;
+            
+            case DISPENSER_DISPENSE:
+                return event instanceof BlockDispenseEvent;
+            
+            case EXPLOSION:
+                return event instanceof org.bukkit.event.entity.EntityExplodeEvent || 
+                       event instanceof org.bukkit.event.entity.ExplosionPrimeEvent;
+            
+            case WATER_LEVEL_CHANGE:
+                return event instanceof org.bukkit.event.block.BlockFromToEvent;
+            case LAVA_LEVEL_CHANGE:
+                return event instanceof org.bukkit.event.block.BlockFromToEvent;
+            case DROPPER_DROP:
+                return event instanceof org.bukkit.event.block.BlockDispenseEvent;
+            case HOPPER_MOVE:
+                return event instanceof org.bukkit.event.inventory.InventoryMoveItemEvent;
+            
+            default:
+                return false;
+        }
+    }
+    
+    /**
+     * Добавление переменных события в контекст
+     */
+    private void addEventVariables(ExecutionContext context, Object event) {
+        if (event instanceof BlockBreakEvent) {
+            BlockBreakEvent breakEvent = (BlockBreakEvent) event;
+            context.setVariable("block_type", breakEvent.getBlock().getType().name());
+            context.setVariable("block_x", breakEvent.getBlock().getX());
+            context.setVariable("block_y", breakEvent.getBlock().getY());
+            context.setVariable("block_z", breakEvent.getBlock().getZ());
+            if (breakEvent.getPlayer() != null) {
+                context.setVariable("player_name", breakEvent.getPlayer().getName());
+            }
+        } else if (event instanceof BlockPlaceEvent) {
+            BlockPlaceEvent placeEvent = (BlockPlaceEvent) event;
+            context.setVariable("block_type", placeEvent.getBlock().getType().name());
+            context.setVariable("block_x", placeEvent.getBlock().getX());
+            context.setVariable("block_y", placeEvent.getBlock().getY());
+            context.setVariable("block_z", placeEvent.getBlock().getZ());
+            if (placeEvent.getPlayer() != null) {
+                context.setVariable("player_name", placeEvent.getPlayer().getName());
+            }
+        }
+    }
+    
+    /**
+     * Проверка соответствия события (старый метод для совместимости)
      */
     public boolean matchesEvent(Class<?> eventClass, Object... params) {
         Object eventTypeParam = getParameter("eventType");
