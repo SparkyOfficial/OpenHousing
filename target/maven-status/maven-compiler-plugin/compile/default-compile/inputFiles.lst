@@ -23,6 +23,9 @@ C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\bl
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\blocks\variables\VariableActionBlock.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\CodeManager.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\constants\BlockParams.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\events\EventFilter.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\events\EventManager.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\events\EventRegistry.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\BlockConfigGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\CodeEditorGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\EntityEventSelectorGUI.java
@@ -36,6 +39,7 @@ C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gu
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\ValueSelectorGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\VariableSelectorGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\WorldEventSelectorGUI.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\listeners\CodeListener.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\script\CodeLine.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\script\CodeScript.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\serialization\ScriptSerializer.java

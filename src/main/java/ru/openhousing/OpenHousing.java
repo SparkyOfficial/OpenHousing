@@ -12,6 +12,7 @@ import ru.openhousing.database.DatabaseManager;
 
 import ru.openhousing.housing.HousingManager;
 import ru.openhousing.listeners.*;
+import ru.openhousing.coding.listeners.CodeListener;
 import ru.openhousing.placeholders.OpenHousingPlaceholders;
 import ru.openhousing.utils.MessageUtil;
 
@@ -178,7 +179,7 @@ public class OpenHousing extends JavaPlugin {
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new HousingListener(this), this);
-        getServer().getPluginManager().registerEvents(new CodeListener(this), this);
+        getServer().getPluginManager().registerEvents(new ru.openhousing.coding.listeners.CodeListener(this, codeManager), this);
         getServer().getPluginManager().registerEvents(new InventoryListener(this), this);
         chatListener = new ru.openhousing.listeners.ChatListener(this);
         getServer().getPluginManager().registerEvents(chatListener, this);
