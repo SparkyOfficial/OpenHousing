@@ -1,0 +1,694 @@
+
+[22:25:48 INFO]: Default game type: SURVIVAL
+[22:25:48 INFO]: Generating keypair
+[22:25:48 INFO]: Starting Minecraft server on *:25565
+[22:25:48 INFO]: Using default channel type
+[22:25:48 INFO]: Paper: Using Java compression from Velocity.
+[22:25:48 INFO]: Paper: Using Java cipher from Velocity.
+[22:25:48 INFO]: Loading server plugin OpenHousing v1.0.0
+[22:25:48 INFO]: Loaded config: config.yml
+[22:25:48 INFO]: Loaded config: messages.yml
+[22:25:48 INFO]: Loaded config: housing.yml
+[22:25:48 INFO]: Loaded config: games.yml
+[22:25:48 INFO]: OpenHousing plugin loaded successfully!
+[22:25:48 INFO]: Server permissions file permissions.yml is empty, ignoring it
+[22:25:48 WARN]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[22:25:48 WARN]: The server will make no attempt to authenticate usernames. Beware.
+[22:25:48 WARN]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[22:25:48 WARN]: To change this, set "online-mode" to "true" in the server.properties file.
+[22:25:48 INFO]: Preparing level "world"
+[22:25:48 INFO]: Preparing start region for dimension minecraft:overworld
+[22:25:48 INFO]: Preparing spawn area: 0%
+[22:25:49 INFO]: Preparing spawn area: 0%
+[22:25:49 INFO]: Preparing spawn area: 2%
+[22:25:49 INFO]: Time elapsed: 1077 ms
+[22:25:49 INFO]: Preparing start region for dimension minecraft:the_nether
+[22:25:49 INFO]: Preparing spawn area: 0%
+[22:25:49 INFO]: Time elapsed: 118 ms
+[22:25:49 INFO]: Preparing start region for dimension minecraft:the_end
+[22:25:49 INFO]: Preparing spawn area: 0%
+[22:25:49 INFO]: Time elapsed: 85 ms
+[22:25:49 INFO]: Enabling OpenHousing v1.0.0
+[22:25:49 INFO]: Vault plugin not found! Economy features will be disabled.
+[22:25:50 INFO]: HikariPool-1 - Starting...
+[22:25:51 INFO]: HikariPool-1 - Added connection conn0: url=jdbc:h2:C:\Users\Богдан\Desktop\1.21.4\plugins\OpenHousing/openhousing.db user=
+[22:25:51 INFO]: HikariPool-1 - Start completed.
+[22:25:51 INFO]: Database initialized successfully!
+[22:25:51 INFO]: HousingManager initialized successfully!
+[22:25:51 INFO]: CodeManager initialized successfully!
+[22:25:51 INFO]: All managers initialized successfully!
+[22:25:51 INFO]: Commands registered successfully!
+[22:25:51 INFO]: Listeners registered successfully!
+[22:25:51 INFO]: [OpenHousing] Plugin enabled successfully in 1258ms!
+[22:25:51 INFO]: [OpenHousing] Version: 1.0.0
+[22:25:51 INFO]: [OpenHousing] Author: YourName
+[22:25:51 INFO]: Starting background profiler...
+[22:25:51 INFO]: The async-profiler engine is not supported for your os/arch (windows10/amd64), so the built-in Java engine will be used instead.
+[22:25:51 INFO]: Done preparing level "world" (3.199s)
+[22:25:51 INFO]: Running delayed init tasks
+[22:25:51 INFO]: Done (24.037s)! For help, type "help"
+[22:25:51 WARN]: World not found for house: 3 (world: house_5c64e109241b34a5a5a799383691ca74_1)
+[22:25:51 WARN]: World not found for house: 2 (world: house_5c64e109241b34a5a5a799383691ca74_2)
+[22:25:51 INFO]: Loaded 0 houses from database
+[22:26:19 INFO]: UUID of player SparkyOfficial is 5c64e109-241b-34a5-a5a7-99383691ca74
+[22:26:20 INFO]: SparkyOfficial joined the game
+[22:26:20 INFO]: SparkyOfficial[/127.0.0.1:53112] logged in with entity id 117 at ([world]-523.5, 64.0, -487.5)
+[22:26:24 INFO]: Inventory click: Crafting by SparkyOfficial at slot 1
+[22:26:34 INFO]: SparkyOfficial issued server command: /housing
+[22:26:35 INFO]: SparkyOfficial issued server command: /housing home 3
+[22:26:37 INFO]: SparkyOfficial issued server command: /housing create 1
+[22:26:37 INFO]: Preparing start region for dimension minecraft:house_5c64e109241b34a5a5a799383691ca74_1
+[22:26:37 INFO]: Preparing spawn area: 0%
+[22:26:37 INFO]: Time elapsed: 36 ms
+[22:26:37 INFO]: Мир дома '1' создан: house_5c64e109241b34a5a5a799383691ca74_1
+[22:26:37 INFO]: Мир дома '1' создан: house_5c64e109241b34a5a5a799383691ca74_1
+[22:26:40 INFO]: SparkyOfficial issued server command: /housing hoem 1
+[22:26:42 INFO]: SparkyOfficial issued server command: /housing home 1
+[22:26:50 INFO]: SparkyOfficial issued server command: /housing create 2
+[22:26:50 INFO]: Preparing start region for dimension minecraft:house_5c64e109241b34a5a5a799383691ca74_2
+[22:26:50 INFO]: Preparing spawn area: 0%
+[22:26:50 INFO]: Time elapsed: 26 ms
+[22:26:50 INFO]: Мир дома '2' создан: house_5c64e109241b34a5a5a799383691ca74_2
+[22:26:50 INFO]: Мир дома '2' создан: house_5c64e109241b34a5a5a799383691ca74_2
+[22:26:52 INFO]: SparkyOfficial issued server command: /housing home 2
+[22:26:54 INFO]: SparkyOfficial issued server command: /deg
+[22:26:55 INFO]: SparkyOfficial issued server command: /dev
+[22:26:58 INFO]: SparkyOfficial issued server command: /code editor
+[22:27:00 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 10
+[22:27:00 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:00 INFO]: Handling click in CodeEditorGUI
+[22:27:00 INFO]: Handling click in CodeEditorGUI: slot=10, mode=MAIN, item=BOOK
+[22:27:00 INFO]: Handling main menu click
+[22:27:00 INFO]: Main menu click: slot=10
+[22:27:00 INFO]: Switching to SCRIPT mode
+[22:27:01 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 18
+[22:27:01 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:01 INFO]: Handling click in CodeEditorGUI
+[22:27:01 INFO]: Handling click in CodeEditorGUI: slot=18, mode=SCRIPT, item=WRITTEN_BOOK
+[22:27:01 INFO]: Handling script click
+[22:27:03 INFO]: Inventory click: §6Настройки строки: Строка 1 by SparkyOfficial at slot 25
+[22:27:03 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:05 INFO]: SparkyOfficial issued server command: /code editor
+[22:27:06 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 12
+[22:27:06 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:06 INFO]: Handling click in CodeEditorGUI
+[22:27:06 INFO]: Handling click in CodeEditorGUI: slot=12, mode=MAIN, item=COMMAND_BLOCK
+[22:27:06 INFO]: Handling main menu click
+[22:27:06 INFO]: Main menu click: slot=12
+[22:27:06 INFO]: Switching to CATEGORIES mode
+[22:27:06 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 10
+[22:27:06 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:06 INFO]: Handling click in CodeEditorGUI
+[22:27:06 INFO]: Handling click in CodeEditorGUI: slot=10, mode=CATEGORIES, item=REDSTONE
+[22:27:06 INFO]: Handling categories click
+[22:27:07 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 10
+[22:27:07 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:07 INFO]: Handling click in CodeEditorGUI
+[22:27:07 INFO]: Handling click in CodeEditorGUI: slot=10, mode=BLOCKS, item=PLAYER_HEAD
+[22:27:07 INFO]: Handling blocks click
+[22:27:10 INFO]: Inventory click: §6Выбор строки для блока by SparkyOfficial at slot 8
+[22:27:10 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:11 INFO]: Inventory click: §6Настройка блока: Событие игрока by SparkyOfficial at slot 10
+[22:27:11 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:11 INFO]: BlockConfigGUI click handled by own listener
+[22:27:11 ERROR]: Could not pass event InventoryClickEvent to OpenHousing v1.0.0
+java.lang.IllegalArgumentException: NETHER_PORTAL isn't an item
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:218) ~[guava-33.3.1-jre.jar:?]
+	at org.bukkit.inventory.ItemStack.of(ItemStack.java:61) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:157) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:136) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:123) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:106) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.utils.ItemBuilder.<init>(ItemBuilder.java:23) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.setupGUI(PlayerEventSelectorGUI.java:52) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.<init>(PlayerEventSelectorGUI.java:37) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handlePlayerEventClick(BlockConfigGUI.java:311) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handleClick(BlockConfigGUI.java:286) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.onInventoryClick(BlockConfigGUI.java:261) ~[OpenHousing-1.0.0.jar:?]
+	at co.aikar.timings.TimedEventExecutor.execute(TimedEventExecutor.java:80) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.plugin.RegisteredListener.callEvent(RegisteredListener.java:70) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at io.papermc.paper.plugin.manager.PaperEventManager.callEvent(PaperEventManager.java:54) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at io.papermc.paper.plugin.manager.PaperPluginManagerImpl.callEvent(PaperPluginManagerImpl.java:131) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at org.bukkit.plugin.SimplePluginManager.callEvent(SimplePluginManager.java:628) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at net.minecraft.server.network.ServerGamePacketListenerImpl.handleContainerClick(ServerGamePacketListenerImpl.java:3209) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:69) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:14) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.PacketUtils.lambda$ensureRunningOnSameThread$0(PacketUtils.java:29) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.TickTask.run(TickTask.java:18) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:155) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:24) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:1448) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:176) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:129) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTaskInternal(MinecraftServer.java:1428) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTask(MinecraftServer.java:1422) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.managedBlock(BlockableEventLoop.java:139) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.managedBlock(MinecraftServer.java:1379) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.waitUntilNextTick(MinecraftServer.java:1387) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1264) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:310) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[?:?]
+[22:27:13 INFO]: SparkyOfficial issued server command: /code editor
+[22:27:14 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 10
+[22:27:14 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:14 INFO]: Handling click in CodeEditorGUI
+[22:27:14 INFO]: Handling click in CodeEditorGUI: slot=10, mode=MAIN, item=BOOK
+[22:27:14 INFO]: Handling main menu click
+[22:27:14 INFO]: Main menu click: slot=10
+[22:27:14 INFO]: Switching to SCRIPT mode
+[22:27:15 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 18
+[22:27:15 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:15 INFO]: Handling click in CodeEditorGUI
+[22:27:15 INFO]: Handling click in CodeEditorGUI: slot=18, mode=SCRIPT, item=WRITTEN_BOOK
+[22:27:15 INFO]: Handling script click
+[22:27:17 INFO]: Inventory click: §6Блоки строки: Строка 2 by SparkyOfficial at slot 10
+[22:27:18 INFO]: Inventory click: §6Настройка блока: Событие игрока by SparkyOfficial at slot 10
+[22:27:18 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:18 INFO]: BlockConfigGUI click handled by own listener
+[22:27:18 ERROR]: Could not pass event InventoryClickEvent to OpenHousing v1.0.0
+java.lang.IllegalArgumentException: NETHER_PORTAL isn't an item
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:218) ~[guava-33.3.1-jre.jar:?]
+	at org.bukkit.inventory.ItemStack.of(ItemStack.java:61) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:157) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:136) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:123) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:106) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.utils.ItemBuilder.<init>(ItemBuilder.java:23) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.setupGUI(PlayerEventSelectorGUI.java:52) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.<init>(PlayerEventSelectorGUI.java:37) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handlePlayerEventClick(BlockConfigGUI.java:311) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handleClick(BlockConfigGUI.java:286) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.onInventoryClick(BlockConfigGUI.java:261) ~[OpenHousing-1.0.0.jar:?]
+	at co.aikar.timings.TimedEventExecutor.execute(TimedEventExecutor.java:80) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.plugin.RegisteredListener.callEvent(RegisteredListener.java:70) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at io.papermc.paper.plugin.manager.PaperEventManager.callEvent(PaperEventManager.java:54) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at io.papermc.paper.plugin.manager.PaperPluginManagerImpl.callEvent(PaperPluginManagerImpl.java:131) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at org.bukkit.plugin.SimplePluginManager.callEvent(SimplePluginManager.java:628) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at net.minecraft.server.network.ServerGamePacketListenerImpl.handleContainerClick(ServerGamePacketListenerImpl.java:3209) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:69) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:14) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.PacketUtils.lambda$ensureRunningOnSameThread$0(PacketUtils.java:29) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.TickTask.run(TickTask.java:18) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:155) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:24) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:1448) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:176) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:129) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTaskInternal(MinecraftServer.java:1428) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTask(MinecraftServer.java:1422) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.managedBlock(BlockableEventLoop.java:139) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.managedBlock(MinecraftServer.java:1379) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.waitUntilNextTick(MinecraftServer.java:1387) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1264) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:310) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[?:?]
+[22:27:18 ERROR]: Could not pass event InventoryClickEvent to OpenHousing v1.0.0
+java.lang.IllegalArgumentException: NETHER_PORTAL isn't an item
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:218) ~[guava-33.3.1-jre.jar:?]
+	at org.bukkit.inventory.ItemStack.of(ItemStack.java:61) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:157) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:136) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:123) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:106) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.utils.ItemBuilder.<init>(ItemBuilder.java:23) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.setupGUI(PlayerEventSelectorGUI.java:52) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.<init>(PlayerEventSelectorGUI.java:37) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handlePlayerEventClick(BlockConfigGUI.java:311) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handleClick(BlockConfigGUI.java:286) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.onInventoryClick(BlockConfigGUI.java:261) ~[OpenHousing-1.0.0.jar:?]
+	at co.aikar.timings.TimedEventExecutor.execute(TimedEventExecutor.java:80) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.plugin.RegisteredListener.callEvent(RegisteredListener.java:70) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at io.papermc.paper.plugin.manager.PaperEventManager.callEvent(PaperEventManager.java:54) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at io.papermc.paper.plugin.manager.PaperPluginManagerImpl.callEvent(PaperPluginManagerImpl.java:131) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at org.bukkit.plugin.SimplePluginManager.callEvent(SimplePluginManager.java:628) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at net.minecraft.server.network.ServerGamePacketListenerImpl.handleContainerClick(ServerGamePacketListenerImpl.java:3209) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:69) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:14) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.PacketUtils.lambda$ensureRunningOnSameThread$0(PacketUtils.java:29) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.TickTask.run(TickTask.java:18) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:155) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:24) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:1448) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:176) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:129) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTaskInternal(MinecraftServer.java:1428) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTask(MinecraftServer.java:1422) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.managedBlock(BlockableEventLoop.java:139) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.managedBlock(MinecraftServer.java:1379) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.waitUntilNextTick(MinecraftServer.java:1387) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1264) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:310) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[?:?]
+[22:27:19 INFO]: SparkyOfficial issued server command: /code editor
+[22:27:20 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 10
+[22:27:20 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:20 INFO]: Handling click in CodeEditorGUI
+[22:27:20 INFO]: Handling click in CodeEditorGUI: slot=10, mode=MAIN, item=BOOK
+[22:27:20 INFO]: Handling main menu click
+[22:27:20 INFO]: Main menu click: slot=10
+[22:27:20 INFO]: Switching to SCRIPT mode
+[22:27:21 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 18
+[22:27:21 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:21 INFO]: Handling click in CodeEditorGUI
+[22:27:21 INFO]: Handling click in CodeEditorGUI: slot=18, mode=SCRIPT, item=WRITTEN_BOOK
+[22:27:21 INFO]: Handling script click
+[22:27:24 INFO]: Inventory click: §6Блоки строки: Строка 2 by SparkyOfficial at slot 10
+[22:27:26 INFO]: Inventory click: §6Настройка блока: Событие игрока by SparkyOfficial at slot 48
+[22:27:26 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:26 INFO]: BlockConfigGUI click handled by own listener
+[22:27:27 INFO]: SparkyOfficial issued server command: /code editor
+[22:27:28 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 9
+[22:27:28 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:28 INFO]: Handling click in CodeEditorGUI
+[22:27:28 INFO]: Click on empty slot: 9
+[22:27:28 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 10
+[22:27:28 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:28 INFO]: Handling click in CodeEditorGUI
+[22:27:28 INFO]: Handling click in CodeEditorGUI: slot=10, mode=MAIN, item=BOOK
+[22:27:28 INFO]: Handling main menu click
+[22:27:28 INFO]: Main menu click: slot=10
+[22:27:28 INFO]: Switching to SCRIPT mode
+[22:27:29 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 18
+[22:27:29 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:29 INFO]: Handling click in CodeEditorGUI
+[22:27:29 INFO]: Handling click in CodeEditorGUI: slot=18, mode=SCRIPT, item=WRITTEN_BOOK
+[22:27:29 INFO]: Handling script click
+[22:27:30 INFO]: Inventory click: §6Блоки строки: Строка 2 by SparkyOfficial at slot 10
+[22:27:32 INFO]: Inventory click: §6Настройка блока: Событие игрока by SparkyOfficial at slot 11
+[22:27:32 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:32 INFO]: BlockConfigGUI click handled by own listener
+[22:27:34 INFO]: Inventory click: §6Настройка блока: Событие игрока by SparkyOfficial at slot 49
+[22:27:34 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:34 INFO]: BlockConfigGUI click handled by own listener
+[22:27:35 INFO]: SparkyOfficial issued server command: /code editor
+[22:27:37 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 13
+[22:27:37 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:37 INFO]: Handling click in CodeEditorGUI
+[22:27:37 INFO]: Click on empty slot: 13
+[22:27:37 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 12
+[22:27:37 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:37 INFO]: Handling click in CodeEditorGUI
+[22:27:37 INFO]: Handling click in CodeEditorGUI: slot=12, mode=MAIN, item=COMMAND_BLOCK
+[22:27:37 INFO]: Handling main menu click
+[22:27:37 INFO]: Main menu click: slot=12
+[22:27:37 INFO]: Switching to CATEGORIES mode
+[22:27:38 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 15
+[22:27:38 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:38 INFO]: Handling click in CodeEditorGUI
+[22:27:38 INFO]: Click on empty slot: 15
+[22:27:38 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 14
+[22:27:38 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:38 INFO]: Handling click in CodeEditorGUI
+[22:27:38 INFO]: Handling click in CodeEditorGUI: slot=14, mode=CATEGORIES, item=PISTON
+[22:27:38 INFO]: Handling categories click
+[22:27:39 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 10
+[22:27:39 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:39 INFO]: Handling click in CodeEditorGUI
+[22:27:39 INFO]: Handling click in CodeEditorGUI: slot=10, mode=BLOCKS, item=GOLDEN_SWORD
+[22:27:39 INFO]: Handling blocks click
+[22:27:41 INFO]: Inventory click: §6Выбор строки для блока by SparkyOfficial at slot 18
+[22:27:41 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:43 INFO]: Inventory click: §6Настройка блока: Действие игрока by SparkyOfficial at slot 10
+[22:27:43 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:43 INFO]: BlockConfigGUI click handled by own listener
+[22:27:43 ERROR]: Could not pass event InventoryClickEvent to OpenHousing v1.0.0
+java.lang.IllegalArgumentException: NETHER_PORTAL isn't an item
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:218) ~[guava-33.3.1-jre.jar:?]
+	at org.bukkit.inventory.ItemStack.of(ItemStack.java:61) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:157) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:136) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:123) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:106) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.utils.ItemBuilder.<init>(ItemBuilder.java:23) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.setupGUI(PlayerEventSelectorGUI.java:52) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.<init>(PlayerEventSelectorGUI.java:37) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handlePlayerEventClick(BlockConfigGUI.java:311) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handleClick(BlockConfigGUI.java:286) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.onInventoryClick(BlockConfigGUI.java:261) ~[OpenHousing-1.0.0.jar:?]
+	at co.aikar.timings.TimedEventExecutor.execute(TimedEventExecutor.java:80) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.plugin.RegisteredListener.callEvent(RegisteredListener.java:70) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at io.papermc.paper.plugin.manager.PaperEventManager.callEvent(PaperEventManager.java:54) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at io.papermc.paper.plugin.manager.PaperPluginManagerImpl.callEvent(PaperPluginManagerImpl.java:131) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at org.bukkit.plugin.SimplePluginManager.callEvent(SimplePluginManager.java:628) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at net.minecraft.server.network.ServerGamePacketListenerImpl.handleContainerClick(ServerGamePacketListenerImpl.java:3209) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:69) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:14) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.PacketUtils.lambda$ensureRunningOnSameThread$0(PacketUtils.java:29) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.TickTask.run(TickTask.java:18) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:155) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:24) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:1448) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:176) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:129) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTaskInternal(MinecraftServer.java:1428) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTask(MinecraftServer.java:1422) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:118) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:1561) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1251) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:310) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[?:?]
+[22:27:43 ERROR]: Could not pass event InventoryClickEvent to OpenHousing v1.0.0
+java.lang.IllegalArgumentException: NETHER_PORTAL isn't an item
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:218) ~[guava-33.3.1-jre.jar:?]
+	at org.bukkit.inventory.ItemStack.of(ItemStack.java:61) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:157) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:136) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:123) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:106) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.utils.ItemBuilder.<init>(ItemBuilder.java:23) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.setupGUI(PlayerEventSelectorGUI.java:52) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.<init>(PlayerEventSelectorGUI.java:37) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handlePlayerEventClick(BlockConfigGUI.java:311) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handleClick(BlockConfigGUI.java:286) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.onInventoryClick(BlockConfigGUI.java:261) ~[OpenHousing-1.0.0.jar:?]
+	at co.aikar.timings.TimedEventExecutor.execute(TimedEventExecutor.java:80) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.plugin.RegisteredListener.callEvent(RegisteredListener.java:70) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at io.papermc.paper.plugin.manager.PaperEventManager.callEvent(PaperEventManager.java:54) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at io.papermc.paper.plugin.manager.PaperPluginManagerImpl.callEvent(PaperPluginManagerImpl.java:131) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at org.bukkit.plugin.SimplePluginManager.callEvent(SimplePluginManager.java:628) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at net.minecraft.server.network.ServerGamePacketListenerImpl.handleContainerClick(ServerGamePacketListenerImpl.java:3209) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:69) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:14) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.PacketUtils.lambda$ensureRunningOnSameThread$0(PacketUtils.java:29) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.TickTask.run(TickTask.java:18) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:155) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:24) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:1448) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:176) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:129) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTaskInternal(MinecraftServer.java:1428) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTask(MinecraftServer.java:1422) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:118) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:1561) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1251) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:310) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[?:?]
+[22:27:43 ERROR]: Could not pass event InventoryClickEvent to OpenHousing v1.0.0
+java.lang.IllegalArgumentException: NETHER_PORTAL isn't an item
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:218) ~[guava-33.3.1-jre.jar:?]
+	at org.bukkit.inventory.ItemStack.of(ItemStack.java:61) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:157) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:136) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:123) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:106) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.utils.ItemBuilder.<init>(ItemBuilder.java:23) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.setupGUI(PlayerEventSelectorGUI.java:52) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.<init>(PlayerEventSelectorGUI.java:37) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handlePlayerEventClick(BlockConfigGUI.java:311) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handleClick(BlockConfigGUI.java:286) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.onInventoryClick(BlockConfigGUI.java:261) ~[OpenHousing-1.0.0.jar:?]
+	at co.aikar.timings.TimedEventExecutor.execute(TimedEventExecutor.java:80) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.plugin.RegisteredListener.callEvent(RegisteredListener.java:70) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at io.papermc.paper.plugin.manager.PaperEventManager.callEvent(PaperEventManager.java:54) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at io.papermc.paper.plugin.manager.PaperPluginManagerImpl.callEvent(PaperPluginManagerImpl.java:131) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at org.bukkit.plugin.SimplePluginManager.callEvent(SimplePluginManager.java:628) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at net.minecraft.server.network.ServerGamePacketListenerImpl.handleContainerClick(ServerGamePacketListenerImpl.java:3209) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:69) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:14) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.PacketUtils.lambda$ensureRunningOnSameThread$0(PacketUtils.java:29) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.TickTask.run(TickTask.java:18) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:155) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:24) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:1448) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:176) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:129) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTaskInternal(MinecraftServer.java:1428) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTask(MinecraftServer.java:1422) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:118) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:1561) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1251) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:310) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[?:?]
+[22:27:43 ERROR]: Could not pass event InventoryClickEvent to OpenHousing v1.0.0
+java.lang.IllegalArgumentException: NETHER_PORTAL isn't an item
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:218) ~[guava-33.3.1-jre.jar:?]
+	at org.bukkit.inventory.ItemStack.of(ItemStack.java:61) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:157) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:136) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:123) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:106) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.utils.ItemBuilder.<init>(ItemBuilder.java:23) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.setupGUI(PlayerEventSelectorGUI.java:52) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.<init>(PlayerEventSelectorGUI.java:37) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handlePlayerEventClick(BlockConfigGUI.java:311) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handleClick(BlockConfigGUI.java:286) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.onInventoryClick(BlockConfigGUI.java:261) ~[OpenHousing-1.0.0.jar:?]
+	at co.aikar.timings.TimedEventExecutor.execute(TimedEventExecutor.java:80) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.plugin.RegisteredListener.callEvent(RegisteredListener.java:70) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at io.papermc.paper.plugin.manager.PaperEventManager.callEvent(PaperEventManager.java:54) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at io.papermc.paper.plugin.manager.PaperPluginManagerImpl.callEvent(PaperPluginManagerImpl.java:131) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at org.bukkit.plugin.SimplePluginManager.callEvent(SimplePluginManager.java:628) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at net.minecraft.server.network.ServerGamePacketListenerImpl.handleContainerClick(ServerGamePacketListenerImpl.java:3209) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:69) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:14) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.PacketUtils.lambda$ensureRunningOnSameThread$0(PacketUtils.java:29) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.TickTask.run(TickTask.java:18) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:155) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:24) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:1448) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:176) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:129) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTaskInternal(MinecraftServer.java:1428) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTask(MinecraftServer.java:1422) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:118) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:1561) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1251) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:310) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[?:?]
+[22:27:43 ERROR]: Could not pass event InventoryClickEvent to OpenHousing v1.0.0
+java.lang.IllegalArgumentException: NETHER_PORTAL isn't an item
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:218) ~[guava-33.3.1-jre.jar:?]
+	at org.bukkit.inventory.ItemStack.of(ItemStack.java:61) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:157) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:136) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:123) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:106) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.utils.ItemBuilder.<init>(ItemBuilder.java:23) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.setupGUI(PlayerEventSelectorGUI.java:52) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.<init>(PlayerEventSelectorGUI.java:37) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handlePlayerEventClick(BlockConfigGUI.java:311) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handleClick(BlockConfigGUI.java:286) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.onInventoryClick(BlockConfigGUI.java:261) ~[OpenHousing-1.0.0.jar:?]
+	at co.aikar.timings.TimedEventExecutor.execute(TimedEventExecutor.java:80) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.plugin.RegisteredListener.callEvent(RegisteredListener.java:70) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at io.papermc.paper.plugin.manager.PaperEventManager.callEvent(PaperEventManager.java:54) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at io.papermc.paper.plugin.manager.PaperPluginManagerImpl.callEvent(PaperPluginManagerImpl.java:131) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at org.bukkit.plugin.SimplePluginManager.callEvent(SimplePluginManager.java:628) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at net.minecraft.server.network.ServerGamePacketListenerImpl.handleContainerClick(ServerGamePacketListenerImpl.java:3209) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:69) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:14) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.PacketUtils.lambda$ensureRunningOnSameThread$0(PacketUtils.java:29) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.TickTask.run(TickTask.java:18) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:155) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:24) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:1448) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:176) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:129) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTaskInternal(MinecraftServer.java:1428) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTask(MinecraftServer.java:1422) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:118) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:1561) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1251) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:310) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[?:?]
+[22:27:43 ERROR]: Could not pass event InventoryClickEvent to OpenHousing v1.0.0
+java.lang.IllegalArgumentException: NETHER_PORTAL isn't an item
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:218) ~[guava-33.3.1-jre.jar:?]
+	at org.bukkit.inventory.ItemStack.of(ItemStack.java:61) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:157) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:136) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:123) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:106) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.utils.ItemBuilder.<init>(ItemBuilder.java:23) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.setupGUI(PlayerEventSelectorGUI.java:52) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.<init>(PlayerEventSelectorGUI.java:37) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handlePlayerEventClick(BlockConfigGUI.java:311) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handleClick(BlockConfigGUI.java:286) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.onInventoryClick(BlockConfigGUI.java:261) ~[OpenHousing-1.0.0.jar:?]
+	at co.aikar.timings.TimedEventExecutor.execute(TimedEventExecutor.java:80) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.plugin.RegisteredListener.callEvent(RegisteredListener.java:70) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at io.papermc.paper.plugin.manager.PaperEventManager.callEvent(PaperEventManager.java:54) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at io.papermc.paper.plugin.manager.PaperPluginManagerImpl.callEvent(PaperPluginManagerImpl.java:131) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at org.bukkit.plugin.SimplePluginManager.callEvent(SimplePluginManager.java:628) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at net.minecraft.server.network.ServerGamePacketListenerImpl.handleContainerClick(ServerGamePacketListenerImpl.java:3209) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:69) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:14) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.PacketUtils.lambda$ensureRunningOnSameThread$0(PacketUtils.java:29) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.TickTask.run(TickTask.java:18) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:155) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:24) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:1448) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:176) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:129) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTaskInternal(MinecraftServer.java:1428) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTask(MinecraftServer.java:1422) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:118) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:1561) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1251) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:310) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[?:?]
+[22:27:43 ERROR]: Could not pass event InventoryClickEvent to OpenHousing v1.0.0
+java.lang.IllegalArgumentException: NETHER_PORTAL isn't an item
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:218) ~[guava-33.3.1-jre.jar:?]
+	at org.bukkit.inventory.ItemStack.of(ItemStack.java:61) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:157) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:136) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:123) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:106) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.utils.ItemBuilder.<init>(ItemBuilder.java:23) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.setupGUI(PlayerEventSelectorGUI.java:52) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.<init>(PlayerEventSelectorGUI.java:37) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handlePlayerEventClick(BlockConfigGUI.java:311) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handleClick(BlockConfigGUI.java:286) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.onInventoryClick(BlockConfigGUI.java:261) ~[OpenHousing-1.0.0.jar:?]
+	at co.aikar.timings.TimedEventExecutor.execute(TimedEventExecutor.java:80) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.plugin.RegisteredListener.callEvent(RegisteredListener.java:70) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at io.papermc.paper.plugin.manager.PaperEventManager.callEvent(PaperEventManager.java:54) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at io.papermc.paper.plugin.manager.PaperPluginManagerImpl.callEvent(PaperPluginManagerImpl.java:131) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at org.bukkit.plugin.SimplePluginManager.callEvent(SimplePluginManager.java:628) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at net.minecraft.server.network.ServerGamePacketListenerImpl.handleContainerClick(ServerGamePacketListenerImpl.java:3209) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:69) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:14) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.PacketUtils.lambda$ensureRunningOnSameThread$0(PacketUtils.java:29) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.TickTask.run(TickTask.java:18) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:155) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:24) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:1448) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:176) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:129) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTaskInternal(MinecraftServer.java:1428) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTask(MinecraftServer.java:1422) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:118) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:1561) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1251) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:310) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[?:?]
+[22:27:43 ERROR]: Could not pass event InventoryClickEvent to OpenHousing v1.0.0
+java.lang.IllegalArgumentException: NETHER_PORTAL isn't an item
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:218) ~[guava-33.3.1-jre.jar:?]
+	at org.bukkit.inventory.ItemStack.of(ItemStack.java:61) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:157) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:136) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:123) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:106) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.utils.ItemBuilder.<init>(ItemBuilder.java:23) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.setupGUI(PlayerEventSelectorGUI.java:52) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.<init>(PlayerEventSelectorGUI.java:37) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handlePlayerEventClick(BlockConfigGUI.java:311) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handleClick(BlockConfigGUI.java:286) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.onInventoryClick(BlockConfigGUI.java:261) ~[OpenHousing-1.0.0.jar:?]
+	at co.aikar.timings.TimedEventExecutor.execute(TimedEventExecutor.java:80) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.plugin.RegisteredListener.callEvent(RegisteredListener.java:70) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at io.papermc.paper.plugin.manager.PaperEventManager.callEvent(PaperEventManager.java:54) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at io.papermc.paper.plugin.manager.PaperPluginManagerImpl.callEvent(PaperPluginManagerImpl.java:131) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at org.bukkit.plugin.SimplePluginManager.callEvent(SimplePluginManager.java:628) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at net.minecraft.server.network.ServerGamePacketListenerImpl.handleContainerClick(ServerGamePacketListenerImpl.java:3209) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:69) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:14) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.PacketUtils.lambda$ensureRunningOnSameThread$0(PacketUtils.java:29) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.TickTask.run(TickTask.java:18) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:155) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:24) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:1448) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:176) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:129) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTaskInternal(MinecraftServer.java:1428) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTask(MinecraftServer.java:1422) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:118) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:1561) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1251) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:310) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[?:?]
+[22:27:43 ERROR]: Could not pass event InventoryClickEvent to OpenHousing v1.0.0
+java.lang.IllegalArgumentException: NETHER_PORTAL isn't an item
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:218) ~[guava-33.3.1-jre.jar:?]
+	at org.bukkit.inventory.ItemStack.of(ItemStack.java:61) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:157) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:136) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:123) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:106) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.utils.ItemBuilder.<init>(ItemBuilder.java:23) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.setupGUI(PlayerEventSelectorGUI.java:52) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.<init>(PlayerEventSelectorGUI.java:37) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handlePlayerEventClick(BlockConfigGUI.java:311) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handleClick(BlockConfigGUI.java:286) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.onInventoryClick(BlockConfigGUI.java:261) ~[OpenHousing-1.0.0.jar:?]
+	at co.aikar.timings.TimedEventExecutor.execute(TimedEventExecutor.java:80) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.plugin.RegisteredListener.callEvent(RegisteredListener.java:70) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at io.papermc.paper.plugin.manager.PaperEventManager.callEvent(PaperEventManager.java:54) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at io.papermc.paper.plugin.manager.PaperPluginManagerImpl.callEvent(PaperPluginManagerImpl.java:131) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at org.bukkit.plugin.SimplePluginManager.callEvent(SimplePluginManager.java:628) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at net.minecraft.server.network.ServerGamePacketListenerImpl.handleContainerClick(ServerGamePacketListenerImpl.java:3209) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:69) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:14) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.PacketUtils.lambda$ensureRunningOnSameThread$0(PacketUtils.java:29) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.TickTask.run(TickTask.java:18) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:155) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:24) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:1448) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:176) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:129) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTaskInternal(MinecraftServer.java:1428) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTask(MinecraftServer.java:1422) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:118) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:1561) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1251) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:310) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[?:?]
+[22:27:43 ERROR]: Could not pass event InventoryClickEvent to OpenHousing v1.0.0
+java.lang.IllegalArgumentException: NETHER_PORTAL isn't an item
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:218) ~[guava-33.3.1-jre.jar:?]
+	at org.bukkit.inventory.ItemStack.of(ItemStack.java:61) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:157) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:136) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:123) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.inventory.ItemStack.<init>(ItemStack.java:106) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.utils.ItemBuilder.<init>(ItemBuilder.java:23) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.setupGUI(PlayerEventSelectorGUI.java:52) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.PlayerEventSelectorGUI.<init>(PlayerEventSelectorGUI.java:37) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handlePlayerEventClick(BlockConfigGUI.java:311) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.handleClick(BlockConfigGUI.java:286) ~[OpenHousing-1.0.0.jar:?]
+	at OpenHousing-1.0.0.jar/ru.openhousing.coding.gui.BlockConfigGUI.onInventoryClick(BlockConfigGUI.java:261) ~[OpenHousing-1.0.0.jar:?]
+	at co.aikar.timings.TimedEventExecutor.execute(TimedEventExecutor.java:80) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.plugin.RegisteredListener.callEvent(RegisteredListener.java:70) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at io.papermc.paper.plugin.manager.PaperEventManager.callEvent(PaperEventManager.java:54) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at io.papermc.paper.plugin.manager.PaperPluginManagerImpl.callEvent(PaperPluginManagerImpl.java:131) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at org.bukkit.plugin.SimplePluginManager.callEvent(SimplePluginManager.java:628) ~[paper-api-1.21.4-R0.1-SNAPSHOT.jar:?]
+	at net.minecraft.server.network.ServerGamePacketListenerImpl.handleContainerClick(ServerGamePacketListenerImpl.java:3209) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:69) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.game.ServerboundContainerClickPacket.handle(ServerboundContainerClickPacket.java:14) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.network.protocol.PacketUtils.lambda$ensureRunningOnSameThread$0(PacketUtils.java:29) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.TickTask.run(TickTask.java:18) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:155) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:24) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:1448) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:176) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:129) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTaskInternal(MinecraftServer.java:1428) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.pollTask(MinecraftServer.java:1422) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:118) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:1561) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1251) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:310) ~[paper-1.21.4.jar:1.21.4-232-12d8fe0]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[?:?]
+[22:27:46 INFO]: Inventory click: §6Выбор действия игрока by SparkyOfficial at slot 11
+[22:27:48 INFO]: Inventory click: §6Настройка блока: Действие игрока by SparkyOfficial at slot 48
+[22:27:48 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:48 INFO]: BlockConfigGUI click handled by own listener
+[22:27:49 INFO]: SparkyOfficial issued server command: /code editor
+[22:27:51 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 10
+[22:27:51 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:51 INFO]: Handling click in CodeEditorGUI
+[22:27:51 INFO]: Handling click in CodeEditorGUI: slot=10, mode=MAIN, item=BOOK
+[22:27:51 INFO]: Handling main menu click
+[22:27:51 INFO]: Main menu click: slot=10
+[22:27:51 INFO]: Switching to SCRIPT mode
+[22:27:51 INFO]: Inventory click: §6OpenHousing §8| §fРедактор кода by SparkyOfficial at slot 18
+[22:27:51 INFO]: Cancelled inventory click for OpenHousing GUI
+[22:27:51 INFO]: Handling click in CodeEditorGUI
+[22:27:51 INFO]: Handling click in CodeEditorGUI: slot=18, mode=SCRIPT, item=WRITTEN_BOOK
+[22:27:51 INFO]: Handling script click
+[22:27:53 INFO]: Inventory click: §6Блоки строки: Строка 2 by SparkyOfficial at slot 11
+[22:27:56 INFO]: SparkyOfficial issued server command: /play
+[22:28:08 INFO]: SparkyOfficial lost connection: Disconnected
+[22:28:09 INFO]: SparkyOfficial left the game
