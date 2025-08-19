@@ -71,14 +71,14 @@ public class LineSelectorGUI implements Listener {
                 .name("§6Управление строками")
                 .lore(Arrays.asList(
                     "§7Просмотр и редактирование",
-                    "§7строк вашего скрипта",
+                    "§7строк вашего кода",
                     "",
                     "§eВыберите строку для настройки"
                 ))
                 .build());
         }
         
-        // Получаем строки скрипта
+        // Получаем строки кода
         List<CodeLine> lines = new ArrayList<>();
         for (int i = 1; i <= 50; i++) { // максимум 50 строк
             CodeLine line = script.getLine(i);

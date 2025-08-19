@@ -298,13 +298,13 @@ public class CodeEditorGUI implements InventoryHolder {
     }
     
     /**
-     * Настройка просмотра скрипта по строкам
+     * Настройка просмотра кода по строкам
      */
     private void setupScriptView() {
-        // Статистика скрипта
+        // Статистика кода
         CodeScript.ScriptStats stats = script.getStats();
         inventory.setItem(4, new ItemBuilder(Material.BOOK)
-            .name("§6Статистика скрипта")
+            .name("§6Статистика кода")
             .lore(Arrays.asList(
                 "§7Всего строк: §e" + script.getLines().size(),
                 "§7Всего блоков: §e" + stats.getTotalBlocks(),
@@ -530,7 +530,7 @@ public class CodeEditorGUI implements InventoryHolder {
         plugin.getLogger().info("Main menu click: slot=" + slot);
         
         switch (slot) {
-            case 10: // Просмотр скрипта
+            case 10: // Просмотр кода
                 plugin.getLogger().info("Switching to SCRIPT mode");
                 mode = EditorMode.SCRIPT;
                 page = 0;
@@ -541,10 +541,10 @@ public class CodeEditorGUI implements InventoryHolder {
                 mode = EditorMode.CATEGORIES;
                 updateInventory();
                 break;
-            case 14: // Выполнить скрипт
+            case 14: // Выполнить код
                 plugin.getLogger().info("Executing script");
                 plugin.getCodeManager().executeScript(player);
-                player.sendMessage("§aСкрипт выполнен!");
+                player.sendMessage("§aКод выполнен!");
                 break;
             case 16: // Поиск блоков
                 openBlockSearch();
@@ -552,16 +552,16 @@ public class CodeEditorGUI implements InventoryHolder {
             case 28: // Настройки
                 openScriptSettings();
                 break;
-            case 32: // Очистить скрипт
+            case 32: // Очистить код
                 plugin.getLogger().info("Clearing script");
                 script.clear();
-                player.sendMessage("§cСкрипт очищен!");
+                player.sendMessage("§cКод очищен!");
                 updateInventory();
                 break;
-            case 33: // Запустить скрипт
+            case 33: // Запустить код
                 plugin.getLogger().info("Running script immediately");
                 plugin.getCodeManager().executeScript(player);
-                player.sendMessage("§aСкрипт запущен!");
+                player.sendMessage("§aКод запущен!");
                 break;
             default:
                 plugin.getLogger().info("Unhandled main menu slot: " + slot);
@@ -908,10 +908,10 @@ public class CodeEditorGUI implements InventoryHolder {
     }
     
     /**
-     * Открыть настройки скрипта
+     * Открыть настройки кода
      */
     private void openScriptSettings() {
-        player.sendMessage("§6=== Настройки скрипта ===");
+        player.sendMessage("§6=== Настройки кода ===");
         player.sendMessage("§7Статус: " + (script.isEnabled() ? "§aВключен" : "§cВыключен"));
         
         CodeScript.ScriptStats stats = script.getStats();
