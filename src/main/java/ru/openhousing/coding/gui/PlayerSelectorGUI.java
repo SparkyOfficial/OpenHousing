@@ -59,7 +59,7 @@ public class PlayerSelectorGUI implements Listener {
             .name("§e@s - Сам игрок")
             .lore(Arrays.asList(
                 "§7Выбрать игрока, который",
-                "§7запустил скрипт",
+                "§7запустил код",
                 "",
                 "§eКлик для выбора"
             ))

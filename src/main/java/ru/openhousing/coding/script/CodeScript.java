@@ -371,7 +371,7 @@ public class CodeScript {
     }
     
     /**
-     * Статистика скрипта
+     * Статистика кода
      */
     public static class ScriptStats {
         private final int totalBlocks;

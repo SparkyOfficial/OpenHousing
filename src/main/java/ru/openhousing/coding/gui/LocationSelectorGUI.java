@@ -125,7 +125,7 @@ public class LocationSelectorGUI implements Listener {
             .build());
 
         // Специальные локации
-        inventory.setItem(28, new ItemBuilder(Material.NETHER_PORTAL)
+        inventory.setItem(28, new ItemBuilder(Material.OBSIDIAN)
             .name("§5Портал в Нижний мир")
             .lore(Arrays.asList(
                 "§7Найти ближайший портал",

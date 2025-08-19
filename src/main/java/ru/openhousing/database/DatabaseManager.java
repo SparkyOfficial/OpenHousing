@@ -90,7 +90,7 @@ public class DatabaseManager {
      */
     private void createTables() {
         try (Connection connection = getConnection()) {
-            // Таблица для скриптов кода
+            // Таблица для кода игроков
             createCodeScriptsTable(connection);
             
             // Таблица для домов
@@ -109,7 +109,7 @@ public class DatabaseManager {
     }
     
     /**
-     * Создание таблицы скриптов
+     * Создание таблицы кода
      */
     private void createCodeScriptsTable(Connection connection) throws SQLException {
         String sql = "CREATE TABLE IF NOT EXISTS code_scripts (" +
@@ -203,7 +203,7 @@ public class DatabaseManager {
     }
     
     /**
-     * Сохранение скрипта кода
+     * Сохранение кода игрока
      */
     public void saveCodeScript(CodeScript script) {
         String sql = "INSERT INTO code_scripts (player_id, player_name, script_data, enabled) " +
@@ -231,7 +231,7 @@ public class DatabaseManager {
     }
     
     /**
-     * Загрузка скрипта кода
+     * Загрузка кода игрока
      */
     public CodeScript loadCodeScript(UUID playerId) {
         String sql = "SELECT * FROM code_scripts WHERE player_id = ?";
@@ -265,7 +265,7 @@ public class DatabaseManager {
     }
     
     /**
-     * Асинхронная загрузка скрипта кода
+     * Асинхронная загрузка кода игрока
      */
     public void loadCodeScriptAsync(UUID playerId, java.util.function.Consumer<CodeScript> callback) {
         org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -276,7 +276,7 @@ public class DatabaseManager {
     }
     
     /**
-     * Асинхронное сохранение скрипта кода
+     * Асинхронное сохранение кода игрока
      */
     public void saveCodeScriptAsync(CodeScript script, java.lang.Runnable callback) {
         org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -420,14 +420,14 @@ public class DatabaseManager {
     }
     
     /**
-     * Сериализация скрипта в JSON
+     * Сериализация кода в JSON
      */
     private String serializeScript(CodeScript script) {
         return scriptSerializer.serialize(script);
     }
     
     /**
-     * Десериализация скрипта из JSON
+     * Десериализация кода из JSON
      */
     private CodeScript deserializeScript(UUID playerId, String playerName, String scriptData) {
         return scriptSerializer.deserialize(scriptData, playerId, playerName);

@@ -91,7 +91,7 @@ public class LineSettingsGUI implements Listener {
             .name(line.isEnabled() ? "§aСтрока включена" : "§cСтрока выключена")
             .lore(Arrays.asList(
                 "§7Включенные строки выполняются",
-                "§7при запуске скрипта",
+                "§7при запуске кода",
                 "",
                 "§eКлик для переключения"
             ))
@@ -328,7 +328,7 @@ public class LineSettingsGUI implements Listener {
      * Сохранение и закрытие
      */
     private void saveAndClose() {
-        // Сохраняем скрипт
+        // Сохраняем код
         plugin.getDatabaseManager().saveCodeScript(script);
         MessageUtil.send(player, "&aНастройки строки сохранены!");
         player.closeInventory();

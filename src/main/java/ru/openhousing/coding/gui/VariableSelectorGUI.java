@@ -49,7 +49,7 @@ public class VariableSelectorGUI implements Listener {
                 "§7переменной для " + (isForSetting ? "установки" : "получения"),
                 "",
                 "§eГлобальные §7- доступны везде",
-                "§eЛокальные §7- только в этом скрипте",
+                "§eЛокальные §7- только в этом коде",
                 "§eСистемные §7- встроенные значения"
             ))
             .build());
@@ -59,7 +59,7 @@ public class VariableSelectorGUI implements Listener {
             .name("§eГлобальная переменная")
             .lore(Arrays.asList(
                 "§7Переменная, доступная во всех",
-                "§7скриптах и сессиях игрока",
+                "§7коде и сессиях игрока",
                 "",
                 "§7Префикс: §eglobal:",
                 "§7Пример: §eglobal:player_score",
@@ -72,7 +72,7 @@ public class VariableSelectorGUI implements Listener {
             .name("§eЛокальная переменная")
             .lore(Arrays.asList(
                 "§7Переменная, доступная только",
-                "§7в текущем скрипте",
+                "§7в текущем коде",
                 "",
                 "§7Префикс: §elocal:",
                 "§7Пример: §elocal:temp_value",

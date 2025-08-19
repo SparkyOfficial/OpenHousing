@@ -66,7 +66,7 @@ public class OpenHousingPlaceholders extends PlaceholderExpansion {
             
             case "script_status":
                 if (script == null || script.isEmpty()) {
-                    return "Нет скрипта";
+                    return "Нет кода";
                 } else if (!script.isEnabled()) {
                     return "Отключен";
                 } else if (!script.validate().isEmpty()) {

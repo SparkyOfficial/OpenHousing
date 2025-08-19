@@ -28,7 +28,7 @@ public class PlayerListener implements Listener {
         // Приветственное сообщение (если первый заход)
         if (!player.hasPlayedBefore()) {
             player.sendMessage("§6Добро пожаловать в OpenHousing!");
-            player.sendMessage("§7Используйте §e/code editor §7для создания скриптов!");
+            player.sendMessage("§7Используйте §e/code editor §7для создания кода!");
         }
     }
     

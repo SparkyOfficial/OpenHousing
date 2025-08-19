@@ -96,41 +96,41 @@ public class CodeCommand implements CommandExecutor, TabCompleter {
     }
     
     /**
-     * Выполнение скрипта
+     * Выполнение кода
      */
     private void executeScript(Player player) {
         if (!player.hasPermission("openhousing.code.execute")) {
-            MessageUtil.send(player, "&cУ вас нет разрешения на выполнение скриптов!");
+            MessageUtil.send(player, "&cУ вас нет разрешения на выполнение кода!");
             return;
         }
         
         CodeScript script = plugin.getCodeManager().getScript(player);
         if (script == null || script.isEmpty()) {
-            MessageUtil.send(player, "&cВаш скрипт пуст! Откройте редактор: &e/code editor");
+            MessageUtil.send(player, "&cВаш код пуст! Откройте редактор: &e/code editor");
             return;
         }
         
         if (!script.isEnabled()) {
-            MessageUtil.send(player, "&cВаш скрипт отключен! Включите его в настройках.");
+            MessageUtil.send(player, "&cВаш код отключен! Включите его в настройках.");
             return;
         }
         
         // Проверка на ошибки
         List<String> errors = script.validate();
         if (!errors.isEmpty()) {
-            MessageUtil.send(player, "&cВ вашем скрипте есть ошибки:");
+            MessageUtil.send(player, "&cВ вашем коде есть ошибки:");
             for (String error : errors) {
                 MessageUtil.send(player, "&7- &c" + error);
             }
             return;
         }
         
-        MessageUtil.send(player, "&cКоманда устарела! Скрипты теперь выполняются автоматически в режиме &e/play&c.");
-        MessageUtil.send(player, "&7Используйте &e/play &7в своем доме для активации скриптов.");
+        MessageUtil.send(player, "&cКоманда устарела! Код теперь выполняется автоматически в режиме &e/play&c.");
+        MessageUtil.send(player, "&7Используйте &e/play &7в своем доме для активации кода.");
     }
     
     /**
-     * Переключение состояния скрипта
+     * Переключение состояния кода
      */
     private void toggleScript(Player player) {
         CodeScript script = plugin.getCodeManager().getOrCreateScript(player);
@@ -139,39 +139,39 @@ public class CodeCommand implements CommandExecutor, TabCompleter {
         plugin.getCodeManager().saveScript(player, script);
         
         MessageUtil.send(player, script.isEnabled() ? 
-            "&aСкрипт включен!" : "&cСкрипт отключен!");
+            "&aКод включен!" : "&cКод отключен!");
     }
     
     /**
-     * Очистка скрипта
+     * Очистка кода
      */
     private void clearScript(Player player) {
         CodeScript script = plugin.getCodeManager().getScript(player);
         if (script == null || script.isEmpty()) {
-            MessageUtil.send(player, "&cВаш скрипт уже пуст!");
+            MessageUtil.send(player, "&cВаш код уже пуст!");
             return;
         }
         
         script.clear();
         plugin.getCodeManager().saveScript(player, script);
         
-        MessageUtil.send(player, "&cСкрипт очищен!");
+        MessageUtil.send(player, "&cКод очищен!");
     }
     
     /**
-     * Показ информации о скрипте
+     * Показ информации о коде
      */
     private void showScriptInfo(Player player) {
         CodeScript script = plugin.getCodeManager().getScript(player);
         if (script == null) {
-            MessageUtil.send(player, "&cУ вас нет скрипта! Создайте его: &e/code editor");
+            MessageUtil.send(player, "&cУ вас нет кода! Создайте его: &e/code editor");
             return;
         }
         
         CodeScript.ScriptStats stats = script.getStats();
         
         MessageUtil.send(player, 
-            "&6&l=== Информация о скрипте ===",
+            "&6&l=== Информация о коде ===",
             "&7Статус: " + (script.isEnabled() ? "&aВключен" : "&cОтключен"),
             "&7Всего блоков: &f" + stats.getTotalBlocks(),
             "&7События: &f" + stats.getEventBlocks(),
@@ -184,35 +184,35 @@ public class CodeCommand implements CommandExecutor, TabCompleter {
         );
         
         if (stats.hasErrors()) {
-            MessageUtil.send(player, "&cВ скрипте есть ошибки! Проверьте в редакторе.");
+            MessageUtil.send(player, "&cВ коде есть ошибки! Проверьте в редакторе.");
         } else {
-            MessageUtil.send(player, "&aСкрипт готов к выполнению!");
+            MessageUtil.send(player, "&aКод готов к выполнению!");
         }
     }
     
     /**
-     * Поделиться скриптом
+     * Поделиться кодом
      */
     private void shareScript(Player player, String[] args) {
         if (!player.hasPermission("openhousing.code.share")) {
-            MessageUtil.send(player, "&cУ вас нет разрешения на публикацию скриптов!");
+            MessageUtil.send(player, "&cУ вас нет разрешения на публикацию кода!");
             return;
         }
         
         CodeScript script = plugin.getCodeManager().getScript(player);
         if (script == null || script.isEmpty()) {
-            MessageUtil.send(player, "&cВаш скрипт пуст!");
+            MessageUtil.send(player, "&cВаш код пуст!");
             return;
         }
         
-        // Здесь можно реализовать систему публикации скриптов
+        // Здесь можно реализовать систему публикации кода
         // Например, сохранение в базу данных с уникальным кодом
         
-        MessageUtil.send(player, "&aФункция поделиться скриптом будет добавлена в будущих обновлениях!");
+        MessageUtil.send(player, "&aФункция поделиться кодом будет добавлена в будущих обновлениях!");
     }
     
     /**
-     * Импорт скрипта
+     * Импорт кода
      */
     private void importScript(Player player, String[] args) {
         if (args.length < 2) {
@@ -222,10 +222,10 @@ public class CodeCommand implements CommandExecutor, TabCompleter {
         
         String importCode = args[1];
         
-        // Здесь можно реализовать систему импорта скриптов
+        // Здесь можно реализовать систему импорта кода
         // Например, загрузка из базы данных по коду
         
-        MessageUtil.send(player, "&aФункция импорта скриптов будет добавлена в будущих обновлениях!");
+        MessageUtil.send(player, "&aФункция импорта кода будет добавлена в будущих обновлениях!");
     }
     
     /**
@@ -236,11 +236,11 @@ public class CodeCommand implements CommandExecutor, TabCompleter {
             "&6&l=== OpenHousing Code - Справка ===",
             "&e/code editor &7- Открыть редактор кода",
             "&c/code execute &7- УСТАРЕЛО! Используйте /play",
-            "&e/code toggle &7- Включить/выключить скрипт",
-            "&e/code clear &7- Очистить скрипт",
-            "&e/code info &7- Информация о скрипте",
-            "&e/code share &7- Поделиться скриптом",
-            "&e/code import <код> &7- Импортировать скрипт",
+            "&e/code toggle &7- Включить/выключить код",
+            "&e/code clear &7- Очистить код",
+            "&e/code info &7- Информация о коде",
+            "&e/code share &7- Поделиться кодом",
+            "&e/code import <код> &7- Импортировать код",
             "&e/code help &7- Показать эту справку",
             ""
         );

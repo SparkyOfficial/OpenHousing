@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Сериализатор скриптов в JSON
+ * Сериализатор кода в JSON
  */
 public class ScriptSerializer {
     
@@ -30,7 +30,7 @@ public class ScriptSerializer {
     }
     
     /**
-     * Сериализация скрипта в JSON
+     * Сериализация кода в JSON
      */
     public String serialize(CodeScript script) {
         try {
@@ -42,7 +42,7 @@ public class ScriptSerializer {
     }
     
     /**
-     * Десериализация скрипта из JSON
+     * Десериализация кода из JSON
      */
     public CodeScript deserialize(String json, UUID playerId, String playerName) {
         try {

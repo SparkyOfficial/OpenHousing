@@ -27,7 +27,7 @@ public class CodeListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         
-        // Асинхронно загружаем скрипт игрока
+        // Асинхронно загружаем код игрока
         plugin.getDatabaseManager().loadCodeScriptAsync(player.getUniqueId(), script -> {
             if (script != null) {
                 // Регистрируем обработчики событий в основном потоке
