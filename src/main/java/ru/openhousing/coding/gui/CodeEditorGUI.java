@@ -40,7 +40,7 @@ public class CodeEditorGUI implements InventoryHolder {
         MAIN,           // Главное меню
         CATEGORIES,     // Категории блоков
         BLOCKS,         // Список блоков в категории
-        SCRIPT,         // Просмотр скрипта
+        SCRIPT,         // Просмотр кода
         BLOCK_EDIT      // Редактирование блока
     }
     
@@ -101,22 +101,22 @@ public class CodeEditorGUI implements InventoryHolder {
      * Настройка главного меню
      */
     private void setupMainMenu() {
-        // Информация о скрипте
+        // Информация о коде
         CodeScript.ScriptStats stats = script.getStats();
         
         inventory.setItem(10, new ItemBuilder(Material.BOOK)
-            .name("§6Мой скрипт")
+            .name("§6Мой код")
             .lore(Arrays.asList(
                 "§7Блоков: §f" + stats.getTotalBlocks(),
                 "§7События: §f" + stats.getEventBlocks(),
                 "§7Условия: §f" + stats.getConditionBlocks(),
                 "§7Действия: §f" + stats.getActionBlocks(),
-                "§7Функции: §f" + stats.getFunctionCount(),
+                "§7Функции: §f" + stats.getFunctionBlocks(),
                 "§7Переменные: §f" + stats.getVariableCount(),
                 "",
                 stats.hasErrors() ? "§cЕсть ошибки!" : "§aВсе в порядке",
                 "",
-                "§eНажмите, чтобы просмотреть скрипт"
+                "§eНажмите, чтобы просмотреть код"
             ))
             .build());
         
@@ -124,19 +124,19 @@ public class CodeEditorGUI implements InventoryHolder {
         inventory.setItem(12, new ItemBuilder(Material.COMMAND_BLOCK)
             .name("§aДобавить блок")
             .lore(Arrays.asList(
-                "§7Добавьте новый блок в ваш скрипт",
+                "§7Добавьте новый блок в ваш код",
                 "",
                 "§eНажмите, чтобы открыть категории"
             ))
             .build());
         
-        // Выполнить скрипт
+        // Выполнить код
         inventory.setItem(14, new ItemBuilder(Material.REPEATING_COMMAND_BLOCK)
-            .name("§2Выполнить скрипт")
+            .name("§2Выполнить код")
             .lore(Arrays.asList(
-                "§7Запустить выполнение вашего скрипта",
+                "§7Запустить выполнение вашего кода",
                 "",
-                script.isEnabled() ? "§aСкрипт включен" : "§cСкрипт отключен",
+                script.isEnabled() ? "§aКод включен" : "§cКод отключен",
                 "",
                 "§eНажмите, чтобы выполнить"
             ))
@@ -155,43 +155,43 @@ public class CodeEditorGUI implements InventoryHolder {
             
         // Настройки
         inventory.setItem(28, new ItemBuilder(Material.REDSTONE)
-            .name("§6Настройки скрипта")
+            .name("§6Настройки кода")
             .lore(Arrays.asList(
                 "§7Статус: " + (script.isEnabled() ? "§aВключен" : "§cОтключен"),
                 "",
-                "§7Включить/выключить скрипт",
-                "§7Очистить скрипт",
+                "§7Включить/выключить код",
+                "§7Очистить код",
                 "§7Статистика и диагностика",
                 "",
                 "§eНажмите, чтобы открыть"
             ))
             .build());
         
-        // Поделиться скриптом
+        // Поделиться кодом
         inventory.setItem(28, new ItemBuilder(Material.PAPER)
-            .name("§bПоделиться скриптом")
+            .name("§bПоделиться кодом")
             .lore(Arrays.asList(
-                "§7Поделитесь своим скриптом с другими игроками",
+                "§7Поделитесь своим кодом с другими игроками",
                 "",
                 "§eНажмите, чтобы создать ссылку"
             ))
             .build());
         
-        // Импорт скрипта
+        // Импорт кода
         inventory.setItem(30, new ItemBuilder(Material.WRITTEN_BOOK)
-            .name("§9Импорт скрипта")
+            .name("§9Импорт кода")
             .lore(Arrays.asList(
-                "§7Импортируйте скрипт от другого игрока",
+                "§7Импортируйте код от другого игрока",
                 "",
                 "§eНажмите, чтобы ввести код"
             ))
             .build());
         
-        // Очистить скрипт
+        // Очистить код
         inventory.setItem(32, new ItemBuilder(Material.BARRIER)
-            .name("§cОчистить скрипт")
+            .name("§cОчистить код")
             .lore(Arrays.asList(
-                "§7Удалить все блоки из скрипта",
+                "§7Удалить все блоки из кода",
                 "",
                 "§c⚠ Это действие нельзя отменить!",
                 "",
@@ -199,11 +199,11 @@ public class CodeEditorGUI implements InventoryHolder {
             ))
             .build());
         
-        // Запуск скрипта
+        // Запуск кода
         inventory.setItem(33, new ItemBuilder(Material.EMERALD_BLOCK)
-            .name("§aЗапустить скрипт")
+            .name("§aЗапустить код")
             .lore(Arrays.asList(
-                "§7Выполнить созданный скрипт",
+                "§7Выполнить созданный код",
                 "§7немедленно",
                 "",
                 "§aНажмите для запуска"
@@ -271,7 +271,7 @@ public class CodeEditorGUI implements InventoryHolder {
                 .lore(Arrays.asList(
                     "§7" + blockType.getDescription(),
                     "",
-                    "§eЛевый клик - добавить в скрипт",
+                    "§eЛевый клик - добавить в код",
                     "§eПравый клик - предварительный просмотр"
                 ))
                 .build());

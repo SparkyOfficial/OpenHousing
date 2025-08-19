@@ -5,7 +5,7 @@ import ru.openhousing.coding.blocks.CodeBlock;
 import java.util.*;
 
 /**
- * Скрипт кода игрока с системой строк
+ * Код игрока с системой строк
  */
 public class CodeScript {
     
@@ -30,33 +30,59 @@ public class CodeScript {
     }
     
     /**
-     * Выполнение скрипта
+     * Выполнение кода
      */
     public CodeBlock.ExecutionResult execute(CodeBlock.ExecutionContext context) {
         if (!enabled) {
-            return CodeBlock.ExecutionResult.error("Скрипт отключен");
+            System.out.println("[OpenHousing] Код отключен для игрока: " + playerName);
+            return CodeBlock.ExecutionResult.error("Код отключен");
         }
+        
+        System.out.println("[OpenHousing] Начинаем выполнение кода игрока: " + playerName);
+        System.out.println("[OpenHousing] Количество строк кода: " + lines.size());
+        System.out.println("[OpenHousing] Количество блоков: " + getAllBlocks().size());
         
         // Добавляем глобальные переменные в контекст
         context.getVariables().putAll(globalVariables);
+        System.out.println("[OpenHousing] Загружено глобальных переменных: " + globalVariables.size());
         
         // Добавляем функции в контекст
         context.getFunctions().putAll(functions);
+        System.out.println("[OpenHousing] Загружено функций: " + functions.size());
         
         try {
+            int executedLines = 0;
+            int executedBlocks = 0;
+            
             // Выполняем все строки в порядке их номеров
             for (CodeLine line : lines.values()) {
                 if (line.isEnabled()) {
+                    System.out.println("[OpenHousing] Выполняем строку " + line.getLineNumber() + ": " + line.getName());
+                    System.out.println("[OpenHousing] Блоков в строке: " + line.getBlocks().size());
+                    
                     line.execute(context);
+                    executedLines++;
+                    executedBlocks += line.getBlocks().size();
+                    
+                    System.out.println("[OpenHousing] Строка " + line.getLineNumber() + " выполнена успешно");
+                } else {
+                    System.out.println("[OpenHousing] Строка " + line.getLineNumber() + " отключена, пропускаем");
                 }
             }
             
             // Сохраняем обновленные глобальные переменные
             globalVariables.putAll(context.getVariables());
             
+            System.out.println("[OpenHousing] Выполнение завершено успешно!");
+            System.out.println("[OpenHousing] Выполнено строк: " + executedLines);
+            System.out.println("[OpenHousing] Выполнено блоков: " + executedBlocks);
+            System.out.println("[OpenHousing] Итоговых переменных: " + context.getVariables().size());
+            
             return CodeBlock.ExecutionResult.success();
         } catch (Exception e) {
-            return CodeBlock.ExecutionResult.error("Ошибка выполнения скрипта: " + e.getMessage());
+            System.out.println("[OpenHousing] КРИТИЧЕСКАЯ ОШИБКА при выполнении кода: " + e.getMessage());
+            e.printStackTrace();
+            return CodeBlock.ExecutionResult.error("Ошибка выполнения кода: " + e.getMessage());
         }
     }
     
@@ -221,7 +247,7 @@ public class CodeScript {
     }
     
     /**
-     * Валидация скрипта
+     * Валидация кода
      */
     public List<String> validate() {
         List<String> errors = new ArrayList<>();
@@ -258,14 +284,14 @@ public class CodeScript {
     }
     
     /**
-     * Получение статистики скрипта
+     * Получение статистики кода
      */
     public ScriptStats getStats() {
         return new ScriptStats(this);
     }
     
     /**
-     * Клонирование скрипта
+     * Клонирование кода
      */
     public CodeScript clone() {
         CodeScript clone = new CodeScript(this.playerId, this.playerName);
