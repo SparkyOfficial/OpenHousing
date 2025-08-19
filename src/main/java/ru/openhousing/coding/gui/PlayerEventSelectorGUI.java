@@ -88,7 +88,7 @@ public class PlayerEventSelectorGUI implements Listener {
             case INVENTORY_CLICK -> Material.CHEST;
             case COMMAND -> Material.COMMAND_BLOCK;
             case TELEPORT -> Material.ENDER_PEARL;
-            case WORLD_CHANGE -> Material.NETHER_PORTAL;
+            case WORLD_CHANGE -> Material.COMPASS;
             case SNEAK -> Material.LEATHER_LEGGINGS;
             case JUMP -> Material.RABBIT_FOOT;
             case LEFT_CLICK -> Material.WOODEN_SWORD;
