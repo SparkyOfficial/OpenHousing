@@ -439,14 +439,90 @@ public class VariableSelectorGUI implements Listener {
     }
 
     private void showRecentVariables() {
-        // TODO: Реализовать сохранение недавних переменных
-        player.sendMessage("§eФункция недавних переменных будет добавлена в следующих обновлениях");
+        Inventory recentInventory = Bukkit.createInventory(null, 54, "§6Недавние переменные");
+        
+        // Получаем недавние переменные из конфигурации игрока
+        List<String> recentVars = getRecentVariables(player);
+        
+        int slot = 10;
+        for (String varName : recentVars) {
+            if (slot >= 44) break; // Ограничиваем количество
+            
+            recentInventory.setItem(slot, new ItemBuilder(Material.BOOK)
+                .name("§e" + varName)
+                .lore(Arrays.asList(
+                    "§7Недавно использованная переменная",
+                    "",
+                    "§eЛКМ - выбрать переменную",
+                    "§cПКМ - удалить из недавних"
+                ))
+                .build());
+            
+            slot++;
+            if (slot % 9 == 8) slot += 2; // Пропускаем края
+        }
+        
+        // Кнопка очистки
+        recentInventory.setItem(49, new ItemBuilder(Material.BARRIER)
+            .name("§cОчистить недавние")
+            .lore(Arrays.asList("§7Удалить все недавние переменные"))
+            .build());
+        
+        // Кнопка назад
+        recentInventory.setItem(45, new ItemBuilder(Material.ARROW)
+            .name("§7← Назад")
+            .build());
+        
+        player.openInventory(recentInventory);
+    }
+    
+    /**
+     * Получить список недавних переменных игрока
+     */
+    private List<String> getRecentVariables(Player player) {
+        return plugin.getConfig().getStringList("players." + player.getUniqueId() + ".recent_variables");
+    }
+    
+    /**
+     * Добавить переменную в недавние
+     */
+    public static void addRecentVariable(OpenHousing plugin, Player player, String variableName) {
+        String path = "players." + player.getUniqueId() + ".recent_variables";
+        List<String> recent = plugin.getConfig().getStringList(path);
+        
+        // Удаляем если уже есть (чтобы переместить в начало)
+        recent.remove(variableName);
+        
+        // Добавляем в начало
+        recent.add(0, variableName);
+        
+        // Ограничиваем до 20 переменных
+        if (recent.size() > 20) {
+            recent = recent.subList(0, 20);
+        }
+        
+        plugin.getConfig().set(path, recent);
+        plugin.saveConfig();
+    }
+    
+    /**
+     * Удалить переменную из недавних
+     */
+    private void removeRecentVariable(String variableName) {
+        String path = "players." + player.getUniqueId() + ".recent_variables";
+        List<String> recent = plugin.getConfig().getStringList(path);
+        recent.remove(variableName);
+        plugin.getConfig().set(path, recent);
+        plugin.saveConfig();
+        
+        // Обновляем GUI
+        showRecentVariables();
     }
 
     private void showMathConstants() {
         Inventory mathInventory = Bukkit.createInventory(null, 54, "§6Математические константы");
 
-        mathInventory.setItem(10, new ItemBuilder(Material.GOLD_NUGGET)
+{{ ... }}
             .name("§emath:pi")
             .lore(Arrays.asList(
                 "§7Число π (3.14159...)",

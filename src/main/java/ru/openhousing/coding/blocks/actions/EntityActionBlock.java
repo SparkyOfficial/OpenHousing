@@ -296,10 +296,48 @@ public class EntityActionBlock extends CodeBlock {
                 break;
                 
             case SET_PEACEFUL:
-                // TODO: Реализовать логику успокоения
                 if (entity instanceof Mob) {
                     Mob mob = (Mob) entity;
-                    // Логика успокоения моба
+                    boolean peaceful = Boolean.parseBoolean(value);
+                    
+                    if (peaceful) {
+                        // Успокаиваем моба
+                        mob.setTarget(null); // Убираем цель
+                        mob.setAware(false); // Отключаем ИИ временно
+                        
+                        // Убираем агрессивность для специфичных мобов
+                        if (mob instanceof Wolf) {
+                            ((Wolf) mob).setAngry(false);
+                        } else if (mob instanceof PigZombie) {
+                            ((PigZombie) mob).setAngry(false);
+                        } else if (mob instanceof Enderman) {
+                            ((Enderman) mob).setScreaming(false);
+                        }
+                        
+                        // Добавляем эффект регенерации для успокоения
+                        if (mob instanceof LivingEntity) {
+                            ((LivingEntity) mob).addPotionEffect(
+                                new PotionEffect(PotionEffectType.REGENERATION, 100, 0, true, false)
+                            );
+                        }
+                        
+                        // Включаем ИИ обратно через небольшую задержку
+                        org.bukkit.Bukkit.getScheduler().runTaskLater(
+                            ru.openhousing.OpenHousing.getInstance(), 
+                            () -> mob.setAware(true), 
+                            20L // 1 секунда
+                        );
+                        
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§a[OpenHousing] Существо успокоено!");
+                        }
+                    } else {
+                        // Возвращаем агрессивность
+                        mob.setAware(true);
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§a[OpenHousing] Существо больше не успокоено!");
+                        }
+                    }
                 }
                 break;
                 

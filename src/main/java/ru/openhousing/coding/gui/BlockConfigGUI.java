@@ -480,8 +480,7 @@ public class BlockConfigGUI implements Listener {
             }).open();
             
         } else if (slot == 11) { // Дополнительные условия
-            player.sendMessage("§eНастройка дополнительных условий");
-            // TODO: Реализовать настройку условий
+            openConditionSettingsGUI();
         }
     }
     
@@ -602,6 +601,60 @@ public class BlockConfigGUI implements Listener {
                 this.open();
             }).open();
         }
+    }
+    
+    /**
+     * Открыть GUI настройки условий
+     */
+    private void openConditionSettingsGUI() {
+        Inventory conditionInventory = Bukkit.createInventory(null, 27, "§6Настройка условий");
+        
+        // Добавить условие
+        conditionInventory.setItem(10, new ItemBuilder(Material.LIME_DYE)
+            .name("§a+ Добавить условие")
+            .lore(Arrays.asList(
+                "§7Добавить новое условие",
+                "§7для выполнения блока",
+                "",
+                "§eКлик для добавления"
+            ))
+            .build());
+        
+        // Список существующих условий
+        List<String> conditions = getBlockConditions();
+        int slot = 12;
+        for (String condition : conditions) {
+            if (slot >= 17) break;
+            
+            conditionInventory.setItem(slot, new ItemBuilder(Material.PAPER)
+                .name("§e" + condition)
+                .lore(Arrays.asList(
+                    "§7Условие: " + condition,
+                    "",
+                    "§eЛКМ - редактировать",
+                    "§cПКМ - удалить"
+                ))
+                .build());
+            slot++;
+        }
+        
+        // Кнопка назад
+        conditionInventory.setItem(22, new ItemBuilder(Material.ARROW)
+            .name("§7← Назад")
+            .build());
+        
+        player.openInventory(conditionInventory);
+    }
+    
+    /**
+     * Получить список условий блока
+     */
+    private List<String> getBlockConditions() {
+        Object conditionsObj = block.getParameter("conditions");
+        if (conditionsObj instanceof List) {
+            return (List<String>) conditionsObj;
+        }
+        return new ArrayList<>();
     }
     
     private String getIfPlayerValuePrompt(String conditionType) {

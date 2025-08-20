@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.script.CodeLine;
 import ru.openhousing.coding.script.CodeScript;
-import ru.openhousing.utils.AnvilGUIHelper;
+import ru.openhousing.coding.gui.helpers.AnvilGUIHelper;
 import ru.openhousing.utils.ItemBuilder;
 import ru.openhousing.utils.MessageUtil;
 
@@ -214,21 +214,21 @@ public class LineSettingsGUI implements Listener {
                 } else {
                     // Изменить имя
                     player.closeInventory();
-                    AnvilGUIHelper.openTextInput(plugin, player, "Введите новое имя строки", line.getName(), (newName) -> {
+                    new AnvilGUIHelper(plugin, player, "Введите новое имя строки", (newName) -> {
                         line.setName(newName);
                         MessageUtil.send(player, "&aИмя строки изменено на: &e" + newName);
                         this.open(); // Возвращаемся к настройкам
-                    });
+                    }).open();
                 }
                 break;
                 
             case 20: // Описание
                 player.closeInventory();
-                AnvilGUIHelper.openTextInput(plugin, player, "Введите описание строки", line.getDescription(), (newDescription) -> {
+                new AnvilGUIHelper(plugin, player, "Введите описание строки", (newDescription) -> {
                     line.setDescription(newDescription);
                     MessageUtil.send(player, "&aОписание строки изменено");
                     this.open(); // Возвращаемся к настройкам
-                });
+                }).open();
                 break;
                 
             case 21: // Включение/выключение

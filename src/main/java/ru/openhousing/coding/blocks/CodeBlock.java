@@ -47,6 +47,49 @@ public abstract class CodeBlock {
     }
     
     /**
+     * Клонирование блока
+     */
+    public CodeBlock clone() {
+        try {
+            // Создаем новый экземпляр того же типа
+            CodeBlock cloned = this.getClass().getDeclaredConstructor().newInstance();
+            
+            // Копируем параметры
+            cloned.parameters.putAll(this.parameters);
+            
+            // Копируем дочерние блоки
+            for (CodeBlock child : this.childBlocks) {
+                CodeBlock clonedChild = child.clone();
+                clonedChild.parentBlock = cloned;
+                cloned.childBlocks.add(clonedChild);
+            }
+            
+            // Копируем местоположение
+            if (this.location != null) {
+                cloned.location = this.location.clone();
+            }
+            
+            return cloned;
+        } catch (Exception e) {
+            // Fallback: создаем простую копию без дочерних блоков
+            return createSimpleCopy();
+        }
+    }
+    
+    /**
+     * Создание простой копии блока без дочерних элементов
+     */
+    protected CodeBlock createSimpleCopy() {
+        try {
+            CodeBlock copy = this.getClass().getDeclaredConstructor().newInstance();
+            copy.parameters.putAll(this.parameters);
+            return copy;
+        } catch (Exception e) {
+            throw new RuntimeException("Не удалось клонировать блок " + this.getClass().getSimpleName(), e);
+        }
+    }
+    
+    /**
      * Создание контекста выполнения из события
      */
     public ExecutionContext createContextFromEvent(Object event) {

@@ -270,8 +270,7 @@ public class CodeLine {
         
         // Копируем блоки
         for (CodeBlock block : this.blocks) {
-            // TODO: Реализовать клонирование блоков когда будет метод clone() в CodeBlock
-            // copy.addBlock(block.clone());
+            copy.addBlock(block.clone());
         }
         
         // Копируем метаданные

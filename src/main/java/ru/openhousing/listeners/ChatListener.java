@@ -19,12 +19,14 @@ import java.util.function.Consumer;
 public class ChatListener implements Listener {
 
     private final OpenHousing plugin;
+    private static ChatListener instance;
     
     // Хранилище ожидающих ввода игроков
     private final Map<UUID, ChatInputSession> awaitingInput = new HashMap<>();
 
     public ChatListener(OpenHousing plugin) {
         this.plugin = plugin;
+        instance = this;
     }
 
     /**
@@ -122,6 +124,16 @@ public class ChatListener implements Listener {
      */
     public void clearPlayerInput(Player player) {
         awaitingInput.remove(player.getUniqueId());
+    }
+    
+    /**
+     * Регистрация временного ввода для AnvilGUI fallback
+     */
+    public static void registerTemporaryInput(Player player, Consumer<String> callback) {
+        if (instance != null) {
+            instance.awaitingInput.put(player.getUniqueId(), 
+                new ChatInputSession("Введите значение:", callback));
+        }
     }
 
     /**
