@@ -200,7 +200,7 @@ public class OpenHousing extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.BlockListener(this), this);
         getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.InventoryListener(this), this);
         getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.HouseMovementListener(this), this);
-        getServer().getPluginManager().registerEvents(new ru.openhousing.gui.HouseSettingsGUI(this, null, null), this);
+        // HouseSettingsGUI регистрируется динамически при создании
         chatListener = new ru.openhousing.listeners.ChatListener(this);
         getServer().getPluginManager().registerEvents(chatListener, this);
         
