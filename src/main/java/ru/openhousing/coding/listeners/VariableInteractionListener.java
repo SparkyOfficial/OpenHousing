@@ -133,7 +133,7 @@ public class VariableInteractionListener implements Listener {
         
         // Эффект сохранения
         player.getWorld().spawnParticle(
-            org.bukkit.Particle.VILLAGER_HAPPY, 
+            org.bukkit.Particle.HAPPY_VILLAGER, 
             player.getLocation().add(0, 1, 0), 
             10, 0.5, 0.5, 0.5, 0
         );
@@ -175,7 +175,7 @@ public class VariableInteractionListener implements Listener {
         
         // Эффект записи
         player.getWorld().spawnParticle(
-            org.bukkit.Particle.ENCHANTMENT_TABLE,
+            org.bukkit.Particle.ENCHANT,
             player.getLocation(),
             20, 1, 1, 1, 0
         );

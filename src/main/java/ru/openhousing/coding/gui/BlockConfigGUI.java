@@ -647,11 +647,6 @@ public class BlockConfigGUI implements Listener {
         new ru.openhousing.coding.gui.blocks.VariableActionConfigGUI(plugin, player, block).open();
     }
     
-    private void handleIfVariableClick(int slot, boolean isShiftClick) {
-        // Открываем специализированное GUI для условий переменных
-        player.closeInventory();
-        new ru.openhousing.coding.gui.blocks.ConditionConfigGUI(plugin, player, block).open();
-    }
     
     private void handleEventClick(int slot, boolean isShiftClick) {
         // Открываем специализированное GUI для событий
@@ -708,9 +703,6 @@ public class BlockConfigGUI implements Listener {
         }
     }
     
-    private void handleTextOperationClick(int slot, boolean isShiftClick) {
-        player.sendMessage("§eНастройка текстового блока (в разработке)");
-    }
     
     /**
      * Получение отображаемого названия типа действия

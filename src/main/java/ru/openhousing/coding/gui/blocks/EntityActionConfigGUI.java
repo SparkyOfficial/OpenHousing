@@ -89,7 +89,7 @@ public class EntityActionConfigGUI implements Listener {
             .build());
         
         // Параметры действия
-        inventory.setItem(14, new ItemBuilder(Material.SPAWN_EGG)
+        inventory.setItem(14, new ItemBuilder(Material.CHICKEN_SPAWN_EGG)
             .name("§bПараметры")
             .lore(Arrays.asList(
                 "§7Дополнительные настройки:",
@@ -307,10 +307,5 @@ public class EntityActionConfigGUI implements Listener {
         player.sendMessage("§7Действие: §f" + getVariableValue("actionType"));
         player.sendMessage("§7Цель: §f" + getVariableValue("entityTarget"));
         player.sendMessage("§aТест выполнен на ближайшем существе!");
-    }
-    
-    private String getVariableValue(String parameterName) {
-        Object value = block.getParameter(parameterName);
-        return value != null ? value.toString() : "не установлено";
     }
 }

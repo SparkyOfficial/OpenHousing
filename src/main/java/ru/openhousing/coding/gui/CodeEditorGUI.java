@@ -640,19 +640,20 @@ public class CodeEditorGUI implements InventoryHolder {
                 int actualIndex = page * 21 + lineIndex; // 21 строк на страницу
                 List<CodeLine> lines = script.getLines();
             
-            if (actualIndex < lines.size()) {
-                CodeLine selectedLine = lines.get(actualIndex);
-                
-                if (isRightClick) {
-                    // Открыть настройки строки
-                    player.closeInventory();
-                    LineSettingsGUI settingsGUI = new LineSettingsGUI(plugin, player, script, selectedLine);
-                    settingsGUI.open();
-                } else {
-                    // Просмотр блоков в строке
-                    player.closeInventory();
-                    LineBlocksGUI lineBlocksGUI = new LineBlocksGUI(plugin, player, script, selectedLine);
-                    lineBlocksGUI.open();
+                if (actualIndex < lines.size()) {
+                    CodeLine selectedLine = lines.get(actualIndex);
+                    
+                    if (isRightClick) {
+                        // Открыть настройки строки
+                        player.closeInventory();
+                        LineSettingsGUI settingsGUI = new LineSettingsGUI(plugin, player, script, selectedLine);
+                        settingsGUI.open();
+                    } else {
+                        // Просмотр блоков в строке
+                        player.closeInventory();
+                        LineBlocksGUI lineBlocksGUI = new LineBlocksGUI(plugin, player, script, selectedLine);
+                        lineBlocksGUI.open();
+                    }
                 }
             }
         }
@@ -677,7 +678,7 @@ public class CodeEditorGUI implements InventoryHolder {
                         }
                     }
                     if (removed) {
-                    player.sendMessage("§cБлок удален!");
+                        player.sendMessage("§cБлок удален!");
                     } else {
                         player.sendMessage("§cНе удалось найти блок для удаления!");
                     }

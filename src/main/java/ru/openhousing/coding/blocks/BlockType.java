@@ -47,7 +47,10 @@ public enum BlockType {
     WORLD_PORTAL_CREATE("Портал создан", Material.OBSIDIAN, BlockCategory.EVENT, "Создан портал"),
     
     // События существ (15 событий)
-    ENTITY_SPAWN("Существо появилось", Material.SPAWN_EGG, BlockCategory.EVENT, "Существо заспавнилось"),
+    WORLD_EVENT("События мира", Material.GRASS_BLOCK, BlockCategory.EVENT, "События связанные с миром"),
+    PLAYER_EVENT("События игрока", Material.PLAYER_HEAD, BlockCategory.EVENT, "События связанные с игроком"),
+    ENTITY_EVENT("События существ", Material.ZOMBIE_HEAD, BlockCategory.EVENT, "События связанные с существами"),
+    ENTITY_SPAWN("Существо появилось", Material.EGG, BlockCategory.EVENT, "Существо заспавнилось"),
     ENTITY_DEATH("Существо умерло", Material.BONE, BlockCategory.EVENT, "Существо погибло"),
     ENTITY_DAMAGE("Существо получило урон", Material.IRON_SWORD, BlockCategory.EVENT, "Существо получило урон"),
     ENTITY_TARGET("Существо выбрало цель", Material.BOW, BlockCategory.EVENT, "Существо выбрало цель для атаки"),
@@ -63,8 +66,11 @@ public enum BlockType {
     ENTITY_MILK("Существо подоено", Material.MILK_BUCKET, BlockCategory.EVENT, "Корова подоена"),
     ENTITY_TRANSFORM("Существо трансформировалось", Material.GOLDEN_APPLE, BlockCategory.EVENT, "Существо изменило тип"),
     
-    // Условия игрока (8 условий)
-    IF_PLAYER_ONLINE("Если игрок онлайн", Material.LIME_DYE, BlockCategory.CONDITION, "Проверяет онлайн ли игрок"),
+    // Условия (20 условий)
+    IF_PLAYER("Условие игрока", Material.PLAYER_HEAD, BlockCategory.CONDITION, "Условия связанные с игроком"),
+    IF_ENTITY("Условие существа", Material.ZOMBIE_HEAD, BlockCategory.CONDITION, "Условия связанные с существами"),
+    IF_VARIABLE("Условие переменной", Material.REDSTONE, BlockCategory.CONDITION, "Условия связанные с переменными"),
+    IF_PLAYER_ONLINE("Игрок онлайн", Material.EMERALD, BlockCategory.CONDITION, "Проверяет, онлайн ли игрок"),
     IF_PLAYER_PERMISSION("Если есть право", Material.GOLDEN_HELMET, BlockCategory.CONDITION, "Проверяет права игрока"),
     IF_PLAYER_GAMEMODE("Если режим игры", Material.GRASS_BLOCK, BlockCategory.CONDITION, "Проверяет режим игры"),
     IF_PLAYER_WORLD("Если в мире", Material.COMPASS, BlockCategory.CONDITION, "Проверяет мир игрока"),
@@ -93,7 +99,7 @@ public enum BlockType {
     PLAYER_SEND_MESSAGE("Отправить сообщение", Material.WRITABLE_BOOK, BlockCategory.ACTION, "Отправляет сообщение игроку"),
     PLAYER_SEND_TITLE("Отправить титул", Material.PAINTING, BlockCategory.ACTION, "Показывает титул игроку"),
     PLAYER_SEND_ACTIONBAR("Отправить экшн-бар", Material.ITEM_FRAME, BlockCategory.ACTION, "Показывает сообщение в экшн-баре"),
-    PLAYER_TELEPORT("Телепортировать игрока", Material.ENDER_PEARL, BlockCategory.ACTION, "Телепортирует игрока"),
+    PLAYER_TELEPORT_ACTION("Телепортировать игрока", Material.ENDER_PEARL, BlockCategory.ACTION, "Телепортирует игрока"),
     PLAYER_GIVE_ITEM("Дать предмет", Material.CHEST, BlockCategory.ACTION, "Дает предмет игроку"),
     PLAYER_REMOVE_ITEM("Забрать предмет", Material.HOPPER, BlockCategory.ACTION, "Забирает предмет у игрока"),
     PLAYER_CLEAR_INVENTORY("Очистить инвентарь", Material.BARRIER, BlockCategory.ACTION, "Очищает инвентарь игрока"),
@@ -129,7 +135,7 @@ public enum BlockType {
     VAR_REVERSE("Обратить текст", Material.COMPASS, BlockCategory.ACTION, "Переворачивает текст"),
     VAR_LENGTH("Длина текста", Material.STICK, BlockCategory.ACTION, "Получает длину текста"),
     VAR_SUBSTRING("Подстрока", Material.SHEARS, BlockCategory.ACTION, "Извлекает часть текста"),
-    VAR_RANDOM_NUMBER("Случайное число", Material.DICE, BlockCategory.ACTION, "Генерирует случайное число"),
+    VAR_RANDOM_NUMBER("Случайное число", Material.REDSTONE, BlockCategory.ACTION, "Генерирует случайное число"),
     VAR_ROUND("Округлить число", Material.REDSTONE_BLOCK, BlockCategory.ACTION, "Округляет число"),
     VAR_ABS("Модуль числа", Material.IRON_BLOCK, BlockCategory.ACTION, "Получает модуль числа"),
     VAR_MIN("Минимум", Material.STONE_BUTTON, BlockCategory.ACTION, "Находит минимальное значение"),
@@ -149,7 +155,7 @@ public enum BlockType {
     GAME_SAVE_WORLD("Сохранить мир", Material.CHEST, BlockCategory.ACTION, "Сохраняет мир"),
     GAME_LOAD_WORLD("Загрузить мир", Material.ENDER_CHEST, BlockCategory.ACTION, "Загружает мир"),
     GAME_CREATE_EXPLOSION("Создать взрыв", Material.TNT, BlockCategory.ACTION, "Создает взрыв в мире"),
-    GAME_SPAWN_ENTITY("Заспавнить существо", Material.SPAWN_EGG, BlockCategory.ACTION, "Спавнит существо"),
+    GAME_SPAWN_ENTITY("Заспавнить существо", Material.EGG, BlockCategory.ACTION, "Спавнит существо"),
     GAME_REMOVE_ENTITY("Удалить существо", Material.LAVA_BUCKET, BlockCategory.ACTION, "Удаляет существо"),
     GAME_SET_BLOCK("Установить блок", Material.STONE, BlockCategory.ACTION, "Устанавливает блок в мире"),
     GAME_BREAK_BLOCK("Сломать блок", Material.DIAMOND_PICKAXE, BlockCategory.ACTION, "Ломает блок в мире"),
@@ -178,7 +184,7 @@ public enum BlockType {
     // Выборка (5 функций)
     SELECT_PLAYER("Выбрать игрока", Material.PLAYER_HEAD, BlockCategory.UTILITY, "Выбирает игрока по критериям"),
     SELECT_ENTITY("Выбрать существо", Material.ZOMBIE_HEAD, BlockCategory.UTILITY, "Выбирает существо по критериям"),
-    SELECT_RANDOM("Выбрать случайно", Material.DICE, BlockCategory.UTILITY, "Случайный выбор из списка"),
+    SELECT_RANDOM("Выбрать случайно", Material.REDSTONE, BlockCategory.UTILITY, "Случайный выбор из списка"),
     SELECT_ALL("Выбрать всех", Material.BEACON, BlockCategory.UTILITY, "Выбирает всех подходящих"),
     SELECT_FILTER("Фильтр выборки", Material.HOPPER, BlockCategory.UTILITY, "Фильтрует выборку по условиям"),
         
@@ -186,7 +192,15 @@ public enum BlockType {
     MATH("Математика", Material.REDSTONE_BLOCK, BlockCategory.UTILITY,
          "Выполняет математические операции"),
     TEXT_OPERATION("Операции с текстом", Material.WRITABLE_BOOK, BlockCategory.UTILITY,
-                   "Операции с текстовыми строками");
+                   "Операции с текстовыми строками"),
+    
+    // Действия категорий
+    PLAYER_ACTION("Действия игрока", Material.PLAYER_HEAD, BlockCategory.ACTION, "Действия связанные с игроком"),
+    ENTITY_ACTION("Действия существ", Material.ZOMBIE_HEAD, BlockCategory.ACTION, "Действия связанные с существами"),
+    WORLD_ACTION("Действия мира", Material.GRASS_BLOCK, BlockCategory.ACTION, "Действия связанные с миром"),
+    VARIABLE_ACTION("Действия переменных", Material.REDSTONE, BlockCategory.ACTION, "Действия с переменными"),
+    INVENTORY_ACTION("Действия инвентаря", Material.CHEST, BlockCategory.ACTION, "Действия с инвентарем"),
+    ITEM_CHECK("Проверка предмета", Material.DIAMOND, BlockCategory.CONDITION, "Проверяет предметы");
     
     private final String displayName;
     private final Material material;
