@@ -308,4 +308,9 @@ public class EntityActionConfigGUI implements Listener {
         player.sendMessage("§7Цель: §f" + getVariableValue("entityTarget"));
         player.sendMessage("§aТест выполнен на ближайшем существе!");
     }
+    
+    private String getVariableValue(String parameterName) {
+        Object value = block.getParameter(parameterName);
+        return value != null ? value.toString() : "не установлено";
+    }
 }

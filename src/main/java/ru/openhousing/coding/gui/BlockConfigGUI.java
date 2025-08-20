@@ -630,11 +630,15 @@ public class BlockConfigGUI implements Listener {
     }
     
     private void handleFunctionClick(int slot, boolean isShiftClick) {
-        player.sendMessage("§eНастройка функции (в разработке)");
+        // Открываем специализированное GUI для функций
+        player.closeInventory();
+        new ru.openhousing.coding.gui.blocks.FunctionConfigGUI(plugin, player, block).open();
     }
     
     private void handleCallFunctionClick(int slot, boolean isShiftClick) {
-        player.sendMessage("§eНастройка вызова функции (в разработке)");
+        // Открываем специализированное GUI для вызова функций
+        player.closeInventory();
+        new ru.openhousing.coding.gui.blocks.FunctionConfigGUI(plugin, player, block).open();
     }
     
     private void handleVariableActionClick(int slot, boolean isShiftClick) {
@@ -668,6 +672,18 @@ public class BlockConfigGUI implements Listener {
     }
     
     private void handleMathClick(int slot, boolean isShiftClick) {
+        // Открываем специализированное GUI для математических операций
+        player.closeInventory();
+        new ru.openhousing.coding.gui.blocks.MathConfigGUI(plugin, player, block).open();
+    }
+    
+    private void handleTextOperationClick(int slot, boolean isShiftClick) {
+        // Открываем специализированное GUI для текстовых операций
+        player.closeInventory();
+        new ru.openhousing.coding.gui.blocks.MathConfigGUI(plugin, player, block).open(); // Пока используем MathConfigGUI
+    }
+    
+    private void handleOldMathClick(int slot, boolean isShiftClick) {
         if (slot == 10) { // Операция
             new StringSelectorGUI(plugin, player, "Выберите операцию", Arrays.asList(
                 "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "MODULO", "POWER", "SQRT", "ABS"

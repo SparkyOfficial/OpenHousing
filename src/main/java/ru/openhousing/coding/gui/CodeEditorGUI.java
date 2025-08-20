@@ -657,7 +657,6 @@ public class CodeEditorGUI implements InventoryHolder {
             }
         }
     }
-    }
     
     private void handleBlockEditClick(int slot) {
         switch (slot) {
@@ -691,13 +690,16 @@ public class CodeEditorGUI implements InventoryHolder {
     
     private void handleNavigationClick(int slot) {
         switch (slot) {
+            case 45: // Назад к главному меню
                 mode = EditorMode.MAIN;
                 break;
-            case BLOCKS:
+            case 46: // Блоки
                 mode = EditorMode.CATEGORIES;
                 break;
-            case SCRIPT:
-            case BLOCK_EDIT:
+            case 47: // Скрипт
+                mode = EditorMode.SCRIPT;
+                break;
+            case 48: // Редактирование блока
                 mode = EditorMode.MAIN;
                 break;
         }
