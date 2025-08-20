@@ -28,7 +28,9 @@ C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\ev
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\events\EventRegistry.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\BlockConfigGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\CodeEditorGUI.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\EntityActionSelectorGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\EntityEventSelectorGUI.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\helpers\AnvilGUIHelper.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\LineBlocksGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\LineSelectorGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\LineSettingsGUI.java
@@ -36,8 +38,10 @@ C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gu
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\PlayerActionSelectorGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\PlayerEventSelectorGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\PlayerSelectorGUI.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\StringSelectorGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\ValueSelectorGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\VariableSelectorGUI.java
+C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\WorldActionSelectorGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\gui\WorldEventSelectorGUI.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\listeners\CodeListener.java
 C:\Users\Богдан\Desktop\OpenHousing\src\main\java\ru\openhousing\coding\script\CodeLine.java

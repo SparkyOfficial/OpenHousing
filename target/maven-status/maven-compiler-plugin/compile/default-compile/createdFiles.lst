@@ -1,3 +1,4 @@
+ru\openhousing\coding\gui\WorldActionSelectorGUI$1.class
 ru\openhousing\coding\gui\CodeEditorGUI$1.class
 ru\openhousing\database\DatabaseManager.class
 ru\openhousing\coding\blocks\control\TargetBlock$TargetType.class
@@ -14,11 +15,14 @@ ru\openhousing\coding\gui\CodeEditorGUI.class
 ru\openhousing\utils\MessageUtil.class
 ru\openhousing\coding\blocks\BlockType$BlockCategory.class
 ru\openhousing\listeners\PlayerListener.class
+ru\openhousing\coding\gui\StringSelectorGUI.class
 ru\openhousing\coding\values\ParticleValue$ParticleData.class
+ru\openhousing\coding\gui\EntityActionSelectorGUI.class
 ru\openhousing\coding\gui\LocationSelectorGUI.class
 ru\openhousing\coding\constants\BlockParams.class
 ru\openhousing\coding\gui\LineSelectorGUI$1.class
 ru\openhousing\coding\blocks\events\EntityEventBlock$EntityEventType.class
+ru\openhousing\coding\gui\EntityActionSelectorGUI$1.class
 ru\openhousing\coding\blocks\inventory\InventoryActionBlock$InventoryAction.class
 ru\openhousing\commands\HousingCommand.class
 ru\openhousing\coding\gui\VariableSelectorGUI.class
@@ -80,6 +84,7 @@ ru\openhousing\placeholders\OpenHousingPlaceholders.class
 ru\openhousing\coding\blocks\conditions\IfEntityBlock.class
 ru\openhousing\coding\blocks\conditions\IfPlayerBlock.class
 ru\openhousing\coding\blocks\events\WorldEventBlock$WorldEventType.class
+ru\openhousing\coding\gui\WorldActionSelectorGUI.class
 ru\openhousing\coding\gui\PlayerEventSelectorGUI$1.class
 ru\openhousing\listeners\HousingListener$1.class
 ru\openhousing\coding\blocks\actions\WorldActionBlock.class
@@ -92,6 +97,7 @@ ru\openhousing\coding\gui\ValueSelectorGUI.class
 ru\openhousing\listeners\HousingListener.class
 ru\openhousing\coding\blocks\inventory\InventoryActionBlock.class
 ru\openhousing\housing\House$HouseSize.class
+ru\openhousing\coding\gui\helpers\AnvilGUIHelper.class
 ru\openhousing\coding\blocks\CodeBlock$ExecutionResult.class
 ru\openhousing\config\ConfigManager.class
 ru\openhousing\utils\AnvilGUIHelper.class
