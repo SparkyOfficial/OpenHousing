@@ -450,9 +450,9 @@ public class BlockConfigGUI implements Listener {
         
         // Обработка клика по настройкам в зависимости от типа блока
         switch (block.getType()) {
-            case PLAYER_EVENT -> handlePlayerEventClick(slot, isShiftClick);
-            case ENTITY_EVENT -> handleEntityEventClick(slot, isShiftClick);
-            case WORLD_EVENT -> handleWorldEventClick(slot, isShiftClick);
+            case PLAYER_EVENT -> handleEventClick(slot, isShiftClick);
+            case ENTITY_EVENT -> handleEventClick(slot, isShiftClick);
+            case WORLD_EVENT -> handleEventClick(slot, isShiftClick);
             case PLAYER_ACTION -> handlePlayerActionClick(slot, isShiftClick);
             case ENTITY_ACTION -> handleEntityActionClick(slot, isShiftClick);
             case WORLD_ACTION -> handleWorldActionClick(slot, isShiftClick);
@@ -518,91 +518,27 @@ public class BlockConfigGUI implements Listener {
     }
     
     private void handlePlayerActionClick(int slot, boolean isShiftClick) {
-        if (slot == 10) { // Тип действия
-            player.closeInventory();
-            new PlayerActionSelectorGUI(plugin, player, (actionType) -> {
-                block.setParameter("actionType", actionType.name());
-                player.sendMessage("§aТип действия выбран: " + actionType.getDisplayName());
-                this.open();
-            }).open();
-            
-        } else if (slot == 11) { // Основное значение
-            handleValueInput(getValuePrompt(), "value");
-            
-        } else if (slot == 12) { // Дополнительный параметр 1
-            handleValueInput(getExtra1Prompt(), "extra1");
-            
-        } else if (slot == 13) { // Дополнительный параметр 2
-            handleValueInput(getExtra2Prompt(), "extra2");
-        }
+        // Открываем специализированное GUI для действий игрока
+        player.closeInventory();
+        new ru.openhousing.coding.gui.blocks.PlayerActionConfigGUI(plugin, player, block).open();
     }
     
     private void handleEntityActionClick(int slot, boolean isShiftClick) {
-        if (slot == 10) { // Тип действия
-            player.closeInventory();
-            new EntityActionSelectorGUI(plugin, player, (actionType) -> {
-                block.setParameter("actionType", actionType.name());
-                player.sendMessage("§aТип действия выбран: " + actionType.getDisplayName());
-                this.open();
-            }).open();
-            
-        } else if (slot == 11) { // Основное значение
-            handleValueInput(getEntityValuePrompt(), "value");
-            
-        } else if (slot == 12) { // Дополнительный параметр 1
-            handleValueInput(getEntityExtra1Prompt(), "extra1");
-            
-        } else if (slot == 13) { // Дополнительный параметр 2
-            handleValueInput(getEntityExtra2Prompt(), "extra2");
-        }
+        // Открываем специализированное GUI для действий с существами
+        player.closeInventory();
+        new ru.openhousing.coding.gui.blocks.EntityActionConfigGUI(plugin, player, block).open();
     }
     
     private void handleWorldActionClick(int slot, boolean isShiftClick) {
-        if (slot == 10) { // Тип действия
-            player.closeInventory();
-            new WorldActionSelectorGUI(plugin, player, (actionType) -> {
-                block.setParameter("actionType", actionType.name());
-                player.sendMessage("§aТип действия выбран: " + actionType.getDisplayName());
-                this.open();
-            }).open();
-            
-        } else if (slot == 11) { // Основное значение
-            handleValueInput(getWorldValuePrompt(), "value");
-            
-        } else if (slot == 12) { // Дополнительный параметр 1
-            handleValueInput(getWorldExtra1Prompt(), "extra1");
-            
-        } else if (slot == 13) { // Дополнительный параметр 2
-            handleValueInput(getWorldExtra2Prompt(), "extra2");
-        }
+        // Открываем специализированное GUI для игровых действий
+        player.closeInventory();
+        new ru.openhousing.coding.gui.blocks.GameActionConfigGUI(plugin, player, block).open();
     }
     
     private void handleIfPlayerClick(int slot, boolean isShiftClick) {
-        if (slot == 10) { // Тип условия
-            new StringSelectorGUI(plugin, player, "Выберите тип условия", Arrays.asList(
-                "HEALTH", "FOOD", "LEVEL", "EXPERIENCE", "GAMEMODE", "PERMISSION", 
-                "LOCATION", "ITEM_IN_HAND", "INVENTORY_CONTAINS", "WORLD"
-            ), (conditionType) -> {
-                block.setParameter("conditionType", conditionType);
-                player.sendMessage("§aТип условия выбран: " + conditionType);
-                this.open();
-            }).open();
-            
-        } else if (slot == 11) { // Значение для сравнения
-            String conditionType = String.valueOf(block.getParameter("conditionType"));
-            String prompt = getIfPlayerValuePrompt(conditionType);
-            handleValueInput(prompt, "value");
-            
-        } else if (slot == 12) { // Оператор сравнения
-            new StringSelectorGUI(plugin, player, "Выберите оператор", Arrays.asList(
-                "EQUALS", "NOT_EQUALS", "GREATER", "LESS", "GREATER_OR_EQUAL", 
-                "LESS_OR_EQUAL", "CONTAINS", "NOT_CONTAINS"
-            ), (operator) -> {
-                block.setParameter("operator", operator);
-                player.sendMessage("§aОператор выбран: " + operator);
-                this.open();
-            }).open();
-        }
+        // Открываем специализированное GUI для условий
+        player.closeInventory();
+        new ru.openhousing.coding.gui.blocks.ConditionConfigGUI(plugin, player, block).open();
     }
     
     /**
@@ -678,7 +614,9 @@ public class BlockConfigGUI implements Listener {
     }
     
     private void handleIfEntityClick(int slot, boolean isShiftClick) {
-        player.sendMessage("§eНастройка условия сущности (в разработке)");
+        // Открываем специализированное GUI для условий существ
+        player.closeInventory();
+        new ru.openhousing.coding.gui.blocks.ConditionConfigGUI(plugin, player, block).open();
     }
     
     private void handleIfVariableClick(int slot, boolean isShiftClick) {
@@ -700,6 +638,24 @@ public class BlockConfigGUI implements Listener {
     }
     
     private void handleVariableActionClick(int slot, boolean isShiftClick) {
+        // Открываем специализированное GUI для действий с переменными
+        player.closeInventory();
+        new ru.openhousing.coding.gui.blocks.VariableActionConfigGUI(plugin, player, block).open();
+    }
+    
+    private void handleIfVariableClick(int slot, boolean isShiftClick) {
+        // Открываем специализированное GUI для условий переменных
+        player.closeInventory();
+        new ru.openhousing.coding.gui.blocks.ConditionConfigGUI(plugin, player, block).open();
+    }
+    
+    private void handleEventClick(int slot, boolean isShiftClick) {
+        // Открываем специализированное GUI для событий
+        player.closeInventory();
+        new ru.openhousing.coding.gui.blocks.EventConfigGUI(plugin, player, block).open();
+    }
+    
+    private void handleOldVariableActionClick(int slot, boolean isShiftClick) {
         if (slot == 10) { // Действие с переменной
             player.sendMessage("§eВыбор действия с переменной (в разработке)");
         } else if (slot == 11) { // Имя переменной

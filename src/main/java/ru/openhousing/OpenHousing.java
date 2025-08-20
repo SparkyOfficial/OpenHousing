@@ -204,6 +204,9 @@ public class OpenHousing extends JavaPlugin {
         chatListener = new ru.openhousing.listeners.ChatListener(this);
         getServer().getPluginManager().registerEvents(chatListener, this);
         
+        // Регистрация слушателя взаимодействия с переменными
+        getServer().getPluginManager().registerEvents(new ru.openhousing.coding.listeners.VariableInteractionListener(this), this);
+        
         getLogger().info("Listeners registered successfully!");
     }
     

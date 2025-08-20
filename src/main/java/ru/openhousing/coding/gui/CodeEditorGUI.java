@@ -453,22 +453,27 @@ public class CodeEditorGUI implements InventoryHolder {
      */
     private void addNavigationItems() {
         // Назад
-        if (mode != EditorMode.MAIN) {
-            inventory.setItem(0, new ItemBuilder(Material.ARROW)
-                .name("§7Назад")
-                .build());
-        }
-        
-        // Главное меню
-        inventory.setItem(4, new ItemBuilder(Material.NETHER_STAR)
-            .name("§6Главное меню")
+        inventory.setItem(0, new ItemBuilder(Material.ARROW)
+            .name("§cНазад")
+            .lore("§7Вернуться назад")
             .build());
-        
-        // Закрыть
-        inventory.setItem(8, new ItemBuilder(Material.BARRIER)
+            
+        // Переменные (железный слиток в 9 слот)
+        inventory.setItem(8, new ItemBuilder(Material.IRON_INGOT)
+            .name("§6Переменные")
+            .lore(Arrays.asList(
+                "§7Получить переменную для",
+                "§7использования в коде",
+                "",
+                "§eКлик для открытия"
+            ))
+            .build());
+            
+        // Домой
+        inventory.setItem(17, new ItemBuilder(Material.BARRIER)
             .name("§cЗакрыть")
+            .lore("§7Закрыть редактор")
             .build());
-        
         // Разделители
         ItemStack glass = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE)
             .name(" ")
@@ -686,34 +691,6 @@ public class CodeEditorGUI implements InventoryHolder {
     
     private void handleNavigationClick(int slot) {
         switch (slot) {
-            case 0: // Назад
-                goBack();
-                break;
-            case 4: // Главное меню
-                if (mode != EditorMode.MAIN) {
-                    mode = EditorMode.MAIN;
-                    updateInventory();
-                }
-                break;
-            case 8: // Закрыть
-                close();
-                break;
-            case 45: // Предыдущая страница
-                if (page > 0) {
-                    page--;
-                    updateInventory();
-                }
-                break;
-            case 53: // Следующая страница
-                page++;
-                updateInventory();
-                break;
-        }
-    }
-    
-    private void goBack() {
-        switch (mode) {
-            case CATEGORIES:
                 mode = EditorMode.MAIN;
                 break;
             case BLOCKS:
