@@ -35,6 +35,12 @@ public class OpenHousing extends JavaPlugin {
     
     // Economy
     private Economy economy;
+    private ru.openhousing.economy.EconomyManager economyManager;
+    
+    // Integrations
+    private ru.openhousing.integrations.WorldGuardIntegration worldGuardIntegration;
+    private ru.openhousing.teleportation.TeleportationManager teleportationManager;
+    private ru.openhousing.notifications.NotificationManager notificationManager;
     
     // API
     private OpenHousingAPI api;
@@ -145,6 +151,18 @@ public class OpenHousing extends JavaPlugin {
         databaseManager = new DatabaseManager(this);
         databaseManager.initialize();
         
+        // Экономический менеджер
+        economyManager = new ru.openhousing.economy.EconomyManager(this);
+        
+        // WorldGuard интеграция
+        worldGuardIntegration = new ru.openhousing.integrations.WorldGuardIntegration(this);
+        
+        // Менеджер телепортации
+        teleportationManager = new ru.openhousing.teleportation.TeleportationManager(this);
+        
+        // Менеджер уведомлений
+        notificationManager = new ru.openhousing.notifications.NotificationManager(this);
+        
         // Менеджер домов
         housingManager = new HousingManager(this);
         housingManager.initialize();
@@ -177,10 +195,12 @@ public class OpenHousing extends JavaPlugin {
      * Регистрация листенеров
      */
     private void registerListeners() {
-        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
-        getServer().getPluginManager().registerEvents(new HousingListener(this), this);
-        getServer().getPluginManager().registerEvents(new ru.openhousing.coding.listeners.CodeListener(this, codeManager), this);
-        getServer().getPluginManager().registerEvents(new InventoryListener(this), this);
+        // Слушатели событий
+        getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.PlayerListener(this), this);
+        getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.BlockListener(this), this);
+        getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.InventoryListener(this), this);
+        getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.HouseMovementListener(this), this);
+        getServer().getPluginManager().registerEvents(new ru.openhousing.gui.HouseSettingsGUI(this, null, null), this);
         chatListener = new ru.openhousing.listeners.ChatListener(this);
         getServer().getPluginManager().registerEvents(chatListener, this);
         
@@ -215,6 +235,22 @@ public class OpenHousing extends JavaPlugin {
     
     public Economy getEconomy() {
         return economy;
+    }
+    
+    public ru.openhousing.economy.EconomyManager getEconomyManager() {
+        return economyManager;
+    }
+    
+    public ru.openhousing.integrations.WorldGuardIntegration getWorldGuardIntegration() {
+        return worldGuardIntegration;
+    }
+    
+    public ru.openhousing.teleportation.TeleportationManager getTeleportationManager() {
+        return teleportationManager;
+    }
+    
+    public ru.openhousing.notifications.NotificationManager getNotificationManager() {
+        return notificationManager;
     }
     
     public OpenHousingAPI getAPI() {

@@ -311,6 +311,56 @@ public class House {
         updateModified();
     }
     
+    // Missing methods needed by other classes
+    public String getOwner() {
+        return ownerName;
+    }
+    
+    public Location getLocation() {
+        return getSpawnLocation();
+    }
+    
+    public String getRegion() {
+        return "house_" + id;
+    }
+    
+    public String getWorldGuardRegionId() {
+        return "house_" + id;
+    }
+    
+    public String getDescription() {
+        return (String) settings.getOrDefault("description", "");
+    }
+    
+    public void setDescription(String description) {
+        settings.put("description", description);
+        updateModified();
+    }
+    
+    public void setSpawnLocation(Location location) {
+        if (location != null && location.getWorld() != null) {
+            settings.put("spawn_x", location.getX());
+            settings.put("spawn_y", location.getY());
+            settings.put("spawn_z", location.getZ());
+            updateModified();
+        }
+    }
+    
+    public void addAllowedPlayer(String playerName) {
+        allowPlayer(playerName);
+    }
+    
+    public void addPlayer(UUID playerId) {
+        // Track player entry - could be used for statistics
+        settings.put("last_visitor", playerId.toString());
+        updateModified();
+    }
+    
+    public void removePlayer(UUID playerId) {
+        // Track player exit - could be used for statistics
+        updateModified();
+    }
+    
     /**
      * Класс размера дома
      */

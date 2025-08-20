@@ -382,4 +382,22 @@ public class HousingManager {
     public double getCreationCost() { return creationCost; }
     public double getExpansionCostPerBlock() { return expansionCostPerBlock; }
     public World getHousingWorld() { return housingWorld; }
+    
+    // Missing methods needed by other classes
+    public List<House> getAllHouses() {
+        return new ArrayList<>(houses.values());
+    }
+    
+    public House getHouseById(String id) {
+        try {
+            int houseId = Integer.parseInt(id);
+            return houses.get(houseId);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+    
+    public boolean hasHouse(String houseName) {
+        return housesByName.containsKey(houseName.toLowerCase());
+    }
 }

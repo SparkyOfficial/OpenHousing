@@ -442,7 +442,7 @@ public class VariableSelectorGUI implements Listener {
         Inventory recentInventory = Bukkit.createInventory(null, 54, "§6Недавние переменные");
         
         // Получаем недавние переменные из конфигурации игрока
-        List<String> recentVars = getRecentVariables(player);
+        java.util.List<String> recentVars = getRecentVariables(player);
         
         int slot = 10;
         for (String varName : recentVars) {
@@ -479,7 +479,7 @@ public class VariableSelectorGUI implements Listener {
     /**
      * Получить список недавних переменных игрока
      */
-    private List<String> getRecentVariables(Player player) {
+    private java.util.List<String> getRecentVariables(Player player) {
         return plugin.getConfig().getStringList("players." + player.getUniqueId() + ".recent_variables");
     }
     
@@ -488,7 +488,7 @@ public class VariableSelectorGUI implements Listener {
      */
     public static void addRecentVariable(OpenHousing plugin, Player player, String variableName) {
         String path = "players." + player.getUniqueId() + ".recent_variables";
-        List<String> recent = plugin.getConfig().getStringList(path);
+        java.util.List<String> recent = plugin.getConfig().getStringList(path);
         
         // Удаляем если уже есть (чтобы переместить в начало)
         recent.remove(variableName);
@@ -510,7 +510,7 @@ public class VariableSelectorGUI implements Listener {
      */
     private void removeRecentVariable(String variableName) {
         String path = "players." + player.getUniqueId() + ".recent_variables";
-        List<String> recent = plugin.getConfig().getStringList(path);
+        java.util.List<String> recent = plugin.getConfig().getStringList(path);
         recent.remove(variableName);
         plugin.getConfig().set(path, recent);
         plugin.saveConfig();
@@ -522,7 +522,7 @@ public class VariableSelectorGUI implements Listener {
     private void showMathConstants() {
         Inventory mathInventory = Bukkit.createInventory(null, 54, "§6Математические константы");
 
-{{ ... }}
+        mathInventory.setItem(10, new ItemBuilder(Material.COMPASS)
             .name("§emath:pi")
             .lore(Arrays.asList(
                 "§7Число π (3.14159...)",

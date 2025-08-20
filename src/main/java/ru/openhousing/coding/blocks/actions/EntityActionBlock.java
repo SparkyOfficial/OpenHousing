@@ -1,6 +1,6 @@
 package ru.openhousing.coding.blocks.actions;
 
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -165,36 +165,85 @@ public class EntityActionBlock extends CodeBlock {
                 
             case DAMAGE:
                 if (entity instanceof Damageable) {
-                    double damage = Double.parseDouble(value);
-                    ((Damageable) entity).damage(damage);
+                    try {
+                        double damage = Double.parseDouble(value);
+                        if (damage < 0) {
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§c[OpenHousing] Урон не может быть отрицательным!");
+                            }
+                            return;
+                        }
+                        ((Damageable) entity).damage(damage);
+                    } catch (NumberFormatException e) {
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§c[OpenHousing] Неверное значение урона: '" + value + "'. Используйте числа!");
+                        }
+                    }
                 }
                 break;
                 
             case HEAL:
                 if (entity instanceof LivingEntity) {
                     LivingEntity living = (LivingEntity) entity;
-                    double healAmount = Double.parseDouble(value);
-                    double newHealth = Math.min(living.getHealth() + healAmount, 
-                                              living.getAttribute(Attribute.MAX_HEALTH).getValue());
-                    living.setHealth(newHealth);
+                    try {
+                        double healAmount = Double.parseDouble(value);
+                        if (healAmount < 0) {
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§c[OpenHousing] Лечение не может быть отрицательным!");
+                            }
+                            return;
+                        }
+                        double newHealth = Math.min(living.getHealth() + healAmount, 
+                                                  living.getAttribute(Attribute.MAX_HEALTH).getValue());
+                        living.setHealth(newHealth);
+                    } catch (NumberFormatException e) {
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§c[OpenHousing] Неверное значение лечения: '" + value + "'. Используйте числа!");
+                        }
+                    }
                 }
                 break;
                 
             case SET_HEALTH:
                 if (entity instanceof LivingEntity) {
-                    double health = Double.parseDouble(value);
-                    LivingEntity living = (LivingEntity) entity;
-                    double maxHealth = living.getAttribute(Attribute.MAX_HEALTH).getValue();
-                    living.setHealth(Math.min(health, maxHealth));
+                    try {
+                        double health = Double.parseDouble(value);
+                        if (health < 0) {
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§c[OpenHousing] Здоровье не может быть отрицательным!");
+                            }
+                            return;
+                        }
+                        LivingEntity living = (LivingEntity) entity;
+                        double maxHealth = living.getAttribute(Attribute.MAX_HEALTH).getValue();
+                        living.setHealth(Math.min(health, maxHealth));
+                    } catch (NumberFormatException e) {
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§c[OpenHousing] Неверное значение здоровья: '" + value + "'. Используйте числа!");
+                        }
+                    }
                 }
                 break;
                 
             case SET_MAX_HEALTH:
                 if (entity instanceof LivingEntity) {
-                    LivingEntity living = (LivingEntity) entity;
-                    AttributeInstance health = living.getAttribute(Attribute.MAX_HEALTH);
-                    if (health != null) {
-                        health.setBaseValue(Double.parseDouble(value));
+                    try {
+                        double maxHealth = Double.parseDouble(value);
+                        if (maxHealth <= 0) {
+                            if (context.getPlayer() != null) {
+                                context.getPlayer().sendMessage("§c[OpenHousing] Максимальное здоровье должно быть больше 0!");
+                            }
+                            return;
+                        }
+                        LivingEntity living = (LivingEntity) entity;
+                        AttributeInstance health = living.getAttribute(Attribute.MAX_HEALTH);
+                        if (health != null) {
+                            health.setBaseValue(maxHealth);
+                        }
+                    } catch (NumberFormatException e) {
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§c[OpenHousing] Неверное значение здоровья: '" + value + "'. Используйте числа!");
+                        }
                     }
                 }
                 break;
@@ -218,13 +267,37 @@ public class EntityActionBlock extends CodeBlock {
                 break;
                 
             case LAUNCH:
-                double power = Double.parseDouble(value);
-                entity.setVelocity(new Vector(0, power, 0));
+                try {
+                    double power = Double.parseDouble(value);
+                    if (power < 0 || power > 10) {
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§c[OpenHousing] Сила запуска должна быть от 0 до 10!");
+                        }
+                        return;
+                    }
+                    entity.setVelocity(new Vector(0, power, 0));
+                } catch (NumberFormatException e) {
+                    if (context.getPlayer() != null) {
+                        context.getPlayer().sendMessage("§c[OpenHousing] Неверная сила запуска: '" + value + "'. Используйте числа от 0 до 10!");
+                    }
+                }
                 break;
                 
             case SET_FIRE:
-                int fireTicks = Integer.parseInt(value);
-                entity.setFireTicks(fireTicks);
+                try {
+                    int fireTicks = Integer.parseInt(value);
+                    if (fireTicks < 0) {
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§c[OpenHousing] Время горения не может быть отрицательным!");
+                        }
+                        return;
+                    }
+                    entity.setFireTicks(fireTicks);
+                } catch (NumberFormatException e) {
+                    if (context.getPlayer() != null) {
+                        context.getPlayer().sendMessage("§c[OpenHousing] Неверное время горения: '" + value + "'. Используйте целые числа!");
+                    }
+                }
                 break;
                 
             case EXTINGUISH:
@@ -232,7 +305,11 @@ public class EntityActionBlock extends CodeBlock {
                 break;
                 
             case SET_NAME:
-                entity.setCustomName(ChatColor.translateAlternateColorCodes('&', value));
+                if (value != null && !value.trim().isEmpty()) {
+                    entity.setCustomName(net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', value));
+                } else {
+                    entity.setCustomName(null);
+                }
                 break;
                 
             case SET_NAME_VISIBLE:
@@ -308,8 +385,8 @@ public class EntityActionBlock extends CodeBlock {
                         // Убираем агрессивность для специфичных мобов
                         if (mob instanceof Wolf) {
                             ((Wolf) mob).setAngry(false);
-                        } else if (mob instanceof PigZombie) {
-                            ((PigZombie) mob).setAngry(false);
+                        } else if (mob instanceof org.bukkit.entity.PigZombie) {
+                            ((org.bukkit.entity.PigZombie) mob).setAngry(false);
                         } else if (mob instanceof Enderman) {
                             ((Enderman) mob).setScreaming(false);
                         }
@@ -1037,12 +1114,12 @@ public class EntityActionBlock extends CodeBlock {
     private void setAngry(Entity entity, boolean angry) {
         if (entity instanceof Wolf) {
             ((Wolf) entity).setAngry(angry);
-        } else if (entity instanceof PigZombie) {
+        } else if (entity instanceof org.bukkit.entity.PigZombie) {
             if (angry) {
-                ((PigZombie) entity).setAngry(true);
-                ((PigZombie) entity).setAnger(400); // 20 секунд
+                ((org.bukkit.entity.PigZombie) entity).setAngry(true);
+                ((org.bukkit.entity.PigZombie) entity).setAnger(400); // 20 секунд
             } else {
-                ((PigZombie) entity).setAngry(false);
+                ((org.bukkit.entity.PigZombie) entity).setAngry(false);
             }
         } else {
             // Для других существ отправляем сообщение
@@ -1156,31 +1233,27 @@ public class EntityActionBlock extends CodeBlock {
     }
     
     /**
-     * Поиск ближайшего существа
+     * Поиск ближайшего существа (оптимизированный)
      */
     private Entity findNearestEntity(ExecutionContext context) {
         if (context.getPlayer() == null) return null;
         
-        // Используем оптимизированный поиск из CodeBlockUtils
-        List<Entity> nearbyEntities = ru.openhousing.utils.CodeBlockUtils.findNearestEntities(
-            context.getPlayer().getLocation(), 
-            10, 
-            Entity.class
-        );
+        Location playerLoc = context.getPlayer().getLocation();
+        World world = playerLoc.getWorld();
         
-        if (nearbyEntities.isEmpty()) return null;
-        
-        // Находим ближайшее существо
+        // Оптимизированный поиск с ограниченным радиусом
         Entity nearest = null;
-        double nearestDistance = Double.MAX_VALUE;
+        double nearestDistanceSquared = 100.0; // 10 блоков в квадрате для оптимизации
         
-        for (Entity entity : nearbyEntities) {
+        // Используем getNearbyEntities для более эффективного поиска
+        for (Entity entity : world.getNearbyEntities(playerLoc, 10, 10, 10)) {
             if (entity instanceof Player) continue;
             
-            double distance = entity.getLocation().distance(context.getPlayer().getLocation());
-            if (distance < nearestDistance) {
+            // Используем distanceSquared для избежания вычисления квадратного корня
+            double distanceSquared = entity.getLocation().distanceSquared(playerLoc);
+            if (distanceSquared < nearestDistanceSquared) {
                 nearest = entity;
-                nearestDistance = distance;
+                nearestDistanceSquared = distanceSquared;
             }
         }
         

@@ -15,6 +15,8 @@ import ru.openhousing.coding.gui.helpers.AnvilGUIHelper;
 import ru.openhousing.utils.ItemBuilder;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 /**
@@ -649,10 +651,10 @@ public class BlockConfigGUI implements Listener {
     /**
      * Получить список условий блока
      */
-    private List<String> getBlockConditions() {
+    private java.util.List<String> getBlockConditions() {
         Object conditionsObj = block.getParameter("conditions");
-        if (conditionsObj instanceof List) {
-            return (List<String>) conditionsObj;
+        if (conditionsObj instanceof java.util.List) {
+            return (java.util.List<String>) conditionsObj;
         }
         return new ArrayList<>();
     }

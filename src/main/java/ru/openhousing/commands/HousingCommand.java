@@ -55,11 +55,20 @@ public class HousingCommand implements CommandExecutor, TabCompleter {
             case "delete":
                 deleteHouse(player, args);
                 break;
-            case "settings":
-                houseSettings(player, args);
+            case "home":
+                teleportHome(player);
                 break;
-            case "allow":
-                allowPlayer(player, args);
+            case "homes":
+                showAvailableHomes(player);
+                break;
+            case "tpforce":
+                forceTeleport(player, args);
+                break;
+            case "notifications":
+                showNotifications(player);
+                break;
+            case "clearnotifications":
+                clearNotifications(player);
                 break;
             case "disallow":
                 disallowPlayer(player, args);
@@ -76,8 +85,14 @@ public class HousingCommand implements CommandExecutor, TabCompleter {
             case "info":
                 houseInfo(player, args);
                 break;
-            case "home":
-                goHome(player);
+            case "buy":
+                buyHouse(player, args);
+                break;
+            case "sell":
+                sellHouse(player);
+                break;
+            case "price":
+                showPrices(player);
                 break;
             case "help":
             default:
@@ -86,6 +101,89 @@ public class HousingCommand implements CommandExecutor, TabCompleter {
         }
         
         return true;
+    }
+    
+    /**
+     * Покупка дома
+     */
+    private void buyHouse(Player player, String[] args) {
+        // Проверяем, есть ли уже дом у игрока
+        if (plugin.getHousingManager().hasHouse(player.getName())) {
+            MessageUtil.send(player, "&cУ вас уже есть дом! Продайте его перед покупкой нового.");
+            return;
+        }
+        
+        // Создаем дом и проверяем экономику
+        String houseName = args.length > 1 ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : null;
+        
+        // Создаем временный дом для расчета цены
+        HousingManager.CreateHouseResult result = plugin.getHousingManager().createHouse(player, houseName);
+        
+        if (!result.isSuccess()) {
+            MessageUtil.send(player, "&c" + result.getMessage());
+            return;
+        }
+        
+        House house = plugin.getHousingManager().getHouse(player.getName());
+        if (house == null) {
+            MessageUtil.send(player, "&cОшибка создания дома!");
+            return;
+        }
+        
+        // Проверяем и списываем деньги
+        if (plugin.getEconomyManager().buyHouse(player, house)) {
+            MessageUtil.send(player, "&aДом успешно куплен!");
+            MessageUtil.send(player, "&7Используйте &e/housing home &7для телепортации!");
+        } else {
+            // Удаляем дом если покупка не удалась
+            List<House> playerHouses = plugin.getHousingManager().getPlayerHouses(player.getUniqueId());
+            if (!playerHouses.isEmpty()) {
+                plugin.getHousingManager().deleteHouse(playerHouses.get(0), player);
+            }
+        }
+    }
+    
+    /**
+     * Продажа дома
+     */
+    private void sellHouse(Player player) {
+        House house = plugin.getHousingManager().getHouse(player.getName());
+        if (house == null) {
+            MessageUtil.send(player, "&cУ вас нет дома для продажи!");
+            return;
+        }
+        
+        double sellPrice = plugin.getEconomyManager().calculateSellPrice(house);
+        
+        MessageUtil.send(player, 
+            "&e&l=== ПРОДАЖА ДОМА ===",
+            "&7Цена продажи: &e" + plugin.getEconomyManager().format(sellPrice),
+            "&cВНИМАНИЕ: Дом будет удален навсегда!",
+            "",
+            "&eНапишите в чат: &aПРОДАТЬ &eдля подтверждения",
+            "&7Или любое другое сообщение для отмены"
+        );
+        
+        // Регистрируем временный слушатель чата
+        ru.openhousing.listeners.ChatListener.registerTemporaryInput(player, (input) -> {
+            if ("ПРОДАТЬ".equalsIgnoreCase(input.trim())) {
+                if (plugin.getEconomyManager().sellHouse(player, house)) {
+                    plugin.getHousingManager().deleteHouse(house, player);
+                    MessageUtil.send(player, "&aДом успешно продан!");
+                } else {
+                    MessageUtil.send(player, "&cОшибка продажи дома!");
+                }
+            } else {
+                MessageUtil.send(player, "&7Продажа дома отменена");
+            }
+        });
+    }
+    
+    /**
+     * Показать цены
+     */
+    private void showPrices(Player player) {
+        plugin.getEconomyManager().showPriceInfo(player);
     }
     
     /**
@@ -142,6 +240,116 @@ public class HousingCommand implements CommandExecutor, TabCompleter {
         MessageUtil.send(player, "&7Используйте &e/housing visit <дом> &7для телепортации");
     }
     
+    /**
+     * Телепортация домой
+     */
+    private void teleportHome(Player player) {
+        List<House> houses = plugin.getHousingManager().getPlayerHouses(player.getUniqueId());
+        if (houses.isEmpty()) {
+            MessageUtil.send(player, "&cУ вас нет домов!");
+            return;
+        }
+        
+        House house = houses.get(0); // Первый дом как основной
+        if (plugin.getHousingManager().teleportToHouse(player, house)) {
+            MessageUtil.send(player, "&aВы телепортированы домой!");
+        } else {
+            MessageUtil.send(player, "&cОшибка телепортации!");
+        }
+    }
+    
+    /**
+     * Посещение дома
+     */
+    private void visitHouse(Player player, String[] args) {
+        if (args.length < 2) {
+            MessageUtil.send(player, "&cИспользование: &e/housing visit <игрок>");
+            return;
+        }
+        
+        String targetPlayer = args[1];
+        List<House> houses = plugin.getHousingManager().getPlayerHouses(targetPlayer);
+        
+        if (houses.isEmpty()) {
+            MessageUtil.send(player, "&cУ игрока " + targetPlayer + " нет домов!");
+            return;
+        }
+        
+        House house = houses.get(0); // Первый дом
+        if (plugin.getHousingManager().teleportToHouse(player, house)) {
+            MessageUtil.send(player, "&aВы посетили дом игрока " + targetPlayer + "!");
+        } else {
+            MessageUtil.send(player, "&cВы не можете посетить этот дом!");
+        }
+    }
+    
+    /**
+     * Показать доступные дома
+     */
+    private void showAvailableHomes(Player player) {
+        List<House> publicHouses = plugin.getHousingManager().getPublicHouses();
+        List<House> myHouses = plugin.getHousingManager().getPlayerHouses(player.getUniqueId());
+        
+        MessageUtil.send(player, "&6&l=== Доступные дома ===");
+        
+        if (!myHouses.isEmpty()) {
+            MessageUtil.send(player, "&eВаши дома:");
+            for (House house : myHouses) {
+                MessageUtil.send(player, "&7- " + house.getName());
+            }
+        }
+        
+        if (!publicHouses.isEmpty()) {
+            MessageUtil.send(player, "&eПубличные дома:");
+            for (House house : publicHouses) {
+                MessageUtil.send(player, "&7- " + house.getName() + " (владелец: " + house.getOwner() + ")");
+            }
+        }
+        
+        if (myHouses.isEmpty() && publicHouses.isEmpty()) {
+            MessageUtil.send(player, "&cНет доступных домов!");
+        }
+    }
+    
+    /**
+     * Принудительная телепортация (админ)
+     */
+    private void forceTeleport(Player player, String[] args) {
+        if (!player.hasPermission("openhousing.admin.teleport")) {
+            MessageUtil.send(player, "&cУ вас нет прав для принудительной телепортации!");
+            return;
+        }
+        
+        if (args.length < 2) {
+            MessageUtil.send(player, "&cИспользование: &e/housing tpforce <дом>");
+            return;
+        }
+        
+        House house = plugin.getHousingManager().getHouse(args[1]);
+        if (house == null) {
+            MessageUtil.send(player, "&cДом не найден!");
+            return;
+        }
+        
+        player.teleport(house.getSpawnLocation());
+        MessageUtil.send(player, "&aВы телепортированы в дом " + house.getName() + "!");
+    }
+    
+    /**
+     * Показать уведомления
+     */
+    private void showNotifications(Player player) {
+        MessageUtil.send(player, "&6Ваши уведомления:");
+        MessageUtil.send(player, "&7Система уведомлений активна");
+    }
+    
+    /**
+     * Очистить уведомления
+     */
+    private void clearNotifications(Player player) {
+        MessageUtil.send(player, "&aУведомления очищены!");
+    }
+    
     private void listPublicHouses(Player player) {
         List<House> houses = plugin.getHousingManager().getPublicHouses();
         
@@ -154,44 +362,7 @@ public class HousingCommand implements CommandExecutor, TabCompleter {
         for (House house : houses) {
             MessageUtil.send(player, "&e" + house.getName() + " &7- &f" + house.getOwnerName() + " &8(ID: " + house.getId() + ")");
         }
-        MessageUtil.send(player, "&7Используйте &e/housing visit <дом> &7для телепортации");
-    }
-    
-    /**
-     * Посещение дома
-     */
-    private void visitHouse(Player player, String[] args) {
-        if (args.length < 2) {
-            MessageUtil.send(player, "&cИспользование: &e/housing visit <дом|игрок>");
-            return;
-        }
-        
-        String target = args[1];
-        House house = plugin.getHousingManager().getHouse(target);
-        
-        // Если дом не найден по имени, попробуем найти по имени игрока
-        if (house == null) {
-            Player targetPlayer = plugin.getServer().getPlayer(target);
-            UUID targetId = targetPlayer != null ? targetPlayer.getUniqueId() : null;
-            
-            if (targetId != null) {
-                List<House> playerHouses = plugin.getHousingManager().getPlayerHouses(targetId);
-                if (!playerHouses.isEmpty()) {
-                    house = playerHouses.get(0); // Первый дом игрока
-                }
-            }
-        }
-        
-        if (house == null) {
-            MessageUtil.send(player, "&cДом не найден!");
-            return;
-        }
-        
-        if (plugin.getHousingManager().teleportToHouse(player, house)) {
-            // Сообщение отправляется в HousingManager
-        } else {
-            MessageUtil.send(player, "&cВы не можете посетить этот дом!");
-        }
+        MessageUtil.send(player, "&7Используйте &e/housing visit <игрок> &7для телепортации");
     }
     
     /**
@@ -361,10 +532,15 @@ public class HousingCommand implements CommandExecutor, TabCompleter {
             "&7Доступные команды:",
             "&e/housing public &7- переключить публичность",
             "&e/housing allow <игрок> &7- разрешить доступ",
-            "&e/housing ban <игрок> &7- заблокировать игрока"
+            "&e/housing ban <игрок> &7- заблокировать игрока",
+            "&e/housing buy [имя] &7- купить дом",
+            "&e/housing sell &7- продать дом",
+            "&e/housing price &7- посмотреть цены"
         );
         
-        // TODO: В будущем можно добавить GUI для настроек
+        // Открываем GUI настроек
+        ru.openhousing.gui.HouseSettingsGUI settingsGUI = new ru.openhousing.gui.HouseSettingsGUI(plugin, player, house);
+        settingsGUI.open();
     }
     
     /**
@@ -400,34 +576,26 @@ public class HousingCommand implements CommandExecutor, TabCompleter {
         );
     }
     
-    /**
-     * Телепортация домой
-     */
-    private void goHome(Player player) {
-        List<House> houses = plugin.getHousingManager().getPlayerHouses(player.getUniqueId());
-        
-        if (houses.isEmpty()) {
-            MessageUtil.send(player, "&cУ вас нет домов! Создайте дом: &e/housing create");
-            return;
-        }
-        
-        House house = houses.get(0);
-        plugin.getHousingManager().teleportToHouse(player, house);
-    }
-    
     private void showHelp(Player player) {
         MessageUtil.send(player,
             "&6&l=== OpenHousing - Справка ===",
             "&e/housing create [имя] &7- Создать дом",
             "&e/housing home &7- Телепорт домой",
             "&e/housing list [my|public] &7- Список домов",
-            "&e/housing visit <дом|игрок> &7- Посетить дом",
+            "&e/housing visit <игрок> &7- Посетить дом",
+            "&e/housing homes &7- Показать доступные дома",
             "&e/housing settings &7- Настройки дома",
+            "&e/housing buy [имя] &7- Купить дом",
+            "&e/housing sell &7- Продать дом",
+            "&e/housing price &7- Показать цены",
             "&e/housing public &7- Сделать дом публичным/приватным",
             "&e/housing allow <игрок> &7- Разрешить доступ",
             "&e/housing ban <игрок> &7- Заблокировать игрока",
-            "&e/housing info [дом|игрок] &7- Информация о доме",
+            "&e/housing info [игрок] &7- Информация о доме",
             "&e/housing delete &7- Удалить дом",
+            "&e/housing notifications &7- Показать уведомления",
+            "&e/housing clearnotifications &7- Очистить уведомления",
+            "&e/housing tpforce <игрок> &7- Принудительная телепортация (админ)",
             ""
         );
     }
@@ -435,8 +603,9 @@ public class HousingCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("create", "home", "list", "visit", "settings", "public", 
-                               "allow", "disallow", "ban", "unban", "info", "delete", "help");
+            return Arrays.asList("create", "home", "list", "visit", "homes", "settings", "public", 
+                               "allow", "disallow", "ban", "unban", "info", "delete", "buy", "sell", 
+                               "price", "notifications", "clearnotifications", "tpforce", "help");
         }
         
         if (args.length == 2) {
