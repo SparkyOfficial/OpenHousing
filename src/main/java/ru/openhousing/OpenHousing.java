@@ -197,6 +197,8 @@ public class OpenHousing extends JavaPlugin {
     private void registerListeners() {
         // Слушатели событий
         getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.PlayerListener(this), this);
+        // Регистрируем блокировщик ReActions первым для максимального приоритета
+        getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.ReActionsBlocker(this), this);
         getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.BlockListener(this), this);
         getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.InventoryListener(this), this);
         getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.HouseMovementListener(this), this);

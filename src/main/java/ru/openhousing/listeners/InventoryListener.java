@@ -2,6 +2,7 @@ package ru.openhousing.listeners;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -20,29 +21,35 @@ public class InventoryListener implements Listener {
         this.plugin = plugin;
     }
     
-    @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
+        if (event.isCancelled()) return;
         
         Player player = (Player) event.getWhoClicked();
-        String title = event.getView().getTitle();
         
-        // Проверка наших GUI по заголовкам с высшим приоритетом
-        if (title.startsWith("§6Редактор кода") || 
-            title.startsWith("§6Настройка блока") ||
-            title.startsWith("§6Настройки строки") ||
-            title.startsWith("§6Выбор строки") ||
-            title.contains("OpenHousing")) {
+        try {
+            String title = event.getView().getTitle();
             
-            event.setCancelled(true);
-            
-            // Обработка редактора кода
-            if (title.startsWith("§6Редактор кода") || title.contains("OpenHousing")) {
-                CodeEditorGUI editorGUI = plugin.getCodeManager().getEditorGUI(player);
-                if (editorGUI != null) {
-                    editorGUI.handleClick(event.getSlot(), event.isRightClick(), event.isShiftClick());
+            // Проверка наших GUI
+            if (title.startsWith("§6Редактор кода") || 
+                title.startsWith("§6Настройка блока") ||
+                title.startsWith("§6Настройки строки") ||
+                title.startsWith("§6Выбор строки") ||
+                title.contains("OpenHousing")) {
+                
+                event.setCancelled(true);
+                
+                // Обработка редактора кода
+                if (title.startsWith("§6Редактор кода") || title.contains("OpenHousing")) {
+                    CodeEditorGUI editorGUI = plugin.getCodeManager().getEditorGUI(player);
+                    if (editorGUI != null) {
+                        editorGUI.handleClick(event.getSlot(), event.isRightClick(), event.isShiftClick());
+                    }
                 }
             }
+        } catch (Exception e) {
+            // Тихо игнорируем ошибки
         }
     }
     
