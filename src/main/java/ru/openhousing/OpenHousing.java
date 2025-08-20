@@ -5,12 +5,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.openhousing.api.OpenHousingAPI;
-import ru.openhousing.coding.CodeManager;
-import ru.openhousing.commands.*;
+import ru.openhousing.commands.CodeCommand;
+import ru.openhousing.commands.HubCommand;
+import ru.openhousing.commands.HouseModeCommand;
+import ru.openhousing.commands.HousingCommand;
 import ru.openhousing.config.ConfigManager;
 import ru.openhousing.database.DatabaseManager;
-
+import ru.openhousing.coding.CodeManager;
+import ru.openhousing.housing.House;
 import ru.openhousing.housing.HousingManager;
+import org.bukkit.World;
 import ru.openhousing.listeners.*;
 import ru.openhousing.coding.listeners.CodeListener;
 import ru.openhousing.placeholders.OpenHousingPlaceholders;
@@ -56,6 +60,34 @@ public class OpenHousing extends JavaPlugin {
         getLogger().info("OpenHousing plugin loaded successfully!");
     }
     
+    @Override
+    public void onDisable() {
+        // Сохраняем все миры домов
+        if (housingManager != null) {
+            getLogger().info("Saving all house worlds...");
+            for (House house : housingManager.getAllHouses()) {
+                World world = house.getWorld();
+                if (world != null) {
+                    world.save();
+                    getLogger().info("Saved world: " + world.getName());
+                }
+            }
+        }
+        
+        // Сохраняем все активные коды
+        if (codeManager != null) {
+            getLogger().info("Saving all code blocks...");
+            codeManager.saveAllCodes();
+        }
+        
+        // Закрываем соединение с базой данных
+        if (databaseManager != null) {
+            databaseManager.closeConnection();
+        }
+        
+        getLogger().info("OpenHousing disabled successfully!");
+    }
+
     @Override
     public void onEnable() {
         long startTime = System.currentTimeMillis();
@@ -182,6 +214,7 @@ public class OpenHousing extends JavaPlugin {
     private void registerCommands() {
         getCommand("housing").setExecutor(new HousingCommand(this));
         getCommand("code").setExecutor(new CodeCommand(this));
+        getCommand("hub").setExecutor(new HubCommand(this));
         
         // Команды режимов дома
         HouseModeCommand modeCommand = new HouseModeCommand(this);
@@ -197,8 +230,7 @@ public class OpenHousing extends JavaPlugin {
     private void registerListeners() {
         // Слушатели событий
         getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.PlayerListener(this), this);
-        // Регистрируем блокировщик ReActions первым для максимального приоритета
-        getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.ReActionsBlocker(this), this);
+        // ReActionsBlocker удален - он блокировал наши собственные GUI
         getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.BlockListener(this), this);
         getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.InventoryListener(this), this);
         getServer().getPluginManager().registerEvents(new ru.openhousing.listeners.HouseMovementListener(this), this);

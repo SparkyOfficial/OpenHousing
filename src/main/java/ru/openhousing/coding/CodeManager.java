@@ -195,6 +195,20 @@ public class CodeManager {
     }
     
     /**
+     * Сохранение всех кодов в базу данных
+     */
+    public void saveAllCodes() {
+        for (Map.Entry<UUID, CodeScript> entry : playerScripts.entrySet()) {
+            UUID playerId = entry.getKey();
+            CodeScript script = entry.getValue();
+            
+            // Сохраняем скрипт в базу данных
+            plugin.getDatabaseManager().saveCodeScript(script);
+        }
+        plugin.getLogger().info("Saved " + playerScripts.size() + " code scripts to database");
+    }
+    
+    /**
      * Получение EventManager для внешнего использования
      */
     public EventManager getEventManager() {

@@ -24,6 +24,9 @@ commands:
   build:
     description: 'Switch house to build mode'
     usage: '/build'
+  hub:
+    description: 'Teleport to hub world'
+    usage: '/hub'
 
 permissions:
   openhousing.*:
