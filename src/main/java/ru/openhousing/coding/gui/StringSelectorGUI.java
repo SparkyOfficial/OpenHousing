@@ -68,7 +68,14 @@ public class StringSelectorGUI implements Listener {
     
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!event.getView().getTitle().startsWith("§6" + title)) return;
+        String eventTitle = null;
+        try {
+            eventTitle = event.getView().getTitle();
+        } catch (NoSuchMethodError e) {
+            return; // Пропускаем если не можем получить title
+        }
+        
+        if (eventTitle == null || !eventTitle.startsWith("§6" + title)) return;
         if (!(event.getWhoClicked() instanceof Player)) return;
         
         Player clicker = (Player) event.getWhoClicked();

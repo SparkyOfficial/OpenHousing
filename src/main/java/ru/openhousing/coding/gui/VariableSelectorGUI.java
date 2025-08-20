@@ -166,7 +166,12 @@ public class VariableSelectorGUI implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         String title = isForSetting ? "§6Установить переменную" : "§6Выбор переменной";
-        String eventTitle = event.getView().getTitle();
+        String eventTitle = null;
+        try {
+            eventTitle = event.getView().getTitle();
+        } catch (NoSuchMethodError e) {
+            return; // Пропускаем если не можем получить title
+        }
         
         // Проверяем основное меню или подменю
         if (!eventTitle.equals(title) && 

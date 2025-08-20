@@ -29,7 +29,20 @@ public class InventoryListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         
         try {
-            String title = event.getView().getTitle();
+            String title = null;
+            try {
+                title = event.getView().getTitle();
+            } catch (NoSuchMethodError e) {
+                // Fallback для старых версий Bukkit
+                if (event.getView().getTopInventory() != null) {
+                    InventoryHolder holder = event.getView().getTopInventory().getHolder();
+                    if (holder instanceof CodeEditorGUI) {
+                        title = "§6Редактор кода";
+                    }
+                }
+            }
+            
+            if (title == null) return;
             
             // Проверка наших GUI
             if (title.startsWith("§6Редактор кода") || 

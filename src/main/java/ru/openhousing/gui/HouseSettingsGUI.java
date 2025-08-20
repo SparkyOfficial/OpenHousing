@@ -176,7 +176,14 @@ public class HouseSettingsGUI implements Listener {
     
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!event.getView().getTitle().equals("§6Настройки дома")) {
+        String title = null;
+        try {
+            title = event.getView().getTitle();
+        } catch (NoSuchMethodError e) {
+            return; // Пропускаем если не можем получить title
+        }
+        
+        if (title == null || !title.equals("§6Настройки дома")) {
             return;
         }
         
@@ -405,7 +412,14 @@ public class HouseSettingsGUI implements Listener {
     
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (event.getView().getTitle().equals("§6Настройки дома") && 
+        String title = null;
+        try {
+            title = event.getView().getTitle();
+        } catch (NoSuchMethodError e) {
+            return; // Пропускаем если не можем получить title
+        }
+        
+        if (title != null && title.equals("§6Настройки дома") && 
             event.getPlayer().equals(player)) {
             // Отменяем регистрацию листенера
             InventoryClickEvent.getHandlerList().unregister(this);

@@ -23,7 +23,15 @@ public class ReActionsBlocker implements Listener {
         if (!(event.getWhoClicked() instanceof Player)) return;
         
         try {
-            String title = event.getView().getTitle();
+            String title = null;
+            try {
+                title = event.getView().getTitle();
+            } catch (NoSuchMethodError e) {
+                // Fallback для старых версий Bukkit - используем holder
+                return; // Пропускаем если не можем получить title
+            }
+            
+            if (title == null) return;
             
             // Если это наш GUI - немедленно блокируем
             if (isOpenHousingGUI(title)) {

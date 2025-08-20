@@ -170,7 +170,14 @@ public class LocationSelectorGUI implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!event.getView().getTitle().equals("§6Выбор локации")) return;
+        String title = null;
+        try {
+            title = event.getView().getTitle();
+        } catch (NoSuchMethodError e) {
+            return; // Пропускаем если не можем получить title
+        }
+        
+        if (title == null || !title.equals("§6Выбор локации")) return;
         if (!(event.getWhoClicked() instanceof Player)) return;
         if (!event.getWhoClicked().getUniqueId().equals(player.getUniqueId())) return;
 

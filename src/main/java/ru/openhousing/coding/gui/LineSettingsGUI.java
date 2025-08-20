@@ -174,7 +174,14 @@ public class LineSettingsGUI implements Listener {
     
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!event.getView().getTitle().startsWith("§6Настройки строки:")) {
+        String title = null;
+        try {
+            title = event.getView().getTitle();
+        } catch (NoSuchMethodError e) {
+            return; // Пропускаем если не можем получить title
+        }
+        
+        if (title == null || !title.startsWith("§6Настройки строки:")) {
             return;
         }
         
@@ -336,7 +343,14 @@ public class LineSettingsGUI implements Listener {
     
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (event.getView().getTitle().startsWith("§6Настройки строки:") && 
+        String title = null;
+        try {
+            title = event.getView().getTitle();
+        } catch (NoSuchMethodError e) {
+            return; // Пропускаем если не можем получить title
+        }
+        
+        if (title != null && title.startsWith("§6Настройки строки:") && 
             event.getPlayer().equals(player)) {
             // Отменяем регистрацию листенера
             InventoryClickEvent.getHandlerList().unregister(this);

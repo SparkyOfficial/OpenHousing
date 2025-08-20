@@ -129,7 +129,14 @@ public class WorldActionSelectorGUI implements Listener {
     
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!event.getView().getTitle().equals("§6Выбор действия мира")) return;
+        String title = null;
+        try {
+            title = event.getView().getTitle();
+        } catch (NoSuchMethodError e) {
+            return; // Пропускаем если не можем получить title
+        }
+        
+        if (title == null || !title.equals("§6Выбор действия мира")) return;
         if (!(event.getWhoClicked() instanceof Player)) return;
         
         Player clicker = (Player) event.getWhoClicked();

@@ -101,7 +101,14 @@ public class LineBlocksGUI implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!event.getView().getTitle().startsWith("§6Блоки строки:")) return;
+        String title = null;
+        try {
+            title = event.getView().getTitle();
+        } catch (NoSuchMethodError e) {
+            return; // Пропускаем если не можем получить title
+        }
+        
+        if (title == null || !title.startsWith("§6Блоки строки:")) return;
         if (!(event.getWhoClicked() instanceof Player)) return;
         if (!event.getWhoClicked().getUniqueId().equals(player.getUniqueId())) return;
         

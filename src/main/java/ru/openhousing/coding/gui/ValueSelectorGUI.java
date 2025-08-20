@@ -97,7 +97,14 @@ public class ValueSelectorGUI implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!event.getView().getTitle().equals("§6" + title)) return;
+        String eventTitle = null;
+        try {
+            eventTitle = event.getView().getTitle();
+        } catch (NoSuchMethodError e) {
+            return; // Пропускаем если не можем получить title
+        }
+        
+        if (eventTitle == null || !eventTitle.equals("§6" + title)) return;
         if (!(event.getWhoClicked() instanceof Player)) return;
         if (!event.getWhoClicked().getUniqueId().equals(player.getUniqueId())) return;
 
