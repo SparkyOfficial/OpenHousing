@@ -123,21 +123,6 @@ public class OpenHousing extends JavaPlugin {
         MessageUtil.sendConsole("&a[OpenHousing] &fAuthor: &e" + String.join(", ", getDescription().getAuthors()));
     }
     
-    @Override
-    public void onDisable() {
-        // Сохранение всех данных
-        if (housingManager != null) {
-            housingManager.saveAll();
-        }
-        
-
-        
-        if (databaseManager != null) {
-            databaseManager.closeConnection();
-        }
-        
-        MessageUtil.sendConsole("&c[OpenHousing] &fPlugin disabled successfully!");
-    }
     
     /**
      * Проверка зависимостей
