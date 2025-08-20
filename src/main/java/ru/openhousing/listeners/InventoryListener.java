@@ -20,17 +20,14 @@ public class InventoryListener implements Listener {
         this.plugin = plugin;
     }
     
-    @EventHandler
+    @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST)
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
         
         Player player = (Player) event.getWhoClicked();
         String title = event.getView().getTitle();
         
-        // Логирование для отладки
-        plugin.getLogger().info("Inventory click: " + title + " by " + player.getName() + " at slot " + event.getSlot());
-        
-        // Проверка наших GUI по заголовкам
+        // Проверка наших GUI по заголовкам с высшим приоритетом
         if (title.startsWith("§6Редактор кода") || 
             title.startsWith("§6Настройка блока") ||
             title.startsWith("§6Настройки строки") ||
@@ -38,23 +35,13 @@ public class InventoryListener implements Listener {
             title.contains("OpenHousing")) {
             
             event.setCancelled(true);
-            plugin.getLogger().info("Cancelled inventory click for OpenHousing GUI");
             
             // Обработка редактора кода
             if (title.startsWith("§6Редактор кода") || title.contains("OpenHousing")) {
                 CodeEditorGUI editorGUI = plugin.getCodeManager().getEditorGUI(player);
                 if (editorGUI != null) {
-                    plugin.getLogger().info("Handling click in CodeEditorGUI");
                     editorGUI.handleClick(event.getSlot(), event.isRightClick(), event.isShiftClick());
-                } else {
-                    plugin.getLogger().warning("CodeEditorGUI is null for player " + player.getName());
                 }
-            }
-            
-            // Обработка настроек блока
-            if (title.startsWith("§6Настройка блока")) {
-                // BlockConfigGUI обрабатывается через собственный listener
-                plugin.getLogger().info("BlockConfigGUI click handled by own listener");
             }
         }
     }

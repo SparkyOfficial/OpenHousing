@@ -107,11 +107,21 @@ public class CodeListener implements Listener {
         plugin.getCodeManager().handleEvent(event, player);
     }
     
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getWhoClicked() instanceof Player) {
             Player player = (Player) event.getWhoClicked();
-            plugin.getCodeManager().handleEvent(event, player);
+            String title = event.getView().getTitle();
+            
+            // Обрабатываем только если это НЕ наши GUI
+            if (!title.startsWith("§6Редактор кода") && 
+                !title.startsWith("§6Настройка блока") &&
+                !title.startsWith("§6Настройки строки") &&
+                !title.startsWith("§6Выбор строки") &&
+                !title.contains("OpenHousing")) {
+                
+                plugin.getCodeManager().handleEvent(event, player);
+            }
         }
     }
     
