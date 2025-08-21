@@ -43,16 +43,20 @@ public class CodeManager {
      * Открытие редактора кода для игрока
      */
     public void openCodeEditor(Player player) {
-        CodeScript script = getOrCreateScript(player);
-        
-        // Если редактор уже открыт, переиспользуем его
-        CodeEditorGUI editor = openEditors.get(player.getUniqueId());
-        if (editor == null) {
-            editor = new CodeEditorGUI(plugin, player, script);
+        try {
+            CodeScript script = getOrCreateScript(player);
+            
+            // Всегда создаем новый редактор для избежания проблем с состоянием
+            CodeEditorGUI editor = new CodeEditorGUI(plugin, player, script);
             openEditors.put(player.getUniqueId(), editor);
+            
+            editor.open();
+            plugin.getLogger().info("Code editor opened for player: " + player.getName());
+        } catch (Exception e) {
+            plugin.getLogger().severe("Error opening code editor for " + player.getName() + ": " + e.getMessage());
+            e.printStackTrace();
+            player.sendMessage("§cОшибка открытия редактора кода!");
         }
-        
-        editor.open();
     }
     
     /**

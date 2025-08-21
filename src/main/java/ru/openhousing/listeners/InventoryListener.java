@@ -57,7 +57,19 @@ public class InventoryListener implements Listener {
                 if (title.startsWith("§6Редактор кода") || title.contains("OpenHousing")) {
                     CodeEditorGUI editorGUI = plugin.getCodeManager().getEditorGUI(player);
                     if (editorGUI != null) {
-                        editorGUI.handleClick(event.getSlot(), event.isRightClick(), event.isShiftClick());
+                        try {
+                            editorGUI.handleClick(event.getSlot(), event.isRightClick(), event.isShiftClick());
+                        } catch (Exception e) {
+                            plugin.getLogger().severe("Error handling code editor click: " + e.getMessage());
+                            e.printStackTrace();
+                            // Переоткрываем редактор при ошибке
+                            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                                plugin.getCodeManager().openCodeEditor(player);
+                            }, 1L);
+                        }
+                    } else {
+                        // Если GUI не найден, создаем новый
+                        plugin.getCodeManager().openCodeEditor(player);
                     }
                 }
             }
