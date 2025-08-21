@@ -400,7 +400,7 @@ public class WorldActionBlock extends CodeBlock {
                             }
                             
                             if (context.getPlayer() != null) {
-                                context.getPlayer().sendMessage("§a[OpenHousing] Заменено " + replaced + " блоков " + oldMaterial.name() + " на " + newMaterial.name());
+                                context.getPlayer().sendMessage("§a[OpenHousing] Заменено " + replaced + " блоков " + oldMaterial.toString() + " на " + newMaterial.toString());
                             }
                         }
                     } catch (IllegalArgumentException e) {
@@ -422,7 +422,7 @@ public class WorldActionBlock extends CodeBlock {
                         }
                         
                         if (context.getPlayer() != null) {
-                            context.getPlayer().sendMessage("§a[OpenHousing] Звук " + sound.name() + " остановлен для всех игроков!");
+                            context.getPlayer().sendMessage("§a[OpenHousing] Звук " + sound.toString() + " остановлен для всех игроков!");
                         }
                     } catch (IllegalArgumentException e) {
                         if (context.getPlayer() != null) {
@@ -469,7 +469,7 @@ public class WorldActionBlock extends CodeBlock {
                             }
                             
                             if (context.getPlayer() != null) {
-                                context.getPlayer().sendMessage("§a[OpenHousing] Создана сфера из частиц " + particle.name() + " радиусом " + radius);
+                                context.getPlayer().sendMessage("§a[OpenHousing] Создана сфера из частиц " + particle.toString() + " радиусом " + radius);
                             }
                         }
                     } catch (IllegalArgumentException e) {
@@ -518,9 +518,9 @@ public class WorldActionBlock extends CodeBlock {
                         }
                         
                         if (taken > 0) {
-                            player.sendMessage("§a[OpenHousing] Забрано " + taken + " предметов " + material.name());
+                            player.sendMessage("§a[OpenHousing] Забрано " + taken + " предметов " + material.toString());
                         } else {
-                            player.sendMessage("§c[OpenHousing] Предметы " + material.name() + " не найдены в инвентаре!");
+                            player.sendMessage("§c[OpenHousing] Предметы " + material.toString() + " не найдены в инвентаре!");
                         }
                     } catch (IllegalArgumentException e) {
                         player.sendMessage("§c[OpenHousing] Неверный тип предмета: '" + value + "'");

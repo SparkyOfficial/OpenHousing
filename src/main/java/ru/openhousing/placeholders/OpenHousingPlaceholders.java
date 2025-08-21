@@ -44,6 +44,24 @@ public class OpenHousingPlaceholders extends PlaceholderExpansion {
         }
         
         CodeScript script = plugin.getCodeManager().getScript(player);
+
+        if (script == null) {
+            switch (params.toLowerCase()) {
+                case "script_enabled":
+                case "has_script":
+                    return "false";
+                case "script_blocks":
+                case "script_variables":
+                case "script_functions":
+                    return "0";
+                case "script_status":
+                    return "Нет кода";
+                case "editor_open":
+                     return String.valueOf(plugin.getCodeManager().hasOpenEditor(player));
+                default:
+                    return "";
+            }
+        }
         
         switch (params.toLowerCase()) {
             case "script_enabled":

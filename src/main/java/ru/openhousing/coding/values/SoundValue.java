@@ -19,7 +19,7 @@ public class SoundValue extends Value {
     }
     
     public SoundValue(Sound sound, float volume, float pitch) {
-        super(ValueType.SOUND, sound.name() + "," + volume + "," + pitch);
+        super(ValueType.SOUND, sound.toString() + "," + volume + "," + pitch);
         this.sound = sound;
         this.volume = volume;
         this.pitch = pitch;
@@ -79,7 +79,7 @@ public class SoundValue extends Value {
     @Override
     public String getDisplayValue() {
         if (sound != null) {
-            return String.format("%s (%.1f, %.1f)", sound.name(), volume, pitch);
+            return String.format("%s (%.1f, %.1f)", sound.toString(), volume, pitch);
         }
         return rawValue;
     }

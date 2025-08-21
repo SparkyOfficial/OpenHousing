@@ -155,6 +155,7 @@ public class ConfigManager {
     /**
      * Получение значения из конфигурации с дефолтным значением
      */
+    @SuppressWarnings("unchecked")
     public <T> T getValue(String fileName, String path, T defaultValue) {
         FileConfiguration config = getConfig(fileName);
         if (config != null && config.contains(path)) {
