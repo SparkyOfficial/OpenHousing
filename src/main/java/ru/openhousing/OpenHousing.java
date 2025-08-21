@@ -21,7 +21,7 @@ import ru.openhousing.placeholders.OpenHousingPlaceholders;
 import ru.openhousing.utils.MessageUtil;
 
 /**
- * OpenHousing - Hypixel Housing аналог с визуальным кодингом
+ * OpenHousing - Hypixel Housing аналог с кодингом в инвентаре
  * 
  * @author YourName
  * @version 1.0.0

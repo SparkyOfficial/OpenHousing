@@ -143,8 +143,8 @@ public class HousingManager {
             return new CreateHouseResult(false, "Дом с таким именем уже существует!");
         }
         
-        // Проверка экономики
-        if (plugin.getEconomy() != null) {
+        // Проверка экономики (отключена в разработке)
+        if (plugin.getEconomy() != null && plugin.getConfigManager().getMainConfig().getBoolean("economy.use-vault", false)) {
             if (!plugin.getEconomy().has(player, creationCost)) {
                 return new CreateHouseResult(false, "Недостаточно средств! Нужно: " + creationCost);
             }
@@ -152,8 +152,8 @@ public class HousingManager {
         
 
         
-        // Списание денег
-        if (plugin.getEconomy() != null) {
+        // Списание денег (отключено в разработке)
+        if (plugin.getEconomy() != null && plugin.getConfigManager().getMainConfig().getBoolean("economy.use-vault", false)) {
             plugin.getEconomy().withdrawPlayer(player, creationCost);
         }
         

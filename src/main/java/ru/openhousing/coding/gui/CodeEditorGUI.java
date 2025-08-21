@@ -865,14 +865,17 @@ public class CodeEditorGUI implements InventoryHolder {
     }
     
     private CodeBlock createBlockInstance(BlockType blockType) {
-        switch (blockType) {
-            // События
-            case PLAYER_EVENT:
-                return new ru.openhousing.coding.blocks.events.PlayerEventBlock();
-            case ENTITY_EVENT:
-                return new ru.openhousing.coding.blocks.events.EntityEventBlock();
-            case WORLD_EVENT:
-                return new ru.openhousing.coding.blocks.events.WorldEventBlock();
+        try {
+            plugin.getLogger().info("Creating block instance for: " + blockType.name());
+            
+            switch (blockType) {
+                // События
+                case PLAYER_EVENT:
+                    return new ru.openhousing.coding.blocks.events.PlayerEventBlock();
+                case ENTITY_EVENT:
+                    return new ru.openhousing.coding.blocks.events.EntityEventBlock();
+                case WORLD_EVENT:
+                    return new ru.openhousing.coding.blocks.events.WorldEventBlock();
             
             // Условия
             case IF_PLAYER:
@@ -898,12 +901,12 @@ public class CodeEditorGUI implements InventoryHolder {
             case CALL_FUNCTION:
                 return new ru.openhousing.coding.blocks.functions.CallFunctionBlock();
             
-                                    // Управление
-                        case REPEAT:
-                            return new ru.openhousing.coding.blocks.control.RepeatBlock();
-                        case ELSE:
-                            return new ru.openhousing.coding.blocks.control.ElseBlock();
-                                    case TARGET:
+            // Управление
+            case REPEAT:
+                return new ru.openhousing.coding.blocks.control.RepeatBlock();
+            case ELSE:
+                return new ru.openhousing.coding.blocks.control.ElseBlock();
+            case TARGET:
                 return new ru.openhousing.coding.blocks.control.TargetBlock();
             
             // Математика и утилиты
@@ -917,7 +920,13 @@ public class CodeEditorGUI implements InventoryHolder {
                 return new ru.openhousing.coding.blocks.inventory.ItemCheckBlock();
             
             default:
+                plugin.getLogger().warning("Unknown block type: " + blockType.name());
                 return null;
+        }
+        } catch (Exception e) {
+            plugin.getLogger().severe("Error creating block instance for " + blockType.name() + ": " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
     

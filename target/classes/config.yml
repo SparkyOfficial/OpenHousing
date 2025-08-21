@@ -132,17 +132,17 @@ house-modes:
     # Запретить полет
     allow-flight: false
 
-# Настройки экономики
+# Настройки экономики (В РАЗРАБОТКЕ)
 economy:
   # Использовать Vault для экономики
-  use-vault: true
+  use-vault: false
   
   # Начальная сумма для новых игроков
   starting-balance: 1000.0
   
   # Ежедневная награда
   daily-reward:
-    enabled: true
+    enabled: false
     amount: 500.0
 
 # Настройки производительности
