@@ -737,6 +737,42 @@ public class CodeEditorGUI implements InventoryHolder {
         }
     }
     
+    /**
+     * Настройка просмотра кода
+     */
+    private void setupScriptMenu() {
+        setupScriptView(); // Перенаправляем на новый метод
+    }
+
+    /**
+     * Открытие селектора переменных
+     */
+    private void openVariableSelector() {
+        try {
+            // Закрываем текущий GUI перед открытием нового
+            player.closeInventory();
+            
+            // Небольшая задержка для корректного закрытия
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                try {
+                    // Предполагается, что VariableSelectorGUI существует
+                    // VariableSelectorGUI variableSelector = new VariableSelectorGUI(plugin, player, script);
+                    // variableSelector.open();
+                    player.sendMessage("§eОткрытие выбора переменных...");
+                } catch (Exception e) {
+                    plugin.getLogger().severe("Error opening variable selector: " + e.getMessage());
+                    e.printStackTrace();
+                    player.sendMessage("§cОшибка открытия выбора переменных!");
+                    // Возвращаемся к редактору кода
+                    Bukkit.getScheduler().runTaskLater(plugin, this::open, 1L);
+                }
+            }, 1L);
+        } catch (Exception e) {
+            plugin.getLogger().severe("Error in openVariableSelector: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     private void handleNavigationClick(int slot) {
         try {
             switch (slot) {
