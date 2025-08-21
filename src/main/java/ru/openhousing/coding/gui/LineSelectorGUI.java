@@ -357,38 +357,171 @@ public class LineSelectorGUI implements Listener {
     private CodeBlock createBlockInstance(BlockType blockType) {
         try {
             switch (blockType) {
-                // События
+                // События игрока
+                case PLAYER_JOIN:
+                case PLAYER_QUIT:
+                case PLAYER_CHAT:
+                case PLAYER_COMMAND:
+                case PLAYER_MOVE:
+                case PLAYER_TELEPORT:
+                case PLAYER_DEATH:
+                case PLAYER_RESPAWN:
+                case PLAYER_DAMAGE:
+                case PLAYER_HEAL:
+                case PLAYER_FOOD_CHANGE:
+                case PLAYER_EXP_CHANGE:
+                case PLAYER_LEVEL_UP:
+                case PLAYER_INVENTORY_CLICK:
+                case PLAYER_ITEM_DROP:
+                case PLAYER_ITEM_PICKUP:
+                case PLAYER_ITEM_CONSUME:
+                case PLAYER_ITEM_BREAK:
+                case PLAYER_BLOCK_BREAK:
+                case PLAYER_BLOCK_PLACE:
+                case PLAYER_INTERACT:
+                case PLAYER_INTERACT_ENTITY:
+                case PLAYER_FISH:
+                case PLAYER_ENCHANT:
+                case PLAYER_CRAFT:
+                case PLAYER_SMELT:
+                case PLAYER_TRADE:
+                case PLAYER_SNEAK:
                 case PLAYER_EVENT:
                     return new ru.openhousing.coding.blocks.events.PlayerEventBlock();
-                case ENTITY_EVENT:
-                    return new ru.openhousing.coding.blocks.events.EntityEventBlock();
+                
+                // События мира
+                case WORLD_WEATHER_CHANGE:
+                case WORLD_TIME_CHANGE:
+                case WORLD_CHUNK_LOAD:
+                case WORLD_CHUNK_UNLOAD:
+                case WORLD_STRUCTURE_GROW:
+                case WORLD_EXPLOSION:
+                case WORLD_PORTAL_CREATE:
                 case WORLD_EVENT:
                     return new ru.openhousing.coding.blocks.events.WorldEventBlock();
                 
+                // События существ
+                case ENTITY_SPAWN:
+                case ENTITY_DEATH:
+                case ENTITY_DAMAGE:
+                case ENTITY_TARGET:
+                case ENTITY_TAME:
+                case ENTITY_BREED:
+                case ENTITY_EXPLODE:
+                case ENTITY_INTERACT:
+                case ENTITY_MOUNT:
+                case ENTITY_DISMOUNT:
+                case ENTITY_LEASH:
+                case ENTITY_UNLEASH:
+                case ENTITY_SHEAR:
+                case ENTITY_MILK:
+                case ENTITY_TRANSFORM:
+                case ENTITY_EVENT:
+                    return new ru.openhousing.coding.blocks.events.EntityEventBlock();
+            
                 // Условия
                 case IF_PLAYER:
+                case IF_PLAYER_ONLINE:
+                case IF_PLAYER_PERMISSION:
+                case IF_PLAYER_GAMEMODE:
+                case IF_PLAYER_WORLD:
+                case IF_PLAYER_FLYING:
+                case IF_PLAYER_SNEAKING:
+                case IF_PLAYER_BLOCKING:
+                case IF_PLAYER_ITEM:
                     return new ru.openhousing.coding.blocks.conditions.IfPlayerBlock();
                 case IF_ENTITY:
                     return new ru.openhousing.coding.blocks.conditions.IfEntityBlock();
                 case IF_VARIABLE:
+                case IF_VARIABLE_EQUALS:
+                case IF_VARIABLE_GREATER:
+                case IF_VARIABLE_LESS:
+                case IF_VARIABLE_CONTAINS:
+                case IF_VARIABLE_EXISTS:
+                case IF_VARIABLE_SAVED:
+                case IF_VARIABLE_TYPE:
                     return new ru.openhousing.coding.blocks.conditions.IfVariableBlock();
-                
-                // Действия
+            
+                // Действия игрока
+                case PLAYER_SEND_MESSAGE:
+                case PLAYER_SEND_TITLE:
+                case PLAYER_SEND_ACTIONBAR:
+                case PLAYER_TELEPORT_ACTION:
+                case PLAYER_GIVE_ITEM:
+                case PLAYER_REMOVE_ITEM:
+                case PLAYER_CLEAR_INVENTORY:
+                case PLAYER_SET_HEALTH:
+                case PLAYER_SET_FOOD:
+                case PLAYER_SET_EXP:
+                case PLAYER_GIVE_EFFECT:
+                case PLAYER_REMOVE_EFFECT:
+                case PLAYER_PLAY_SOUND:
+                case PLAYER_STOP_SOUND:
+                case PLAYER_SPAWN_PARTICLE:
+                case PLAYER_SET_GAMEMODE:
+                case PLAYER_KICK:
+                case PLAYER_BAN:
+                case PLAYER_OP:
+                case PLAYER_DEOP:
+                case PLAYER_WHITELIST_ADD:
+                case PLAYER_WHITELIST_REMOVE:
+                case PLAYER_SET_DISPLAY_NAME:
+                case PLAYER_RESET_DISPLAY_NAME:
+                case PLAYER_SEND_PLUGIN_MESSAGE:
                 case PLAYER_ACTION:
                     return new ru.openhousing.coding.blocks.actions.PlayerActionBlock();
-                case ENTITY_ACTION:
-                    return new ru.openhousing.coding.blocks.actions.EntityActionBlock();
-                case WORLD_ACTION:
-                    return new ru.openhousing.coding.blocks.actions.WorldActionBlock();
-                case VARIABLE_ACTION:
+                
+                // Действия переменных
+                case VAR_SET:
+                case VAR_ADD:
+                case VAR_SUBTRACT:
+                case VAR_MULTIPLY:
+                case VAR_DIVIDE:
+                case VAR_APPEND_TEXT:
+                case VAR_REPLACE_TEXT:
+                case VAR_UPPERCASE:
+                case VAR_LOWERCASE:
+                case VAR_REVERSE:
+                case VAR_LENGTH:
+                case VAR_SUBSTRING:
+                case VAR_RANDOM_NUMBER:
+                case VAR_ROUND:
+                case VAR_ABS:
+                case VAR_MIN:
+                case VAR_MAX:
+                case VAR_SAVE:
+                case VAR_DELETE:
+                case VAR_COPY:
                     return new ru.openhousing.coding.blocks.variables.VariableActionBlock();
                 
+                // Действия мира
+                case GAME_SET_TIME:
+                case GAME_SET_WEATHER:
+                case GAME_SET_DIFFICULTY:
+                case GAME_BROADCAST:
+                case GAME_EXECUTE_COMMAND:
+                case GAME_STOP_SERVER:
+                case GAME_RESTART_SERVER:
+                case GAME_SAVE_WORLD:
+                case GAME_LOAD_WORLD:
+                case GAME_CREATE_EXPLOSION:
+                case GAME_SPAWN_ENTITY:
+                case GAME_REMOVE_ENTITY:
+                case GAME_SET_BLOCK:
+                case GAME_BREAK_BLOCK:
+                case GAME_SEND_PACKET:
+                case WORLD_ACTION:
+                    return new ru.openhousing.coding.blocks.actions.WorldActionBlock();
+                
+                case ENTITY_ACTION:
+                    return new ru.openhousing.coding.blocks.actions.EntityActionBlock();
+            
                 // Функции
                 case FUNCTION:
                     return new ru.openhousing.coding.blocks.functions.FunctionBlock();
                 case CALL_FUNCTION:
                     return new ru.openhousing.coding.blocks.functions.CallFunctionBlock();
-                
+            
                 // Управление
                 case REPEAT:
                     return new ru.openhousing.coding.blocks.control.RepeatBlock();
@@ -396,19 +529,17 @@ public class LineSelectorGUI implements Listener {
                     return new ru.openhousing.coding.blocks.control.ElseBlock();
                 case TARGET:
                     return new ru.openhousing.coding.blocks.control.TargetBlock();
-                
-                // Математика и текст
+            
+                // Математика и утилиты
                 case MATH:
                     return new ru.openhousing.coding.blocks.math.MathBlock();
                 case TEXT_OPERATION:
                     return new ru.openhousing.coding.blocks.text.TextOperationBlock();
-                
-                // Инвентарь
                 case INVENTORY_ACTION:
                     return new ru.openhousing.coding.blocks.inventory.InventoryActionBlock();
                 case ITEM_CHECK:
                     return new ru.openhousing.coding.blocks.inventory.ItemCheckBlock();
-                
+            
                 default:
                     return null;
             }
