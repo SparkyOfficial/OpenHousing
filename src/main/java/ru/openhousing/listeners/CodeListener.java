@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import ru.openhousing.OpenHousing;
+import ru.openhousing.coding.script.CodeScript;
 
 /**
  * Листенер для обработки событий кода
