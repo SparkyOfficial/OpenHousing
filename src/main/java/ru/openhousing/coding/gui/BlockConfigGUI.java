@@ -468,22 +468,34 @@ public class BlockConfigGUI implements Listener {
         }
         
         // Обработка клика по настройкам в зависимости от типа блока
-        switch (block.getType()) {
-            case PLAYER_EVENT -> handleEventClick(slot, isShiftClick);
-            case ENTITY_EVENT -> handleEventClick(slot, isShiftClick);
-            case WORLD_EVENT -> handleEventClick(slot, isShiftClick);
-            case PLAYER_ACTION -> handlePlayerActionClick(slot, isShiftClick);
-            case ENTITY_ACTION -> handleEntityActionClick(slot, isShiftClick);
-            case WORLD_ACTION -> handleWorldActionClick(slot, isShiftClick);
-            case IF_PLAYER -> handleIfPlayerClick(slot, isShiftClick);
-            case IF_ENTITY -> handleIfEntityClick(slot, isShiftClick);
-            case IF_VARIABLE -> handleIfVariableClick(slot, isShiftClick);
-            case FUNCTION -> handleFunctionClick(slot, isShiftClick);
-            case CALL_FUNCTION -> handleCallFunctionClick(slot, isShiftClick);
-            case VARIABLE_ACTION -> handleVariableActionClick(slot, isShiftClick);
-            case MATH -> handleMathClick(slot, isShiftClick);
-            case TEXT_OPERATION -> handleTextOperationClick(slot, isShiftClick);
-            default -> player.sendMessage("§cОбработчик для этого типа блока еще не реализован!");
+        if (block.getType().name().startsWith("PLAYER_") && block.getType().getCategory() == BlockType.BlockCategory.EVENT) {
+            handleEventClick(slot, isShiftClick);
+        } else if (block.getType().name().startsWith("ENTITY_") && block.getType().getCategory() == BlockType.BlockCategory.EVENT) {
+            handleEventClick(slot, isShiftClick);
+        } else if (block.getType().name().startsWith("WORLD_") && block.getType().getCategory() == BlockType.BlockCategory.EVENT) {
+            handleEventClick(slot, isShiftClick);
+        } else if (block.getType().name().startsWith("PLAYER_") && block.getType().getCategory() == BlockType.BlockCategory.ACTION) {
+            handlePlayerActionClick(slot, isShiftClick);
+        } else if (block.getType().name().startsWith("GAME_") && block.getType().getCategory() == BlockType.BlockCategory.ACTION) {
+            handleWorldActionClick(slot, isShiftClick);
+        } else if (block.getType().name().startsWith("IF_PLAYER")) {
+            handleIfPlayerClick(slot, isShiftClick);
+        } else if (block.getType().name().startsWith("IF_ENTITY")) {
+            handleIfEntityClick(slot, isShiftClick);
+        } else if (block.getType().name().startsWith("IF_VARIABLE")) {
+            handleIfVariableClick(slot, isShiftClick);
+        } else if (block.getType() == BlockType.FUNCTION) {
+            handleFunctionClick(slot, isShiftClick);
+        } else if (block.getType() == BlockType.CALL_FUNCTION) {
+            handleCallFunctionClick(slot, isShiftClick);
+        } else if (block.getType().name().startsWith("VAR_")) {
+            handleVariableActionClick(slot, isShiftClick);
+        } else if (block.getType() == BlockType.MATH) {
+            handleMathClick(slot, isShiftClick);
+        } else if (block.getType() == BlockType.TEXT_OPERATION) {
+            handleTextOperationClick(slot, isShiftClick);
+        } else {
+            player.sendMessage("§cОбработчик для этого типа блока еще не реализован!");
         }
     }
     
