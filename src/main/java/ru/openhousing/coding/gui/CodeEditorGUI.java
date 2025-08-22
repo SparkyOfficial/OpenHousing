@@ -71,6 +71,13 @@ public class CodeEditorGUI implements InventoryHolder {
     }
     
     /**
+     * Получение скрипта
+     */
+    public CodeScript getScript() {
+        return script;
+    }
+    
+    /**
      * Обновление инвентаря
      */
     public void updateInventory() {
@@ -476,7 +483,7 @@ public class CodeEditorGUI implements InventoryHolder {
             lore.add("");
             lore.add("§eЛевый клик - просмотр блоков");
             lore.add("§eПравый клик - настройки строки");
-            lore.add("§eShift+Клик - добавить блок");
+            lore.add("§eShift+Клик - выбрать как цель");
             
             ItemStack lineItem = new ItemBuilder(lineMaterial)
                 .name("§e" + line.getName())
@@ -617,7 +624,7 @@ public class CodeEditorGUI implements InventoryHolder {
                 break;
             case SCRIPT:
                 plugin.getLogger().info("Handling script click");
-                handleScriptClick(slot, isRightClick);
+                handleScriptClick(slot, isRightClick, isShiftClick);
                 break;
             case BLOCK_EDIT:
                 plugin.getLogger().info("Handling block edit click");
@@ -804,12 +811,27 @@ public class CodeEditorGUI implements InventoryHolder {
         }
     }
     
-    private void handleScriptClick(int slot, boolean isRightClick) {
+    private void handleScriptClick(int slot, boolean isRightClick, boolean isShiftClick) {
         // Обработка кликов по строкам
         if (slot == 1) { // Добавить новую строку
             String lineName = "Строка " + (script.getLines().size() + 1);
             script.createLine(lineName);
             player.sendMessage("§aСоздана новая строка: " + lineName);
+            updateInventory();
+            return;
+        }
+        
+        if (slot == 3) { // Выбор целевой строки
+            if (currentTargetLine != null) {
+                // Сброс выбранной строки
+                currentTargetLine = null;
+                player.sendMessage("§7Целевая строка сброшена");
+            } else {
+                // Открыть селектор строк
+                player.closeInventory();
+                LineSelectorGUI selectorGUI = new LineSelectorGUI(plugin, player, script, null);
+                selectorGUI.open();
+            }
             updateInventory();
             return;
         }
@@ -833,15 +855,18 @@ public class CodeEditorGUI implements InventoryHolder {
             
                 if (actualIndex < lines.size()) {
                     CodeLine selectedLine = lines.get(actualIndex);
-                    // Запоминаем выбранную строку как текущую цель для добавления блоков
-                    this.currentTargetLine = selectedLine;
-                
-                if (isRightClick) {
+                    
+                    if (isShiftClick) {
+                        // Выбрать как целевую строку
+                        this.currentTargetLine = selectedLine;
+                        player.sendMessage("§aВыбрана целевая строка: §e" + selectedLine.getName() + " §7(#" + selectedLine.getLineNumber() + ")");
+                        updateInventory();
+                    } else if (isRightClick) {
                         // Открыть настройки строки
                         player.closeInventory();
                         LineSettingsGUI settingsGUI = new LineSettingsGUI(plugin, player, script, selectedLine);
                         settingsGUI.open();
-                } else {
+                    } else {
                         // Просмотр блоков в строке
                         player.closeInventory();
                         LineBlocksGUI lineBlocksGUI = new LineBlocksGUI(plugin, player, script, selectedLine);

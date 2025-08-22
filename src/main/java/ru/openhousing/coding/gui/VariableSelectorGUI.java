@@ -162,6 +162,15 @@ public class VariableSelectorGUI implements Listener {
     public void open() {
         player.openInventory(inventory);
     }
+    
+    /**
+     * Закрытие GUI и отписка от событий
+     */
+    public void close() {
+        player.closeInventory();
+        // Отписываемся от событий
+        org.bukkit.event.HandlerList.unregisterAll(this);
+    }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {

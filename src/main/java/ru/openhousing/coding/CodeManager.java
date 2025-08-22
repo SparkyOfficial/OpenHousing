@@ -46,6 +46,13 @@ public class CodeManager {
         try {
             CodeScript script = getOrCreateScript(player);
             
+            // Автоматически привязываем код к миру дома, если игрок находится в доме
+            String currentWorld = player.getWorld().getName();
+            if (currentWorld.startsWith("house_") && (script.getBoundWorld() == null || !script.getBoundWorld().equals(currentWorld))) {
+                script.setBoundWorld(currentWorld);
+                plugin.getLogger().info("Code bound to world: " + currentWorld + " for player: " + player.getName());
+            }
+            
             // Переиспользуем один экземпляр GUI на игрока, чтобы исключить спам переоткрытий
             CodeEditorGUI editor = openEditors.computeIfAbsent(player.getUniqueId(),
                 id -> new CodeEditorGUI(plugin, player, script));
@@ -65,6 +72,12 @@ public class CodeManager {
     public void closeCodeEditor(Player player) {
         CodeEditorGUI editor = openEditors.remove(player.getUniqueId());
         if (editor != null) {
+            // Автоматически сохраняем код при закрытии редактора
+            CodeScript script = editor.getScript();
+            if (script != null) {
+                saveScript(player, script);
+                player.sendMessage("§aКод автоматически сохранен!");
+            }
             editor.close();
         }
     }
