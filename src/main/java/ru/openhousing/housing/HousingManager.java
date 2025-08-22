@@ -294,9 +294,14 @@ public class HousingManager {
         // Приветственное сообщение
         if (house.getOwnerId().equals(player.getUniqueId())) {
             MessageUtil.send(player, "&aДобро пожаловать домой!");
+            plugin.getSoundEffects().playTeleport(player);
         } else {
             MessageUtil.send(player, "&aВы посетили дом игрока &e" + house.getOwnerName());
+            plugin.getSoundEffects().playTeleport(player);
         }
+        
+        // Показываем информацию о доме
+        plugin.getSoundEffects().showDetailedHouseScoreboard(player, house);
         
         return true;
     }

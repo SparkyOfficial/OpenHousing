@@ -214,4 +214,83 @@ public class SoundEffects {
             }
         }.runTaskLater(plugin, 20L * 10);
     }
+    
+    /**
+     * Показать BossBar с информацией о плагине
+     */
+    public void showPluginBossBar(Player player) {
+        BossBar bossBar = Bukkit.createBossBar(
+            "§6§lOpenHousing §7| §fВизуальное программирование для Minecraft",
+            BarColor.BLUE,
+            BarStyle.SEGMENTED_6
+        );
+        bossBar.addPlayer(player);
+        
+        // Убираем BossBar через 15 секунд
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                bossBar.removePlayer(player);
+                bossBar.removeAll();
+            }
+        }.runTaskLater(plugin, 20L * 15);
+    }
+    
+    /**
+     * Показать Scoreboard с информацией о плагине
+     */
+    public void showPluginScoreboard(Player player) {
+        org.bukkit.scoreboard.ScoreboardManager manager = Bukkit.getScoreboardManager();
+        org.bukkit.scoreboard.Scoreboard board = manager.getNewScoreboard();
+        org.bukkit.scoreboard.Objective objective = board.registerNewObjective("plugin_info", "dummy", "§6§lOpenHousing");
+        
+        objective.setDisplaySlot(org.bukkit.scoreboard.DisplaySlot.SIDEBAR);
+        
+        objective.getScore("§7").setScore(10);
+        objective.getScore("§fВерсия: §e1.0.0").setScore(9);
+        objective.getScore("§fСтатус: §aАктивен").setScore(8);
+        objective.getScore("§7").setScore(7);
+        objective.getScore("§e/housing create §7- создать дом").setScore(6);
+        objective.getScore("§e/housing list §7- список домов").setScore(5);
+        objective.getScore("§e/code editor §7- редактор кода").setScore(4);
+        objective.getScore("§e/play §7- запустить код").setScore(3);
+        objective.getScore("§7").setScore(2);
+        objective.getScore("§aСоздавайте дома").setScore(1);
+        objective.getScore("§aи программируйте!").setScore(0);
+        
+        player.setScoreboard(board);
+    }
+    
+    /**
+     * Показать Scoreboard с подробной информацией о доме
+     */
+    public void showDetailedHouseScoreboard(Player player, ru.openhousing.housing.House house) {
+        org.bukkit.scoreboard.ScoreboardManager manager = Bukkit.getScoreboardManager();
+        org.bukkit.scoreboard.Scoreboard board = manager.getNewScoreboard();
+        org.bukkit.scoreboard.Objective objective = board.registerNewObjective("house_info", "dummy", "§6§lИнформация о доме");
+        
+        objective.setDisplaySlot(org.bukkit.scoreboard.DisplaySlot.SIDEBAR);
+        
+        // Добавляем информацию
+        objective.getScore("§7").setScore(10);
+        objective.getScore("§fНазвание: §e" + house.getName()).setScore(9);
+        objective.getScore("§fВладелец: §e" + house.getOwnerName()).setScore(8);
+        objective.getScore("§fРазмер: §e" + house.getSize().getDisplayName()).setScore(7);
+        objective.getScore("§fСтатус: " + (house.isPublic() ? "§aПубличный" : "§7Приватный")).setScore(6);
+        objective.getScore("§fРазрешенных: §e" + house.getAllowedPlayers().size()).setScore(5);
+        objective.getScore("§fЗаблокированных: §e" + house.getBannedPlayers().size()).setScore(4);
+        objective.getScore("§7").setScore(3);
+        objective.getScore("§e/housing home §7- домой").setScore(2);
+        objective.getScore("§e/code editor §7- код").setScore(1);
+        objective.getScore("§e/housing settings §7- настройки").setScore(0);
+        
+        player.setScoreboard(board);
+    }
+    
+    /**
+     * Убрать Scoreboard
+     */
+    public void removeScoreboard(Player player) {
+        player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+    }
 }

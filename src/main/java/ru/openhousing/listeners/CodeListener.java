@@ -41,6 +41,10 @@ public class CodeListener implements Listener {
         
         // Показываем приветствие
         plugin.getSoundEffects().showWelcomeTitle(player);
+        
+        // Показываем информацию о плагине
+        plugin.getSoundEffects().showPluginBossBar(player);
+        plugin.getSoundEffects().showPluginScoreboard(player);
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
