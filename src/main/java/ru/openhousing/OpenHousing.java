@@ -232,6 +232,9 @@ public class OpenHousing extends JavaPlugin {
         // Регистрация слушателя взаимодействия с переменными
         getServer().getPluginManager().registerEvents(new ru.openhousing.coding.listeners.VariableInteractionListener(this), this);
         
+        // Регистрация EventManager для обработки событий кода
+        getServer().getPluginManager().registerEvents(codeManager.getEventManager(), this);
+        
         getLogger().info("Listeners registered successfully!");
     }
     
