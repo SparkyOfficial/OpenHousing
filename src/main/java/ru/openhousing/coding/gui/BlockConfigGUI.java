@@ -163,6 +163,19 @@ public class BlockConfigGUI implements Listener {
             .name("§eТип события мира")
             .lore("§7Клик для настройки")
             .build());
+        
+        // Значение для сравнения (drag-n-drop слот для переменной)
+        updateVariableSlot(startSlot + 1, "value", block.getParameter("value"));
+            
+        // Оператор сравнения
+        inventory.setItem(startSlot + 2, new ItemBuilder(Material.REDSTONE_TORCH)
+            .name("§eОператор сравнения")
+            .lore(Arrays.asList(
+                "§7Текущий: §f" + block.getParameter("operator"),
+                "",
+                "§7Клик для изменения"
+            ))
+            .build());
     }
     
     private void setupPlayerActionSettings(int startSlot) {
@@ -377,37 +390,17 @@ public class BlockConfigGUI implements Listener {
     
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        String title = null;
-        try {
-            title = event.getView().getTitle();
-        } catch (NoSuchMethodError e) {
-            return; // Пропускаем если не можем получить title
-        }
-        
-        if (title == null || !title.startsWith("§6Настройка блока:")) return;
+        if (event.getView().getTopInventory() != inventory) return;
+        if (event.getClickedInventory() == null) return;
         if (!(event.getWhoClicked() instanceof Player)) return;
         
         Player clicker = (Player) event.getWhoClicked();
-        if (!clicker.equals(player)) {
-            return;
-        }
+        if (!clicker.equals(player)) return;
         
         event.setCancelled(true);
         
-        ItemStack clickedItem = event.getCurrentItem();
-        if (clickedItem == null || clickedItem.getType() == Material.AIR) {
-            return;
-        }
-        
         int slot = event.getSlot();
         boolean isShiftClick = event.isShiftClick();
-        boolean isRightClick = event.isRightClick();
-        
-        // Проверяем, является ли слот слотом для переменной
-        if (isVariableSlot(slot)) {
-            handleVariableSlotClick(slot, isRightClick);
-            return;
-        }
         
         handleClick(slot, isShiftClick);
     }

@@ -285,16 +285,40 @@ public class LineSelectorGUI implements Listener {
             }
         }
         
-        if (lineIndex >= 0 && lineIndex < lines.size()) {
-            CodeLine line = lines.get(lineIndex);
-            
-            if (isRightClick) {
-                // Настройки строки
-                openLineSettings(line);
+        // Если клик по существующей строке
+        if (lineIndex < lines.size()) {
+            CodeLine selectedLine = lines.get(lineIndex);
+            if (blockTypeToAdd != null) {
+                // Добавляем блок в существующую строку
+                addBlockToLine(selectedLine);
             } else {
-                // Добавить блок в строку
-                addBlockToLine(line);
+                // Открываем редактор строки
+                player.closeInventory();
+                // TODO: Open line editor GUI
             }
+        } else if (lineIndex == lines.size()) {
+            // Клик по следующей пустой строке - создаем новую
+            createNewLineAndAddBlock();
+        }
+    }
+    
+    /**
+     * Добавление блока в существующую строку
+     */
+    private void addBlockToLine(CodeLine line) {
+        if (blockTypeToAdd == null) return;
+        
+        CodeBlock block = createBlockInstance(blockTypeToAdd);
+        if (block != null) {
+            line.addBlock(block);
+            plugin.getCodeManager().saveScript(player, script);
+            
+            // Закрываем GUI и открываем конфигурацию блока
+            player.closeInventory();
+            BlockConfigGUI configGUI = new BlockConfigGUI(plugin, player, block, (CodeEditorGUI) null);
+            configGUI.open();
+        } else {
+            player.sendMessage("§cОшибка создания блока!");
         }
     }
     
@@ -302,58 +326,21 @@ public class LineSelectorGUI implements Listener {
      * Создание новой строки и добавление блока
      */
     private void createNewLineAndAddBlock() {
-        try {
-            CodeLine newLine = script.createLine();
-            addBlockToLine(newLine);
-        } catch (Exception e) {
-            MessageUtil.send(player, "&cОшибка создания строки: " + e.getMessage());
+        if (blockTypeToAdd == null) {
+            player.sendMessage("§cНе выбран тип блока для добавления!");
+            return;
         }
+        
+        // Создаем новую строку
+        int newLineNumber = script.getNextAvailableLineNumber();
+        CodeLine newLine = new CodeLine(newLineNumber);
+        newLine.setName("Строка " + newLineNumber);
+        script.addLine(newLine);
+        
+        // Добавляем блок в новую строку
+        addBlockToLine(newLine);
     }
-    
-    /**
-     * Добавление блока в строку
-     */
-    private void addBlockToLine(CodeLine line) {
-        try {
-            // Создаем экземпляр блока
-            CodeBlock block = createBlockInstance(blockTypeToAdd);
-            if (block != null) {
-                line.addBlock(block);
-                player.closeInventory();
-                MessageUtil.send(player, "&aБлок §e" + blockTypeToAdd.getDisplayName() + 
-                    " &aдобавлен в строку §e" + line.getName());
-                
-                // Открываем конфигурацию блока
-                try {
-                    // Создаем временный CodeEditorGUI для совместимости
-                    ru.openhousing.coding.gui.CodeEditorGUI tempEditor = 
-                        new ru.openhousing.coding.gui.CodeEditorGUI(plugin, player, script);
-                    
-                    BlockConfigGUI configGUI = new BlockConfigGUI(plugin, player, block, tempEditor);
-                    configGUI.open();
-                } catch (Exception e) {
-                    MessageUtil.send(player, "&cОшибка открытия настроек блока: " + e.getMessage());
-                }
-            } else {
-                MessageUtil.send(player, "&cОшибка создания блока!");
-            }
-        } catch (Exception e) {
-            MessageUtil.send(player, "&cОшибка добавления блока: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Открытие настроек строки
-     */
-    private void openLineSettings(CodeLine line) {
-        player.closeInventory();
-        LineSettingsGUI settingsGUI = new LineSettingsGUI(plugin, player, script, line);
-        settingsGUI.open();
-    }
-    
-    /**
-     * Создание экземпляра блока
-     */
+
     private CodeBlock createBlockInstance(BlockType blockType) {
         try {
             switch (blockType) {
@@ -386,71 +373,73 @@ public class LineSelectorGUI implements Listener {
                 case PLAYER_SMELT:
                 case PLAYER_TRADE:
                 case PLAYER_SNEAK:
-                            // События мира
-            case WORLD_WEATHER_CHANGE:
-            case WORLD_TIME_CHANGE:
-            case WORLD_CHUNK_LOAD:
-            case WORLD_CHUNK_UNLOAD:
-            case WORLD_STRUCTURE_GROW:
-            case WORLD_EXPLOSION:
-            case WORLD_PORTAL_CREATE:
-                return new ru.openhousing.coding.blocks.events.WorldEventBlock();
+                    return new ru.openhousing.coding.blocks.events.PlayerEventBlock();
                 
-            // События существ
-            case ENTITY_SPAWN:
-            case ENTITY_DEATH:
-            case ENTITY_DAMAGE:
-            case ENTITY_TARGET:
-            case ENTITY_TAME:
-            case ENTITY_BREED:
-            case ENTITY_EXPLODE:
-            case ENTITY_INTERACT:
-            case ENTITY_MOUNT:
-            case ENTITY_DISMOUNT:
-            case ENTITY_LEASH:
-            case ENTITY_UNLEASH:
-            case ENTITY_SHEAR:
-            case ENTITY_MILK:
-            case ENTITY_TRANSFORM:
-                return new ru.openhousing.coding.blocks.events.EntityEventBlock();
-            
-            // Условия игрока
-            case IF_PLAYER_ONLINE:
-            case IF_PLAYER_PERMISSION:
-            case IF_PLAYER_GAMEMODE:
-            case IF_PLAYER_WORLD:
-            case IF_PLAYER_FLYING:
-            case IF_PLAYER_SNEAKING:
-            case IF_PLAYER_BLOCKING:
-            case IF_PLAYER_ITEM:
-            case IF_PLAYER_HEALTH:
-            case IF_PLAYER_FOOD:
-                return new ru.openhousing.coding.blocks.conditions.IfPlayerBlock();
+                // События существ
+                case ENTITY_SPAWN:
+                case ENTITY_DEATH:
+                case ENTITY_DAMAGE:
+                case ENTITY_TARGET:
+                case ENTITY_TAME:
+                case ENTITY_BREED:
+                case ENTITY_EXPLODE:
+                case ENTITY_INTERACT:
+                case ENTITY_MOUNT:
+                case ENTITY_DISMOUNT:
+                case ENTITY_LEASH:
+                case ENTITY_UNLEASH:
+                case ENTITY_SHEAR:
+                case ENTITY_MILK:
+                case ENTITY_TRANSFORM:
+                    return new ru.openhousing.coding.blocks.events.EntityEventBlock();
                 
-            // Условия существ
-            case IF_ENTITY_EXISTS:
-            case IF_ENTITY_TYPE:
-            case IF_ENTITY_HEALTH:
-                return new ru.openhousing.coding.blocks.conditions.IfEntityBlock();
+                // События мира
+                case WORLD_WEATHER_CHANGE:
+                case WORLD_TIME_CHANGE:
+                case WORLD_CHUNK_LOAD:
+                case WORLD_CHUNK_UNLOAD:
+                case WORLD_STRUCTURE_GROW:
+                case WORLD_EXPLOSION:
+                case WORLD_PORTAL_CREATE:
+                    return new ru.openhousing.coding.blocks.events.WorldEventBlock();
                 
-            // Условия переменных
-            case IF_VARIABLE_EQUALS:
-            case IF_VARIABLE_GREATER:
-            case IF_VARIABLE_LESS:
-            case IF_VARIABLE_CONTAINS:
-            case IF_VARIABLE_EXISTS:
-            case IF_VARIABLE_SAVED:
-            case IF_VARIABLE_TYPE:
-                return new ru.openhousing.coding.blocks.conditions.IfVariableBlock();
+                // Условия игрока
+                case IF_PLAYER_ONLINE:
+                case IF_PLAYER_PERMISSION:
+                case IF_PLAYER_GAMEMODE:
+                case IF_PLAYER_WORLD:
+                case IF_PLAYER_FLYING:
+                case IF_PLAYER_SNEAKING:
+                case IF_PLAYER_BLOCKING:
+                case IF_PLAYER_ITEM:
+                case IF_PLAYER_HEALTH:
+                case IF_PLAYER_FOOD:
+                    return new ru.openhousing.coding.blocks.conditions.IfPlayerBlock();
                 
-            // Условия игры
-            case IF_GAME_TIME:
-            case IF_GAME_WEATHER:
-            case IF_GAME_DIFFICULTY:
-            case IF_GAME_PLAYERS_ONLINE:
-            case IF_GAME_TPS:
-                return new ru.openhousing.coding.blocks.conditions.IfPlayerBlock(); // Временно используем IfPlayerBlock
-            
+                // Условия существ
+                case IF_ENTITY_EXISTS:
+                case IF_ENTITY_TYPE:
+                case IF_ENTITY_HEALTH:
+                    return new ru.openhousing.coding.blocks.conditions.IfEntityBlock();
+                
+                // Условия переменных
+                case IF_VARIABLE_EQUALS:
+                case IF_VARIABLE_GREATER:
+                case IF_VARIABLE_LESS:
+                case IF_VARIABLE_CONTAINS:
+                case IF_VARIABLE_EXISTS:
+                case IF_VARIABLE_SAVED:
+                case IF_VARIABLE_TYPE:
+                    return new ru.openhousing.coding.blocks.conditions.IfVariableBlock();
+                
+                // Условия игры
+                case IF_GAME_TIME:
+                case IF_GAME_WEATHER:
+                case IF_GAME_DIFFICULTY:
+                case IF_GAME_PLAYERS_ONLINE:
+                case IF_GAME_TPS:
+                    return new ru.openhousing.coding.blocks.conditions.IfVariableBlock();
+                
                 // Действия игрока
                 case PLAYER_SEND_MESSAGE:
                 case PLAYER_SEND_TITLE:
@@ -468,16 +457,16 @@ public class LineSelectorGUI implements Listener {
                 case PLAYER_STOP_SOUND:
                 case PLAYER_SPAWN_PARTICLE:
                 case PLAYER_SET_GAMEMODE:
-                                case PLAYER_KICK:
+                case PLAYER_KICK:
                 case PLAYER_BAN:
                 case PLAYER_WHITELIST_ADD:
                 case PLAYER_WHITELIST_REMOVE:
                 case PLAYER_SET_DISPLAY_NAME:
                 case PLAYER_RESET_DISPLAY_NAME:
                 case PLAYER_SEND_PLUGIN_MESSAGE:
-                return new ru.openhousing.coding.blocks.actions.PlayerActionBlock();
+                    return new ru.openhousing.coding.blocks.actions.PlayerActionBlock();
                 
-                // Действия переменных
+                // Действия с переменными
                 case VAR_SET:
                 case VAR_ADD:
                 case VAR_SUBTRACT:
@@ -515,8 +504,8 @@ public class LineSelectorGUI implements Listener {
                 case GAME_REMOVE_ENTITY:
                 case GAME_SET_BLOCK:
                 case GAME_BREAK_BLOCK:
-                                case GAME_SEND_PACKET:
-                return new ru.openhousing.coding.blocks.actions.WorldActionBlock();
+                case GAME_SEND_PACKET:
+                    return new ru.openhousing.coding.blocks.actions.WorldActionBlock();
             
                 // Функции
                 case FUNCTION:
@@ -531,7 +520,6 @@ public class LineSelectorGUI implements Listener {
                     return new ru.openhousing.coding.blocks.control.ElseBlock();
                 case TARGET:
                     return new ru.openhousing.coding.blocks.control.TargetBlock();
-            
                 // Математика и утилиты
                 case MATH:
                     return new ru.openhousing.coding.blocks.math.MathBlock();
@@ -541,12 +529,26 @@ public class LineSelectorGUI implements Listener {
                     return new ru.openhousing.coding.blocks.inventory.InventoryActionBlock();
                 case ITEM_CHECK:
                     return new ru.openhousing.coding.blocks.inventory.ItemCheckBlock();
+                
+                // Утилиты и управление
+                case CODE_CONTROL:
+                case SELECT_PLAYER:
+                case SELECT_ENTITY:
+                case SELECT_RANDOM:
+                case SELECT_ALL:
+                case SELECT_FILTER:
+                case NOT_ARROW:
+                case CODE_MOVER_3000:
+                    // Возвращаем базовый блок для утилит, которых нет
+                    return new ru.openhousing.coding.blocks.control.TargetBlock();
             
                 default:
+                    plugin.getLogger().warning("Неизвестный тип блока: " + blockType);
                     return null;
             }
         } catch (Exception e) {
             plugin.getLogger().warning("Ошибка создания блока " + blockType + ": " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }

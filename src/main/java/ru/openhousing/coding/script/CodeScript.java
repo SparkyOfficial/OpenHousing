@@ -556,4 +556,22 @@ public class CodeScript {
     public int getLineCount() {
         return lines.size();
     }
+    
+    /**
+     * Получить следующий доступный номер строки
+     */
+    public int getNextAvailableLineNumber() {
+        return nextLineNumber;
+    }
+    
+    /**
+     * Добавить строку в скрипт
+     */
+    public void addLine(CodeLine line) {
+        lines.put(line.getLineNumber(), line);
+        if (line.getLineNumber() >= nextLineNumber) {
+            nextLineNumber = line.getLineNumber() + 1;
+        }
+        updateModified();
+    }
 }

@@ -66,7 +66,7 @@ public class HouseModeCommand implements CommandExecutor {
         
         // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Регистрируем код игрока в EventManager
         if (plugin.getCodeManager() != null) {
-            ru.openhousing.coding.script.CodeScript script = plugin.getCodeManager().getPlayerScript(player.getUniqueId());
+            ru.openhousing.coding.script.CodeScript script = plugin.getCodeManager().getScript(player);
             if (script != null && !script.isEmpty()) {
                 plugin.getCodeManager().getEventManager().registerPlayerScript(player, script);
                 plugin.getLogger().info("[PLAY MODE] Зарегистрирован код игрока " + player.getName() + " с " + script.getBlockCount() + " блоками");
