@@ -294,7 +294,7 @@ public class LineSelectorGUI implements Listener {
             } else {
                 // Открываем редактор строки
                 player.closeInventory();
-                // TODO: Open line editor GUI
+                openLineEditor(selectedLine);
             }
         } else if (lineIndex == lines.size()) {
             // Клик по следующей пустой строке - создаем новую
