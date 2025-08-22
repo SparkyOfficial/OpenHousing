@@ -109,6 +109,7 @@ ru\openhousing\coding\placeholders\PlaceholderProcessor.class
 ru\openhousing\coding\gui\blocks\ConditionConfigGUI.class
 ru\openhousing\coding\blocks\actions\WorldActionBlock$WorldActionType.class
 ru\openhousing\housing\HousingManager.class
+ru\openhousing\utils\SoundEffects$5.class
 ru\openhousing\coding\blocks\text\TextOperationBlock$TextOperation.class
 ru\openhousing\economy\EconomyManager.class
 ru\openhousing\notifications\NotificationType.class

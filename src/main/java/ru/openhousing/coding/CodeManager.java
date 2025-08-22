@@ -58,6 +58,11 @@ public class CodeManager {
                 id -> new CodeEditorGUI(plugin, player, script));
             editor.updateInventory();
             editor.open();
+            
+            // Показываем информацию о коде
+            CodeScript.ScriptStats stats = script.getStats();
+            plugin.getSoundEffects().showCodeScoreboard(player, script.getLines().size(), stats.getTotalBlocks(), stats.getFunctionCount(), script.isEnabled());
+            
             plugin.getLogger().info("Code editor opened for player: " + player.getName());
         } catch (Exception e) {
             plugin.getLogger().severe("Error opening code editor for " + player.getName() + ": " + e.getMessage());

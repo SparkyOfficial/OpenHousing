@@ -220,7 +220,7 @@ public class SoundEffects {
      */
     public void showPluginBossBar(Player player) {
         BossBar bossBar = Bukkit.createBossBar(
-            "§6§lOpenHousing §7| §fВизуальное программирование для Minecraft",
+            "§6§lOpenHousing §7| §fСоздавай и программируй для Minecraft",70
             BarColor.BLUE,
             BarStyle.SEGMENTED_6
         );
