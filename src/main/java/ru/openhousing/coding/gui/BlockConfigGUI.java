@@ -78,22 +78,34 @@ public class BlockConfigGUI implements Listener {
             .build());
         
         // Настройки в зависимости от типа блока
-        switch (block.getType()) {
-            case PLAYER_EVENT -> setupPlayerEventSettings(10);
-            case ENTITY_EVENT -> setupEntityEventSettings(10);
-            case WORLD_EVENT -> setupWorldEventSettings(10);
-            case PLAYER_ACTION -> setupPlayerActionSettings(10);
-            case ENTITY_ACTION -> setupEntityActionSettings(10);
-            case WORLD_ACTION -> setupWorldActionSettings(10);
-            case IF_PLAYER -> setupIfPlayerSettings(10);
-            case IF_ENTITY -> setupIfEntitySettings(10);
-            case IF_VARIABLE -> setupIfVariableSettings(10);
-            case FUNCTION -> setupFunctionSettings(10);
-            case CALL_FUNCTION -> setupCallFunctionSettings(10);
-            case VARIABLE_ACTION -> setupVariableActionSettings(10);
-            case MATH -> setupMathSettings(10);
-            case TEXT_OPERATION -> setupTextOperationSettings(10);
-            default -> setupGenericSettings(10);
+        if (block.getType().name().startsWith("PLAYER_") && block.getType().getCategory() == BlockType.BlockCategory.EVENT) {
+            setupPlayerEventSettings(10);
+        } else if (block.getType().name().startsWith("ENTITY_") && block.getType().getCategory() == BlockType.BlockCategory.EVENT) {
+            setupEntityEventSettings(10);
+        } else if (block.getType().name().startsWith("WORLD_") && block.getType().getCategory() == BlockType.BlockCategory.EVENT) {
+            setupWorldEventSettings(10);
+        } else if (block.getType().name().startsWith("PLAYER_") && block.getType().getCategory() == BlockType.BlockCategory.ACTION) {
+            setupPlayerActionSettings(10);
+        } else if (block.getType().name().startsWith("GAME_") && block.getType().getCategory() == BlockType.BlockCategory.ACTION) {
+            setupWorldActionSettings(10);
+        } else if (block.getType().name().startsWith("IF_PLAYER")) {
+            setupIfPlayerSettings(10);
+        } else if (block.getType().name().startsWith("IF_ENTITY")) {
+            setupIfEntitySettings(10);
+        } else if (block.getType().name().startsWith("IF_VARIABLE")) {
+            setupIfVariableSettings(10);
+        } else if (block.getType() == BlockType.FUNCTION) {
+            setupFunctionSettings(10);
+        } else if (block.getType() == BlockType.CALL_FUNCTION) {
+            setupCallFunctionSettings(10);
+        } else if (block.getType().name().startsWith("VAR_")) {
+            setupVariableActionSettings(10);
+        } else if (block.getType() == BlockType.MATH) {
+            setupMathSettings(10);
+        } else if (block.getType() == BlockType.TEXT_OPERATION) {
+            setupTextOperationSettings(10);
+        } else {
+            setupGenericSettings(10);
         }
         
         // Кнопки управления
