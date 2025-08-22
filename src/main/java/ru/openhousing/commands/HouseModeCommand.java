@@ -61,7 +61,7 @@ public class HouseModeCommand implements CommandExecutor {
      * Установка режима игры
      */
     private void setPlayMode(Player player, House house) {
-        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
         
         if (debugMode) plugin.getLogger().info("[DEBUG] Setting PLAY mode for house: " + house.getId() + ", player: " + player.getName());
         

@@ -45,7 +45,7 @@ public class EventManager implements Listener {
      * Инициализация менеджера событий
      */
     public void initialize() {
-        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
         
         try {
             if (debugMode) plugin.getLogger().info("[DEBUG] Registering EventManager as Bukkit listener...");
@@ -67,7 +67,7 @@ public class EventManager implements Listener {
      * Регистрация кода игрока в системе событий
      */
     public void registerPlayerScript(Player player, CodeScript script) {
-        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
         UUID playerId = player.getUniqueId();
         
         if (debugMode) plugin.getLogger().info("[DEBUG] Registering script for player: " + player.getName());

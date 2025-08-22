@@ -35,7 +35,7 @@ public class CodeManager {
      * Инициализация менеджера
      */
     public void initialize() {
-        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
         
         try {
             if (debugMode) plugin.getLogger().info("[DEBUG] Initializing EventManager...");
@@ -57,7 +57,7 @@ public class CodeManager {
      * Открытие редактора кода для игрока
      */
     public void openCodeEditor(Player player) {
-        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
         
         try {
             if (debugMode) plugin.getLogger().info("[DEBUG] Opening code editor for player: " + player.getName());
@@ -132,7 +132,7 @@ public class CodeManager {
      * Получение или создание скрипта игрока
      */
     public CodeScript getOrCreateScript(Player player) {
-        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
         
         CodeScript script = playerScripts.computeIfAbsent(player.getUniqueId(), 
             uuid -> {
@@ -160,7 +160,7 @@ public class CodeManager {
      * Сохранение скрипта игрока
      */
     public void saveScript(Player player, CodeScript script) {
-        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
         
         if (player == null) {
             plugin.getLogger().severe("[ERROR] Cannot save script: player is null");
@@ -203,7 +203,7 @@ public class CodeManager {
      * Загрузка скрипта игрока из базы данных
      */
     public void loadScript(Player player) {
-        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
         
         if (player == null) {
             plugin.getLogger().severe("[ERROR] Cannot load script: player is null");
@@ -235,7 +235,7 @@ public class CodeManager {
      * Регистрация скрипта и его обработчиков событий
      */
     public void registerScript(Player player, CodeScript script) {
-        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
         
         if (player == null || script == null) {
             plugin.getLogger().severe("[ERROR] Cannot register script: player or script is null");

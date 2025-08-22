@@ -165,7 +165,7 @@ public class OpenHousing extends JavaPlugin {
      * Инициализация менеджеров
      */
     private void initializeManagers() {
-        boolean debugMode = configManager.getConfig().getBoolean("general.debug", false);
+        boolean debugMode = configManager.getMainConfig().getBoolean("general.debug", false);
         
         try {
             // База данных

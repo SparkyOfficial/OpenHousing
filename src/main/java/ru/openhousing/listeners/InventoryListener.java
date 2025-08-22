@@ -29,7 +29,7 @@ public class InventoryListener implements Listener {
         if (event.isCancelled()) return;
         
         Player player = (Player) event.getWhoClicked();
-        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
         
         try {
             String title = null;

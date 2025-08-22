@@ -83,7 +83,7 @@ public class CodeEditorGUI implements InventoryHolder {
      * Обновление инвентаря
      */
     public void updateInventory() {
-        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
         
         try {
             if (debugMode) plugin.getLogger().info("[DEBUG] Updating inventory for mode: " + mode);
@@ -549,7 +549,7 @@ public class CodeEditorGUI implements InventoryHolder {
      * Обработка клика по слоту
      */
     public void handleClick(int slot, boolean isRightClick, boolean isShiftClick) {
-        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
         
         if (debugMode) plugin.getLogger().info("[DEBUG] CodeEditorGUI handleClick - slot: " + slot + ", mode: " + mode + ", rightClick: " + isRightClick);
         
@@ -589,7 +589,7 @@ public class CodeEditorGUI implements InventoryHolder {
     }
     
     private void handleMainMenuClick(int slot) {
-        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
         if (debugMode) plugin.getLogger().info("[DEBUG] Main menu click: slot=" + slot);
         
         switch (slot) {

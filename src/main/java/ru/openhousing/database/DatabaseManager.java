@@ -30,7 +30,7 @@ public class DatabaseManager {
      * Инициализация базы данных
      */
     public void initialize() {
-        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
         
         try {
             if (debugMode) plugin.getLogger().info("[DEBUG] Initializing database...");
