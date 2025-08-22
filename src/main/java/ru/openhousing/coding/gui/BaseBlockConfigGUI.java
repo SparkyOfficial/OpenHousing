@@ -145,7 +145,9 @@ public abstract class BaseBlockConfigGUI implements IBlockConfigurationGUI {
                 return true;
             case BACK_SLOT:
                 HandlerList.unregisterAll(this);
-                new BlockConfigGUI(plugin, player, block, onSaveCallback).open();
+                new BlockConfigGUI(plugin, player, block, (updatedBlock) -> {
+                    onSaveCallback.run();
+                }).open();
                 return true;
         }
         return false;
@@ -164,7 +166,7 @@ public abstract class BaseBlockConfigGUI implements IBlockConfigurationGUI {
             new VariableSelectorGUI(plugin, player, (variable) -> {
                 block.setParameter(parameterName, variable.getRawValue());
                 open(); // Переоткрыть GUI с обновленными данными
-            }).open();
+            }, false).open();
         } else {
             // Открыть ввод текста
             openTextInput(parameterName, getParameterPrompt(parameterName));

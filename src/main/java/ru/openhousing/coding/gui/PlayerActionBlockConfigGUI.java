@@ -100,15 +100,15 @@ public class PlayerActionBlockConfigGUI extends BaseBlockConfigGUI {
                     setupVariableSlot(VALUE_SLOT, "value", "Режим игры", "Режим игры (SURVIVAL, CREATIVE, ADVENTURE, SPECTATOR)");
                     break;
                     
-                case KICK:
+                case KICK_PLAYER:
                     setupVariableSlot(VALUE_SLOT, "value", "Причина", "Причина кика (опционально)");
                     break;
                     
-                case HEAL:
+                case SET_HEALTH:
                     setupVariableSlot(VALUE_SLOT, "value", "Количество", "Количество здоровья для восстановления (опционально)");
                     break;
                     
-                case FEED:
+                case SET_FOOD:
                     setupVariableSlot(VALUE_SLOT, "value", "Количество", "Количество голода для восстановления (опционально)");
                     break;
                     
@@ -132,10 +132,6 @@ public class PlayerActionBlockConfigGUI extends BaseBlockConfigGUI {
                     
                 case CLEAR_INVENTORY:
                     // Нет параметров
-                    break;
-                    
-                case KICK_PLAYER:
-                    setupVariableSlot(VALUE_SLOT, "value", "Причина", "Причина кика (опционально)");
                     break;
             }
         }
