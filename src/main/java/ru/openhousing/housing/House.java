@@ -89,7 +89,18 @@ public class House {
                     world.setGameRuleValue("doMobSpawning", "false");
                     world.setTime(6000); // Полдень
                     
-                    plugin.getLogger().info("House world '" + name + "' created successfully: " + worldName);
+                    // Важно: сохраняем мир и перезагружаем его для стабильности
+                    world.save();
+                    Bukkit.unloadWorld(world, true);
+                    
+                    // Перезагружаем мир
+                    world = Bukkit.getWorld(worldName);
+                    if (world == null) {
+                        // Если не удалось перезагрузить, создаем заново
+                        world = creator.createWorld();
+                    }
+                    
+                    plugin.getLogger().info("House world '" + name + "' created and saved successfully: " + worldName);
                     if (debugMode) plugin.getLogger().info("[DEBUG] World settings applied for: " + worldName);
                 } else {
                     plugin.getLogger().severe("Failed to create world for house '" + name + "': " + worldName);

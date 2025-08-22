@@ -78,15 +78,35 @@ public class BlockConfigGUI implements Listener {
         BlockType.BlockCategory category = block.getType().getCategory();
         String typeName = block.getType().name();
         
-        // PlayerAction блоки используют специализированный GUI
-        if (category == BlockType.BlockCategory.ACTION && typeName.startsWith("PLAYER_")) {
+        // Все действия используют специализированные GUI
+        if (category == BlockType.BlockCategory.ACTION) {
             return true;
         }
         
-        // Можно добавить другие типы блоков здесь в будущем
-        // if (category == BlockType.BlockCategory.EVENT && typeName.startsWith("PLAYER_")) {
-        //     return true;
-        // }
+        // Все условия используют специализированный GUI
+        if (category == BlockType.BlockCategory.CONDITION) {
+            return true;
+        }
+        
+        // События используют специализированный GUI
+        if (category == BlockType.BlockCategory.EVENT) {
+            return true;
+        }
+        
+        // Функции используют специализированный GUI
+        if (category == BlockType.BlockCategory.FUNCTION) {
+            return true;
+        }
+        
+        // Элементы управления (циклы) используют специализированный GUI
+        if (category == BlockType.BlockCategory.CONTROL && block.getType() == BlockType.REPEAT) {
+            return true;
+        }
+        
+        // Математика использует специализированный GUI
+        if (block.getType() == BlockType.MATH) {
+            return true;
+        }
         
         return false;
     }
@@ -109,10 +129,52 @@ public class BlockConfigGUI implements Listener {
             }
         };
         
-        if (category == BlockType.BlockCategory.ACTION && typeName.startsWith("PLAYER_")) {
-            new PlayerActionBlockConfigGUI(plugin, player, block, saveCallback).open();
+        switch (category) {
+            case ACTION:
+                if (typeName.startsWith("PLAYER_")) {
+                    new ru.openhousing.coding.gui.blocks.PlayerActionConfigGUI(plugin, player, block).open();
+                } else if (typeName.startsWith("VAR_")) {
+                    new ru.openhousing.coding.gui.blocks.VariableActionConfigGUI(plugin, player, block).open();
+                } else if (typeName.startsWith("GAME_")) {
+                    new ru.openhousing.coding.gui.blocks.GameActionConfigGUI(plugin, player, block).open();
+                } else {
+                    // Используем PlayerAction GUI как универсальный для действий
+                    new ru.openhousing.coding.gui.blocks.PlayerActionConfigGUI(plugin, player, block).open();
+                }
+                break;
+                
+            case CONDITION:
+                new ru.openhousing.coding.gui.blocks.ConditionConfigGUI(plugin, player, block).open();
+                break;
+                
+            case EVENT:
+                new ru.openhousing.coding.gui.blocks.EventConfigGUI(plugin, player, block).open();
+                break;
+                
+            case FUNCTION:
+                new ru.openhousing.coding.gui.blocks.FunctionConfigGUI(plugin, player, block).open();
+                break;
+                
+            case CONTROL:
+                if (block.getType() == BlockType.REPEAT) {
+                    new ru.openhousing.coding.gui.blocks.LoopConfigGUI(plugin, player, block).open();
+                } else {
+                    // Для остальных элементов управления используем стандартный GUI
+                    setupInventory();
+                    player.openInventory(inventory);
+                }
+                break;
+                
+            default:
+                if (block.getType() == BlockType.MATH) {
+                    new ru.openhousing.coding.gui.blocks.MathConfigGUI(plugin, player, block).open();
+                } else {
+                    // Используем стандартный GUI
+                    setupInventory();
+                    player.openInventory(inventory);
+                }
+                break;
         }
-        // Здесь можно добавить другие специализированные GUI
     }
     
     private void setupInventory() {
@@ -564,7 +626,7 @@ public class BlockConfigGUI implements Listener {
             // Пустой слот
             inventory.setItem(slot, new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE)
                 .name("§7" + paramName)
-                .lore(Arrays.asList(
+            .lore(Arrays.asList(
                     "§7Перетащите переменную сюда",
                     "",
                     "§eЛКМ - выбрать переменную",
@@ -580,7 +642,7 @@ public class BlockConfigGUI implements Listener {
             
             inventory.setItem(slot, new ItemBuilder(Material.EMERALD)
                 .name("§a" + paramName + " = " + displayValue)
-                .lore(Arrays.asList(
+            .lore(Arrays.asList(
                     "§7Текущее значение",
                     "",
                     "§eЛКМ - изменить переменную",
@@ -605,7 +667,7 @@ public class BlockConfigGUI implements Listener {
         }
         
         if (slot == 49) {
-            // Отмена
+        // Отмена
             player.closeInventory();
             return;
         }

@@ -64,7 +64,8 @@ public class HousingManager {
                     if (houseWorld != null) {
                         plugin.getLogger().info("Preloaded world for house '" + house.getName() + "': " + house.getWorldName());
                     } else {
-                        plugin.getLogger().warning("Failed to preload world for house '" + house.getName() + "': " + house.getWorldName());
+                        plugin.getLogger().warning("World not found for house: " + house.getId() + " (world: " + house.getWorldName() + ")");
+                        // Не игнорируем дом, если мир не загружен - он может быть создан позже
                     }
                 } catch (Exception e) {
                     plugin.getLogger().severe("Error preloading world for house '" + house.getName() + "': " + e.getMessage());

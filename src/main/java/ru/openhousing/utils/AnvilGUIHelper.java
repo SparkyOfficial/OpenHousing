@@ -11,47 +11,76 @@ import ru.openhousing.listeners.ChatListener;
 import java.util.function.Consumer;
 
 /**
- * Профессиональная утилита для ввода текста через AnvilGUI
+ * Профессиональная утилита для ввода текста через AnvilGUI или чат
  */
 public class AnvilGUIHelper {
+
+    // Статические переменные для проверки доступности AnvilGUI
+    private static boolean isAnvilGUIAvailable = false;
+    private static boolean checkedAnvilGUI = false;
+
+    /**
+     * Проверяет доступность AnvilGUI при первой загрузке
+     */
+    private static void checkAnvilGUIAvailability(OpenHousing plugin) {
+        if (checkedAnvilGUI) {
+            return;
+        }
+
+        try {
+            // Это должно инициировать статическую инициализацию класса AnvilGUI
+            Class.forName("net.wesjd.anvilgui.AnvilGUI");
+            isAnvilGUIAvailable = true;
+            plugin.getLogger().info("[DEBUG] AnvilGUI class initialized successfully. VersionMatcher passed.");
+        } catch (Throwable t) {
+            // Throwable для перехвата Error и Exception
+            plugin.getLogger().severe("[CRITICAL ERROR] AnvilGUI class initialization failed at startup! Error: " + t.getMessage());
+            plugin.getLogger().severe("This means AnvilGUI is not compatible. Using chat fallback permanently.");
+            // Выводим stack trace для диагностики
+            t.printStackTrace();
+            isAnvilGUIAvailable = false;
+        } finally {
+            checkedAnvilGUI = true;
+        }
+    }
 
     /**
      * Открыть красивый GUI для ввода текста
      */
     public static void openTextInput(OpenHousing plugin, Player player, String title, String defaultText, Consumer<String> callback) {
-        try {
-            new AnvilGUI.Builder()
-                .onClick((slot, state) -> {
-                    if (slot != AnvilGUI.Slot.OUTPUT) { // Если клик не по слоту вывода, оставляем GUI открытым
-                        return AnvilGUI.Response.text(state.getText());
-                    }
+        checkAnvilGUIAvailability(plugin);
 
-                    // Если клик по слоту вывода (пользователь нажал на "готово")
-                    String input = state.getText();
-                    if (input == null || input.trim().isEmpty()) {
-                        player.sendMessage("§cВвод не может быть пустым!");
-                        return AnvilGUI.Response.text(state.getText()); // Можно вернуть текущий текст или Response.openInventory(player.getOpenInventory()) для ре-опен
-                    }
-
-                    // Важно: выполнение колбэка должно быть в главном потоке Bukkit
-                    // после закрытия GUI, чтобы избежать ConcurrentModificationException
-                    Bukkit.getScheduler().runTask(plugin, () -> {
-                        callback.accept(input.trim());
-                    });
-                    return AnvilGUI.Response.close(); // Закрываем GUI
-                })
-                .onClose(player1 -> {
-                    // Опционально: можно добавить логику, если игрок закрыл GUI без ввода
-                })
-                .text(defaultText != null ? defaultText : "")
-                .title(title.length() > 30 ? title.substring(0, 30) : title) // Ограничиваем длину заголовка
-                .itemLeft(new ItemStack(Material.PAPER))
-                .plugin(plugin)
-                .open(player);
-                
-        } catch (Exception e) {
-            // Fallback к чату если AnvilGUI не работает (или ошибка)
-            plugin.getLogger().warning("AnvilGUI failed, using chat fallback: " + e.getMessage());
+        if (isAnvilGUIAvailable) {
+            try {
+                // Если AnvilGUI доступен, пробуем его открыть
+                new AnvilGUI.Builder()
+                    .onClick((slot, state) -> {
+                        if (slot != AnvilGUI.Slot.OUTPUT) {
+                            return AnvilGUI.Response.text(state.getText());
+                        }
+                        String input = state.getText();
+                        if (input == null || input.trim().isEmpty()) {
+                            player.sendMessage("§cВвод не может быть пустым!");
+                            return AnvilGUI.Response.text(state.getText());
+                        }
+                        Bukkit.getScheduler().runTask(plugin, () -> callback.accept(input.trim()));
+                        return AnvilGUI.Response.close();
+                    })
+                    .onClose(player1 -> {})
+                    .text(defaultText != null ? defaultText : "")
+                    .title(title.length() > 30 ? title.substring(0, 30) : title)
+                    .itemLeft(new ItemStack(Material.PAPER))
+                    .plugin(plugin)
+                    .open(player);
+                plugin.getLogger().info("[DEBUG] AnvilGUI opened for " + player.getName() + ": " + title);
+            } catch (Exception e) {
+                // Этот catch для Runtime ошибок при создании AnvilGUI после его статической инициализации
+                plugin.getLogger().warning("[WARNING] AnvilGUI failed during runtime, falling back to chat: " + e.getMessage());
+                fallbackToChatInput(plugin, player, title, defaultText, callback);
+            }
+        } else {
+            // AnvilGUI несовместим или сломан, сразу переходим к чату
+            plugin.getLogger().info("[DEBUG] AnvilGUI not available, using chat fallback directly for " + player.getName() + ": " + title);
             fallbackToChatInput(plugin, player, title, defaultText, callback);
         }
     }
@@ -60,43 +89,44 @@ public class AnvilGUIHelper {
      * Открыть красивый GUI для ввода чисел
      */
     public static void openNumberInput(OpenHousing plugin, Player player, String title, String defaultValue, Consumer<Double> callback) {
-        try {
-            new AnvilGUI.Builder()
-                .onClick((slot, state) -> {
-                    if (slot != AnvilGUI.Slot.OUTPUT) {
-                        return AnvilGUI.Response.text(state.getText());
-                    }
+        checkAnvilGUIAvailability(plugin);
 
-                    String input = state.getText();
-                    if (input == null || input.trim().isEmpty()) {
-                        player.sendMessage("§cВвод не может быть пустым!");
-                        return AnvilGUI.Response.text(state.getText());
-                    }
-                    
-                    try {
-                        double number = Double.parseDouble(input);
-                        // Важно: выполнение колбэка должно быть в главном потоке Bukkit
-                        Bukkit.getScheduler().runTask(plugin, () -> {
-                            callback.accept(number);
-                        });
-                        return AnvilGUI.Response.close();
-                    } catch (NumberFormatException e) {
-                        player.sendMessage("§cНеверный формат числа! Введите корректное число.");
-                        return AnvilGUI.Response.text(state.getText()); // Если ошибка, оставляем текст в AnvilGUI
-                    }
-                })
-                .onClose(player1 -> {
-                    // Опционально: можно добавить логику, если игрок закрыл GUI без ввода
-                })
-                .text(defaultValue != null ? defaultValue : "0")
-                .title(title.length() > 30 ? title.substring(0, 30) : title)
-                .itemLeft(new ItemStack(Material.GOLD_NUGGET))
-                .plugin(plugin)
-                .open(player);
-                
-        } catch (Exception e) {
-            // Fallback к чату если AnvilGUI не работает
-            plugin.getLogger().warning("AnvilGUI failed, using chat fallback: " + e.getMessage());
+        if (isAnvilGUIAvailable) {
+            try {
+                new AnvilGUI.Builder()
+                    .onClick((slot, state) -> {
+                        if (slot != AnvilGUI.Slot.OUTPUT) {
+                            return AnvilGUI.Response.text(state.getText());
+                        }
+
+                        String input = state.getText();
+                        if (input == null || input.trim().isEmpty()) {
+                            player.sendMessage("§cВвод не может быть пустым!");
+                            return AnvilGUI.Response.text(state.getText());
+                        }
+                        
+                        try {
+                            double number = Double.parseDouble(input);
+                            Bukkit.getScheduler().runTask(plugin, () -> callback.accept(number));
+                            return AnvilGUI.Response.close();
+                        } catch (NumberFormatException e) {
+                            player.sendMessage("§cНеверный формат числа! Введите корректное число.");
+                            return AnvilGUI.Response.text(state.getText());
+                        }
+                    })
+                    .onClose(player1 -> {})
+                    .text(defaultValue != null ? defaultValue : "0")
+                    .title(title.length() > 30 ? title.substring(0, 30) : title)
+                    .itemLeft(new ItemStack(Material.GOLD_NUGGET))
+                    .plugin(plugin)
+                    .open(player);
+                plugin.getLogger().info("[DEBUG] AnvilGUI number input opened for " + player.getName() + ": " + title);
+            } catch (Exception e) {
+                plugin.getLogger().warning("[WARNING] AnvilGUI number input failed during runtime, falling back to chat: " + e.getMessage());
+                fallbackToNumberChatInput(plugin, player, title, defaultValue, callback);
+            }
+        } else {
+            plugin.getLogger().info("[DEBUG] AnvilGUI not available, using chat fallback for number input: " + player.getName() + ": " + title);
             fallbackToNumberChatInput(plugin, player, title, defaultValue, callback);
         }
     }
@@ -110,7 +140,7 @@ public class AnvilGUIHelper {
         });
     }
 
-    // --- Методы-заглушки для fallback через чат (остаются без изменений) ---
+    // --- Методы-заглушки для fallback через чат ---
     private static void fallbackToChatInput(OpenHousing plugin, Player player, String title, String defaultText, Consumer<String> callback) {
         ChatListener chatListener = plugin.getChatListener();
         if (chatListener != null) {
