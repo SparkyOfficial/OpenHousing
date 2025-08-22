@@ -35,28 +35,60 @@ public class CodeManager {
      * Инициализация менеджера
      */
     public void initialize() {
-        eventManager.initialize();
-        plugin.getLogger().info("CodeManager initialized successfully!");
+        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        
+        try {
+            if (debugMode) plugin.getLogger().info("[DEBUG] Initializing EventManager...");
+            eventManager.initialize();
+            if (debugMode) plugin.getLogger().info("[DEBUG] EventManager initialized successfully");
+            
+            if (debugMode) plugin.getLogger().info("[DEBUG] CodeManager playerScripts map size: " + playerScripts.size());
+            if (debugMode) plugin.getLogger().info("[DEBUG] CodeManager openEditors map size: " + openEditors.size());
+            
+            plugin.getLogger().info("CodeManager initialized successfully!");
+        } catch (Exception e) {
+            plugin.getLogger().severe("[CRITICAL] CodeManager initialization failed: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
     
     /**
      * Открытие редактора кода для игрока
      */
     public void openCodeEditor(Player player) {
+        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        
         try {
+            if (debugMode) plugin.getLogger().info("[DEBUG] Opening code editor for player: " + player.getName());
+            
             CodeScript script = getOrCreateScript(player);
+            if (script == null) {
+                plugin.getLogger().severe("[ERROR] Failed to get or create script for player: " + player.getName());
+                player.sendMessage("§cОшибка создания скрипта!");
+                return;
+            }
+            
+            if (debugMode) plugin.getLogger().info("[DEBUG] Script obtained for player: " + player.getName() + ", lines: " + script.getLines().size());
             
             // Автоматически привязываем код к миру дома, если игрок находится в доме
             String currentWorld = player.getWorld().getName();
             if (currentWorld.startsWith("house_") && (script.getBoundWorld() == null || !script.getBoundWorld().equals(currentWorld))) {
                 script.setBoundWorld(currentWorld);
-                plugin.getLogger().info("Code bound to world: " + currentWorld + " for player: " + player.getName());
+                if (debugMode) plugin.getLogger().info("[DEBUG] Code bound to world: " + currentWorld + " for player: " + player.getName());
             }
             
             // Переиспользуем один экземпляр GUI на игрока, чтобы исключить спам переоткрытий
             CodeEditorGUI editor = openEditors.computeIfAbsent(player.getUniqueId(),
-                id -> new CodeEditorGUI(plugin, player, script));
+                id -> {
+                    if (debugMode) plugin.getLogger().info("[DEBUG] Creating new CodeEditorGUI for player: " + player.getName());
+                    return new CodeEditorGUI(plugin, player, script);
+                });
+            
+            if (debugMode) plugin.getLogger().info("[DEBUG] Updating inventory for CodeEditorGUI...");
             editor.updateInventory();
+            
+            if (debugMode) plugin.getLogger().info("[DEBUG] Opening CodeEditorGUI...");
             editor.open();
             
             // Показываем информацию о коде
@@ -100,8 +132,21 @@ public class CodeManager {
      * Получение или создание скрипта игрока
      */
     public CodeScript getOrCreateScript(Player player) {
-        return playerScripts.computeIfAbsent(player.getUniqueId(), 
-            uuid -> new CodeScript(uuid, player.getName()));
+        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        
+        CodeScript script = playerScripts.computeIfAbsent(player.getUniqueId(), 
+            uuid -> {
+                if (debugMode) plugin.getLogger().info("[DEBUG] Creating new CodeScript for player: " + player.getName());
+                CodeScript newScript = new CodeScript(uuid, player.getName());
+                if (debugMode) plugin.getLogger().info("[DEBUG] New CodeScript created with " + newScript.getLines().size() + " lines");
+                return newScript;
+            });
+        
+        if (debugMode && script != null) {
+            plugin.getLogger().info("[DEBUG] Retrieved script for player: " + player.getName() + ", lines: " + script.getLines().size());
+        }
+        
+        return script;
     }
     
     /**
@@ -115,22 +160,74 @@ public class CodeManager {
      * Сохранение скрипта игрока
      */
     public void saveScript(Player player, CodeScript script) {
-        playerScripts.put(player.getUniqueId(), script);
-        // Перерегистрация обработчиков событий через EventManager
-        eventManager.unregisterPlayer(player);
-        eventManager.registerPlayer(player, script);
-        // Асинхронное сохранение в БД
-        plugin.getDatabaseManager().saveCodeScriptAsync(script, () -> {});
+        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        
+        if (player == null) {
+            plugin.getLogger().severe("[ERROR] Cannot save script: player is null");
+            return;
+        }
+        
+        if (script == null) {
+            plugin.getLogger().severe("[ERROR] Cannot save script: script is null for player " + player.getName());
+            return;
+        }
+        
+        if (debugMode) plugin.getLogger().info("[DEBUG] Saving script for player: " + player.getName());
+        try {
+            playerScripts.put(player.getUniqueId(), script);
+            
+            // Перерегистрация обработчиков событий через EventManager
+            if (eventManager != null) {
+                eventManager.unregisterPlayerScript(player.getUniqueId());
+                eventManager.registerPlayerScript(player, script);
+                if (debugMode) plugin.getLogger().info("[DEBUG] Script re-registered in EventManager");
+            } else {
+                plugin.getLogger().warning("[WARNING] EventManager is null during script save");
+            }
+            
+            // Асинхронное сохранение в БД
+            if (plugin.getDatabaseManager() != null) {
+                plugin.getDatabaseManager().saveCodeScriptAsync(script, () -> {
+                    if (debugMode) plugin.getLogger().info("[DEBUG] Script saved to database for player: " + player.getName());
+                });
+            } else {
+                plugin.getLogger().warning("[WARNING] DatabaseManager is null during script save");
+            }
+        } catch (Exception e) {
+            plugin.getLogger().severe("[ERROR] Failed to save script for player " + player.getName() + ": " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     /**
      * Загрузка скрипта игрока из базы данных
      */
     public void loadScript(Player player) {
-        CodeScript script = plugin.getDatabaseManager().loadCodeScript(player.getUniqueId());
-        if (script != null) {
-            playerScripts.put(player.getUniqueId(), script);
-            eventManager.registerPlayer(player, script);
+        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        
+        if (player == null) {
+            plugin.getLogger().severe("[ERROR] Cannot load script: player is null");
+            return;
+        }
+        
+        try {
+            if (debugMode) plugin.getLogger().info("[DEBUG] Loading script for player: " + player.getName());
+            
+            CodeScript script = plugin.getDatabaseManager().loadCodeScript(player.getUniqueId());
+            if (script != null) {
+                playerScripts.put(player.getUniqueId(), script);
+                if (eventManager != null) {
+                    eventManager.registerPlayerScript(player, script);
+                    if (debugMode) plugin.getLogger().info("[DEBUG] Script loaded and registered for player: " + player.getName());
+                } else {
+                    plugin.getLogger().warning("[WARNING] EventManager is null during script load");
+                }
+            } else {
+                if (debugMode) plugin.getLogger().info("[DEBUG] No script found in database for player: " + player.getName());
+            }
+        } catch (Exception e) {
+            plugin.getLogger().severe("[ERROR] Failed to load script for player " + player.getName() + ": " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
@@ -138,8 +235,25 @@ public class CodeManager {
      * Регистрация скрипта и его обработчиков событий
      */
     public void registerScript(Player player, CodeScript script) {
-        playerScripts.put(player.getUniqueId(), script);
-        eventManager.registerPlayer(player, script);
+        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        
+        if (player == null || script == null) {
+            plugin.getLogger().severe("[ERROR] Cannot register script: player or script is null");
+            return;
+        }
+        
+        try {
+            playerScripts.put(player.getUniqueId(), script);
+            if (eventManager != null) {
+                eventManager.registerPlayerScript(player, script);
+                if (debugMode) plugin.getLogger().info("[DEBUG] Script registered for player: " + player.getName());
+            } else {
+                plugin.getLogger().warning("[WARNING] EventManager is null during script registration");
+            }
+        } catch (Exception e) {
+            plugin.getLogger().severe("[ERROR] Failed to register script for player " + player.getName() + ": " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     /**

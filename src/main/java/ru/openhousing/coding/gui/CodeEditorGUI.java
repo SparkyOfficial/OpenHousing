@@ -83,20 +83,27 @@ public class CodeEditorGUI implements InventoryHolder {
      * Обновление инвентаря
      */
     public void updateInventory() {
+        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        
         try {
+            if (debugMode) plugin.getLogger().info("[DEBUG] Updating inventory for mode: " + mode);
             inventory.clear();
             
             switch (mode) {
                 case MAIN:
+                    if (debugMode) plugin.getLogger().info("[DEBUG] Setting up main menu...");
                     setupMainMenu();
                     break;
                 case CATEGORIES:
+                    if (debugMode) plugin.getLogger().info("[DEBUG] Setting up categories menu...");
                     setupCategoriesMenu();
                     break;
                 case BLOCKS:
+                    if (debugMode) plugin.getLogger().info("[DEBUG] Setting up blocks menu for category: " + selectedCategory);
                     setupBlocksMenu();
                     break;
                 case SCRIPT:
+                    if (debugMode) plugin.getLogger().info("[DEBUG] Setting up script menu...");
                     setupScriptMenu();
                     break;
                 case BLOCK_EDIT:
@@ -104,7 +111,10 @@ public class CodeEditorGUI implements InventoryHolder {
                     break;
             }
             
+            if (debugMode) plugin.getLogger().info("[DEBUG] Adding navigation items...");
             addNavigationItems();
+            
+            if (debugMode) plugin.getLogger().info("[DEBUG] Inventory update completed successfully");
                 
             // Принудительно обновляем инвентарь для игрока
             if (player.getOpenInventory().getTopInventory().equals(inventory)) {
@@ -539,9 +549,13 @@ public class CodeEditorGUI implements InventoryHolder {
      * Обработка клика по слоту
      */
     public void handleClick(int slot, boolean isRightClick, boolean isShiftClick) {
+        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        
+        if (debugMode) plugin.getLogger().info("[DEBUG] CodeEditorGUI handleClick - slot: " + slot + ", mode: " + mode + ", rightClick: " + isRightClick);
+        
         ItemStack item = inventory.getItem(slot);
         if (item == null || item.getType() == Material.AIR) {
-            plugin.getLogger().info("Click on empty slot: " + slot);
+            if (debugMode) plugin.getLogger().info("[DEBUG] Click on empty slot: " + slot);
             return;
         }
         
@@ -549,23 +563,23 @@ public class CodeEditorGUI implements InventoryHolder {
         
         switch (mode) {
             case MAIN:
-                plugin.getLogger().info("Handling main menu click");
+                if (debugMode) plugin.getLogger().info("[DEBUG] Handling main menu click");
                 handleMainMenuClick(slot);
                 break;
             case CATEGORIES:
-                plugin.getLogger().info("Handling categories click");
+                if (debugMode) plugin.getLogger().info("[DEBUG] Handling categories click");
                 handleCategoriesClick(slot);
                 break;
             case BLOCKS:
-                plugin.getLogger().info("Handling blocks click");
+                if (debugMode) plugin.getLogger().info("[DEBUG] Handling blocks click");
                 handleBlocksClick(slot, isRightClick);
                 break;
             case SCRIPT:
-                plugin.getLogger().info("Handling script click");
+                if (debugMode) plugin.getLogger().info("[DEBUG] Handling script click");
                 handleScriptClick(slot, isRightClick, isShiftClick);
                 break;
             case BLOCK_EDIT:
-                plugin.getLogger().info("Handling block edit click");
+                if (debugMode) plugin.getLogger().info("[DEBUG] Handling block edit click");
                 handleBlockEditClick(slot);
                 break;
         }
@@ -575,17 +589,18 @@ public class CodeEditorGUI implements InventoryHolder {
     }
     
     private void handleMainMenuClick(int slot) {
-        plugin.getLogger().info("Main menu click: slot=" + slot);
+        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        if (debugMode) plugin.getLogger().info("[DEBUG] Main menu click: slot=" + slot);
         
         switch (slot) {
             case 10: // Просмотр кода
-                plugin.getLogger().info("Switching to SCRIPT mode");
+                if (debugMode) plugin.getLogger().info("[DEBUG] Switching to SCRIPT mode");
                 mode = EditorMode.SCRIPT;
                 page = 0;
                 updateInventory();
                 break;
             case 12: // Добавить блок
-                plugin.getLogger().info("Switching to CATEGORIES mode");
+                if (debugMode) plugin.getLogger().info("[DEBUG] Switching to CATEGORIES mode");
                 mode = EditorMode.CATEGORIES;
                 updateInventory();
                 break;

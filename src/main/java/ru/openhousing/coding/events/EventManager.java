@@ -45,23 +45,42 @@ public class EventManager implements Listener {
      * Инициализация менеджера событий
      */
     public void initialize() {
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        plugin.getLogger().info("EventManager initialized successfully!");
+        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        
+        try {
+            if (debugMode) plugin.getLogger().info("[DEBUG] Registering EventManager as Bukkit listener...");
+            plugin.getServer().getPluginManager().registerEvents(this, plugin);
+            if (debugMode) plugin.getLogger().info("[DEBUG] EventManager registered successfully");
+            
+            if (debugMode) plugin.getLogger().info("[DEBUG] EventManager eventHandlers map size: " + eventHandlers.size());
+            if (debugMode) plugin.getLogger().info("[DEBUG] EventManager playerScripts map size: " + playerScripts.size());
+            
+            plugin.getLogger().info("EventManager initialized successfully!");
+        } catch (Exception e) {
+            plugin.getLogger().severe("[CRITICAL] EventManager initialization failed: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
     
     /**
      * Регистрация кода игрока в системе событий
      */
     public void registerPlayerScript(Player player, CodeScript script) {
+        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
         UUID playerId = player.getUniqueId();
+        
+        if (debugMode) plugin.getLogger().info("[DEBUG] Registering script for player: " + player.getName());
         
         // Удаляем старые обработчики
         unregisterPlayerScript(playerId);
         
         // Кэшируем код
         playerScripts.put(playerId, script);
+        if (debugMode) plugin.getLogger().info("[DEBUG] Script cached for player: " + player.getName());
         
         // Регистрируем новые обработчики
+        if (debugMode) plugin.getLogger().info("[DEBUG] Registering event handlers for script...");
         registerEventHandlers(playerId, script);
         
         plugin.getLogger().info("Зарегистрирован код игрока " + player.getName() + 

@@ -165,42 +165,71 @@ public class OpenHousing extends JavaPlugin {
      * Инициализация менеджеров
      */
     private void initializeManagers() {
-        // База данных
-        databaseManager = new DatabaseManager(this);
-        databaseManager.initialize();
+        boolean debugMode = configManager.getConfig().getBoolean("general.debug", false);
         
-        // Экономический менеджер
-        economyManager = new ru.openhousing.economy.EconomyManager(this);
-        
-        // WorldGuard интеграция
-        worldGuardIntegration = new ru.openhousing.integrations.WorldGuardIntegration(this);
-        
-        // Менеджер телепортации
-        teleportationManager = new ru.openhousing.teleportation.TeleportationManager(this);
-        
-        // Менеджер уведомлений
-        notificationManager = new ru.openhousing.notifications.NotificationManager(this);
-        
-        // Звуковые эффекты
-        soundEffects = new ru.openhousing.utils.SoundEffects(this);
-        
-        // Менеджер домов
-        housingManager = new HousingManager(this);
-        housingManager.initialize();
-        
-        // Менеджер кода
-        codeManager = new CodeManager(this);
-        codeManager.initialize();
-        // Автосохранение кода каждые 5 минут (асинхронно)
-        getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
-            try {
-                codeManager.saveAllCodes();
-            } catch (Exception ignored) {}
-        }, 20L * 60 * 5, 20L * 60 * 5);
-        
-
-        
-        getLogger().info("All managers initialized successfully!");
+        try {
+            // База данных
+            if (debugMode) getLogger().info("[DEBUG] Initializing DatabaseManager...");
+            databaseManager = new DatabaseManager(this);
+            databaseManager.initialize();
+            if (debugMode) getLogger().info("[DEBUG] DatabaseManager initialized successfully");
+            
+            // Экономический менеджер
+            if (debugMode) getLogger().info("[DEBUG] Initializing EconomyManager...");
+            economyManager = new ru.openhousing.economy.EconomyManager(this);
+            if (debugMode) getLogger().info("[DEBUG] EconomyManager initialized successfully");
+            
+            // WorldGuard интеграция
+            if (debugMode) getLogger().info("[DEBUG] Initializing WorldGuardIntegration...");
+            worldGuardIntegration = new ru.openhousing.integrations.WorldGuardIntegration(this);
+            if (debugMode) getLogger().info("[DEBUG] WorldGuardIntegration initialized successfully");
+            
+            // Менеджер телепортации
+            if (debugMode) getLogger().info("[DEBUG] Initializing TeleportationManager...");
+            teleportationManager = new ru.openhousing.teleportation.TeleportationManager(this);
+            if (debugMode) getLogger().info("[DEBUG] TeleportationManager initialized successfully");
+            
+            // Менеджер уведомлений
+            if (debugMode) getLogger().info("[DEBUG] Initializing NotificationManager...");
+            notificationManager = new ru.openhousing.notifications.NotificationManager(this);
+            if (debugMode) getLogger().info("[DEBUG] NotificationManager initialized successfully");
+            
+            // Звуковые эффекты
+            if (debugMode) getLogger().info("[DEBUG] Initializing SoundEffects...");
+            soundEffects = new ru.openhousing.utils.SoundEffects(this);
+            if (debugMode) getLogger().info("[DEBUG] SoundEffects initialized successfully");
+            
+            // Менеджер домов
+            if (debugMode) getLogger().info("[DEBUG] Initializing HousingManager...");
+            housingManager = new HousingManager(this);
+            housingManager.initialize();
+            if (debugMode) getLogger().info("[DEBUG] HousingManager initialized successfully");
+            
+            // Менеджер кода
+            if (debugMode) getLogger().info("[DEBUG] Initializing CodeManager...");
+            codeManager = new CodeManager(this);
+            codeManager.initialize();
+            if (debugMode) getLogger().info("[DEBUG] CodeManager initialized successfully");
+            
+            // Автосохранение кода каждые 5 минут (асинхронно)
+            getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
+                try {
+                    if (debugMode) getLogger().info("[DEBUG] Auto-saving all codes...");
+                    codeManager.saveAllCodes();
+                    if (debugMode) getLogger().info("[DEBUG] Auto-save completed");
+                } catch (Exception e) {
+                    getLogger().severe("[ERROR] Auto-save failed: " + e.getMessage());
+                    if (debugMode) e.printStackTrace();
+                }
+            }, 20L * 60 * 5, 20L * 60 * 5);
+            
+            getLogger().info("All managers initialized successfully!");
+            
+        } catch (Exception e) {
+            getLogger().severe("[CRITICAL] Failed to initialize managers: " + e.getMessage());
+            e.printStackTrace();
+            getServer().getPluginManager().disablePlugin(this);
+        }
     }
     
     /**

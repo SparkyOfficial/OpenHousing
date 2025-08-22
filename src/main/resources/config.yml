@@ -10,7 +10,7 @@ general:
   language: "ru"
   
   # Отладочный режим
-  debug: false
+  debug: true
   
   # Автосохранение данных (в минутах)
   auto-save-interval: 10

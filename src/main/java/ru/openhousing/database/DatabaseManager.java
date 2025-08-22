@@ -30,30 +30,47 @@ public class DatabaseManager {
      * Инициализация базы данных
      */
     public void initialize() {
-        FileConfiguration config = plugin.getConfigManager().getMainConfig();
-        String dbType = config.getString("database.type", "h2");
+        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
         
-        HikariConfig hikariConfig = new HikariConfig();
-        
-        if ("mysql".equalsIgnoreCase(dbType)) {
-            setupMySQL(hikariConfig, config);
-        } else {
-            setupH2(hikariConfig, config);
+        try {
+            if (debugMode) plugin.getLogger().info("[DEBUG] Initializing database...");
+            
+            FileConfiguration config = plugin.getConfigManager().getMainConfig();
+            String dbType = config.getString("database.type", "h2");
+            
+            if (debugMode) plugin.getLogger().info("[DEBUG] Database type: " + dbType);
+            
+            HikariConfig hikariConfig = new HikariConfig();
+            
+            if ("mysql".equalsIgnoreCase(dbType)) {
+                if (debugMode) plugin.getLogger().info("[DEBUG] Setting up MySQL connection...");
+                setupMySQL(hikariConfig, config);
+            } else {
+                if (debugMode) plugin.getLogger().info("[DEBUG] Setting up H2 connection...");
+                setupH2(hikariConfig, config);
+            }
+            
+            // Настройки пула соединений
+            hikariConfig.setMaximumPoolSize(config.getInt("database.pool.maximum-pool-size", 10));
+            hikariConfig.setMinimumIdle(config.getInt("database.pool.minimum-idle", 2));
+            hikariConfig.setConnectionTimeout(config.getLong("database.pool.connection-timeout", 30000));
+            hikariConfig.setIdleTimeout(config.getLong("database.pool.idle-timeout", 600000));
+            hikariConfig.setMaxLifetime(config.getLong("database.pool.max-lifetime", 1800000));
+            
+            if (debugMode) plugin.getLogger().info("[DEBUG] Creating HikariDataSource...");
+            dataSource = new HikariDataSource(hikariConfig);
+            
+            // Создание таблиц
+            if (debugMode) plugin.getLogger().info("[DEBUG] Creating database tables...");
+            createTables();
+            if (debugMode) plugin.getLogger().info("[DEBUG] Database tables created successfully");
+            
+            plugin.getLogger().info("Database initialized successfully!");
+        } catch (Exception e) {
+            plugin.getLogger().severe("[CRITICAL] Database initialization failed: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Database initialization failed", e);
         }
-        
-        // Настройки пула соединений
-        hikariConfig.setMaximumPoolSize(config.getInt("database.pool.maximum-pool-size", 10));
-        hikariConfig.setMinimumIdle(config.getInt("database.pool.minimum-idle", 2));
-        hikariConfig.setConnectionTimeout(config.getLong("database.pool.connection-timeout", 30000));
-        hikariConfig.setIdleTimeout(config.getLong("database.pool.idle-timeout", 600000));
-        hikariConfig.setMaxLifetime(config.getLong("database.pool.max-lifetime", 1800000));
-        
-        dataSource = new HikariDataSource(hikariConfig);
-        
-        // Создание таблиц
-        createTables();
-        
-        plugin.getLogger().info("Database initialized successfully!");
     }
     
     /**

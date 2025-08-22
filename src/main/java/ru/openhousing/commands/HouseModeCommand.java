@@ -61,18 +61,28 @@ public class HouseModeCommand implements CommandExecutor {
      * Установка режима игры
      */
     private void setPlayMode(Player player, House house) {
+        boolean debugMode = plugin.getConfigManager().getConfig().getBoolean("general.debug", false);
+        
+        if (debugMode) plugin.getLogger().info("[DEBUG] Setting PLAY mode for house: " + house.getId() + ", player: " + player.getName());
+        
         house.setMode(HouseMode.PLAY);
         plugin.getDatabaseManager().saveHouse(house);
         
         // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Регистрируем код игрока в EventManager
         if (plugin.getCodeManager() != null) {
+            if (debugMode) plugin.getLogger().info("[DEBUG] Getting script for player: " + player.getName());
             ru.openhousing.coding.script.CodeScript script = plugin.getCodeManager().getScript(player);
+            
             if (script != null && !script.isEmpty()) {
+                if (debugMode) plugin.getLogger().info("[DEBUG] Registering script with EventManager for player: " + player.getName());
                 plugin.getCodeManager().getEventManager().registerPlayerScript(player, script);
                 plugin.getLogger().info("[PLAY MODE] Зарегистрирован код игрока " + player.getName() + " с " + script.getBlockCount() + " блоками");
             } else {
+                if (debugMode) plugin.getLogger().info("[DEBUG] No script found or script is empty for player: " + player.getName());
                 plugin.getLogger().info("[PLAY MODE] У игрока " + player.getName() + " нет кода для регистрации");
             }
+        } else {
+            plugin.getLogger().warning("[WARNING] CodeManager is null in setPlayMode!");
         }
         
         // Устанавливаем игровой режим для всех игроков в доме
