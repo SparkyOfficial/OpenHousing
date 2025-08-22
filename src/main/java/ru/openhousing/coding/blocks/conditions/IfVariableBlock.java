@@ -48,7 +48,7 @@ public class IfVariableBlock extends CodeBlock {
     }
     
     public IfVariableBlock() {
-        super(BlockType.IF_VARIABLE);
+        super(BlockType.IF_VARIABLE_EQUALS); // Используем любое условие переменной как базовое
         setParameter("conditionType", VariableConditionType.EQUALS);
         setParameter("variableName", "myVariable");
         setParameter("value", "");

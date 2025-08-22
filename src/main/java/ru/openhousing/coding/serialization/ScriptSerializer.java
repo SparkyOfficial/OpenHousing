@@ -243,10 +243,6 @@ public class ScriptSerializer {
                 case PLAYER_CRAFT:
                 case PLAYER_SMELT:
                 case PLAYER_TRADE:
-                case PLAYER_SNEAK:
-                case PLAYER_EVENT:
-                    return new PlayerEventBlock();
-                
                 // События мира
                 case WORLD_WEATHER_CHANGE:
                 case WORLD_TIME_CHANGE:
@@ -255,7 +251,6 @@ public class ScriptSerializer {
                 case WORLD_STRUCTURE_GROW:
                 case WORLD_EXPLOSION:
                 case WORLD_PORTAL_CREATE:
-                case WORLD_EVENT:
                     return new WorldEventBlock();
                 
                 // События существ
@@ -274,11 +269,9 @@ public class ScriptSerializer {
                 case ENTITY_SHEAR:
                 case ENTITY_MILK:
                 case ENTITY_TRANSFORM:
-                case ENTITY_EVENT:
                     return new EntityEventBlock();
             
-                // Условия
-                case IF_PLAYER:
+                // Условия игрока
                 case IF_PLAYER_ONLINE:
                 case IF_PLAYER_PERMISSION:
                 case IF_PLAYER_GAMEMODE:
@@ -287,10 +280,17 @@ public class ScriptSerializer {
                 case IF_PLAYER_SNEAKING:
                 case IF_PLAYER_BLOCKING:
                 case IF_PLAYER_ITEM:
+                case IF_PLAYER_HEALTH:
+                case IF_PLAYER_FOOD:
                     return new IfPlayerBlock();
-                case IF_ENTITY:
+                    
+                // Условия существ
+                case IF_ENTITY_EXISTS:
+                case IF_ENTITY_TYPE:
+                case IF_ENTITY_HEALTH:
                     return new IfEntityBlock();
-                case IF_VARIABLE:
+                    
+                // Условия переменных
                 case IF_VARIABLE_EQUALS:
                 case IF_VARIABLE_GREATER:
                 case IF_VARIABLE_LESS:
@@ -299,6 +299,14 @@ public class ScriptSerializer {
                 case IF_VARIABLE_SAVED:
                 case IF_VARIABLE_TYPE:
                     return new IfVariableBlock();
+                    
+                // Условия игры
+                case IF_GAME_TIME:
+                case IF_GAME_WEATHER:
+                case IF_GAME_DIFFICULTY:
+                case IF_GAME_PLAYERS_ONLINE:
+                case IF_GAME_TPS:
+                    return new IfPlayerBlock(); // Временно используем IfPlayerBlock
             
                 // Действия игрока
                 case PLAYER_SEND_MESSAGE:
@@ -319,14 +327,11 @@ public class ScriptSerializer {
                 case PLAYER_SET_GAMEMODE:
                 case PLAYER_KICK:
                 case PLAYER_BAN:
-                case PLAYER_OP:
-                case PLAYER_DEOP:
                 case PLAYER_WHITELIST_ADD:
                 case PLAYER_WHITELIST_REMOVE:
                 case PLAYER_SET_DISPLAY_NAME:
                 case PLAYER_RESET_DISPLAY_NAME:
                 case PLAYER_SEND_PLUGIN_MESSAGE:
-                case PLAYER_ACTION:
                     return new PlayerActionBlock();
                 
                 // Действия переменных
@@ -368,11 +373,7 @@ public class ScriptSerializer {
                 case GAME_SET_BLOCK:
                 case GAME_BREAK_BLOCK:
                 case GAME_SEND_PACKET:
-                case WORLD_ACTION:
                     return new WorldActionBlock();
-                
-                case ENTITY_ACTION:
-                    return new EntityActionBlock();
             
                 // Функции
                 case FUNCTION:
@@ -411,47 +412,157 @@ public class ScriptSerializer {
                 String stringValue = value.getAsString();
                 
                 switch (blockType) {
-                    case PLAYER_ACTION:
+                    // Обработка действий игрока
+                    case PLAYER_SEND_MESSAGE:
+                    case PLAYER_SEND_TITLE:
+                    case PLAYER_SEND_ACTIONBAR:
+                    case PLAYER_TELEPORT_ACTION:
+                    case PLAYER_GIVE_ITEM:
+                    case PLAYER_REMOVE_ITEM:
+                    case PLAYER_CLEAR_INVENTORY:
+                    case PLAYER_SET_HEALTH:
+                    case PLAYER_SET_FOOD:
+                    case PLAYER_SET_EXP:
+                    case PLAYER_GIVE_EFFECT:
+                    case PLAYER_REMOVE_EFFECT:
+                    case PLAYER_PLAY_SOUND:
+                    case PLAYER_STOP_SOUND:
+                    case PLAYER_SPAWN_PARTICLE:
+                    case PLAYER_SET_GAMEMODE:
+                    case PLAYER_KICK:
+                    case PLAYER_BAN:
+                    case PLAYER_WHITELIST_ADD:
+                    case PLAYER_WHITELIST_REMOVE:
+                    case PLAYER_SET_DISPLAY_NAME:
+                    case PLAYER_RESET_DISPLAY_NAME:
+                    case PLAYER_SEND_PLUGIN_MESSAGE:
                         if (key.equals("actionType")) {
                             return ru.openhousing.coding.blocks.actions.PlayerActionBlock.PlayerActionType.valueOf(stringValue);
                         }
                         break;
-                    case ENTITY_ACTION:
-                        if (key.equals("actionType")) {
-                            return ru.openhousing.coding.blocks.actions.EntityActionBlock.EntityActionType.valueOf(stringValue);
-                        }
-                        break;
-                    case WORLD_ACTION:
+                        
+                    // Обработка действий мира
+                    case GAME_SET_TIME:
+                    case GAME_SET_WEATHER:
+                    case GAME_SET_DIFFICULTY:
+                    case GAME_BROADCAST:
+                    case GAME_EXECUTE_COMMAND:
+                    case GAME_STOP_SERVER:
+                    case GAME_RESTART_SERVER:
+                    case GAME_SAVE_WORLD:
+                    case GAME_LOAD_WORLD:
+                    case GAME_CREATE_EXPLOSION:
+                    case GAME_SPAWN_ENTITY:
+                    case GAME_REMOVE_ENTITY:
+                    case GAME_SET_BLOCK:
+                    case GAME_BREAK_BLOCK:
+                    case GAME_SEND_PACKET:
                         if (key.equals("actionType")) {
                             return ru.openhousing.coding.blocks.actions.WorldActionBlock.WorldActionType.valueOf(stringValue);
                         }
                         break;
-                    case PLAYER_EVENT:
+                        
+                    // Обработка событий игрока
+                    case PLAYER_JOIN:
+                    case PLAYER_QUIT:
+                    case PLAYER_CHAT:
+                    case PLAYER_COMMAND:
+                    case PLAYER_MOVE:
+                    case PLAYER_TELEPORT:
+                    case PLAYER_DEATH:
+                    case PLAYER_RESPAWN:
+                    case PLAYER_DAMAGE:
+                    case PLAYER_HEAL:
+                    case PLAYER_FOOD_CHANGE:
+                    case PLAYER_EXP_CHANGE:
+                    case PLAYER_LEVEL_UP:
+                    case PLAYER_INVENTORY_CLICK:
+                    case PLAYER_ITEM_DROP:
+                    case PLAYER_ITEM_PICKUP:
+                    case PLAYER_ITEM_CONSUME:
+                    case PLAYER_ITEM_BREAK:
+                    case PLAYER_BLOCK_BREAK:
+                    case PLAYER_BLOCK_PLACE:
+                    case PLAYER_INTERACT:
+                    case PLAYER_INTERACT_ENTITY:
+                    case PLAYER_FISH:
+                    case PLAYER_ENCHANT:
+                    case PLAYER_CRAFT:
+                    case PLAYER_SMELT:
+                    case PLAYER_TRADE:
+                    case PLAYER_SNEAK:
                         if (key.equals("eventType")) {
                             return ru.openhousing.coding.blocks.events.PlayerEventBlock.PlayerEventType.valueOf(stringValue);
                         }
                         break;
-                    case ENTITY_EVENT:
+                        
+                    // Обработка событий существ
+                    case ENTITY_SPAWN:
+                    case ENTITY_DEATH:
+                    case ENTITY_DAMAGE:
+                    case ENTITY_TARGET:
+                    case ENTITY_TAME:
+                    case ENTITY_BREED:
+                    case ENTITY_EXPLODE:
+                    case ENTITY_INTERACT:
+                    case ENTITY_MOUNT:
+                    case ENTITY_DISMOUNT:
+                    case ENTITY_LEASH:
+                    case ENTITY_UNLEASH:
+                    case ENTITY_SHEAR:
+                    case ENTITY_MILK:
+                    case ENTITY_TRANSFORM:
                         if (key.equals("eventType")) {
                             return ru.openhousing.coding.blocks.events.EntityEventBlock.EntityEventType.valueOf(stringValue);
                         }
                         break;
-                    case WORLD_EVENT:
+                        
+                    // Обработка событий мира
+                    case WORLD_WEATHER_CHANGE:
+                    case WORLD_TIME_CHANGE:
+                    case WORLD_CHUNK_LOAD:
+                    case WORLD_CHUNK_UNLOAD:
+                    case WORLD_STRUCTURE_GROW:
+                    case WORLD_EXPLOSION:
+                    case WORLD_PORTAL_CREATE:
                         if (key.equals("eventType")) {
                             return ru.openhousing.coding.blocks.events.WorldEventBlock.WorldEventType.valueOf(stringValue);
                         }
                         break;
-                    case IF_PLAYER:
+                        
+                    // Обработка условий игрока
+                    case IF_PLAYER_ONLINE:
+                    case IF_PLAYER_PERMISSION:
+                    case IF_PLAYER_GAMEMODE:
+                    case IF_PLAYER_WORLD:
+                    case IF_PLAYER_FLYING:
+                    case IF_PLAYER_SNEAKING:
+                    case IF_PLAYER_BLOCKING:
+                    case IF_PLAYER_ITEM:
+                    case IF_PLAYER_HEALTH:
+                    case IF_PLAYER_FOOD:
                         if (key.equals("conditionType")) {
                             return ru.openhousing.coding.blocks.conditions.IfPlayerBlock.PlayerConditionType.valueOf(stringValue);
                         }
                         break;
-                    case IF_ENTITY:
+                        
+                    // Обработка условий существ
+                    case IF_ENTITY_EXISTS:
+                    case IF_ENTITY_TYPE:
+                    case IF_ENTITY_HEALTH:
                         if (key.equals("conditionType")) {
                             return ru.openhousing.coding.blocks.conditions.IfEntityBlock.EntityConditionType.valueOf(stringValue);
                         }
                         break;
-                    case IF_VARIABLE:
+                        
+                    // Обработка условий переменных
+                    case IF_VARIABLE_EQUALS:
+                    case IF_VARIABLE_GREATER:
+                    case IF_VARIABLE_LESS:
+                    case IF_VARIABLE_CONTAINS:
+                    case IF_VARIABLE_EXISTS:
+                    case IF_VARIABLE_SAVED:
+                    case IF_VARIABLE_TYPE:
                         if (key.equals("conditionType")) {
                             return ru.openhousing.coding.blocks.conditions.IfVariableBlock.VariableConditionType.valueOf(stringValue);
                         }
@@ -476,7 +587,27 @@ public class ScriptSerializer {
                             return ru.openhousing.coding.blocks.control.TargetBlock.TargetType.valueOf(stringValue);
                         }
                         break;
-                    case VARIABLE_ACTION:
+                    // Обработка действий переменных
+                    case VAR_SET:
+                    case VAR_ADD:
+                    case VAR_SUBTRACT:
+                    case VAR_MULTIPLY:
+                    case VAR_DIVIDE:
+                    case VAR_APPEND_TEXT:
+                    case VAR_REPLACE_TEXT:
+                    case VAR_UPPERCASE:
+                    case VAR_LOWERCASE:
+                    case VAR_REVERSE:
+                    case VAR_LENGTH:
+                    case VAR_SUBSTRING:
+                    case VAR_RANDOM_NUMBER:
+                    case VAR_ROUND:
+                    case VAR_ABS:
+                    case VAR_MIN:
+                    case VAR_MAX:
+                    case VAR_SAVE:
+                    case VAR_DELETE:
+                    case VAR_COPY:
                         if (key.equals("actionType")) {
                             return ru.openhousing.coding.blocks.variables.VariableActionBlock.VariableActionType.valueOf(stringValue);
                         }

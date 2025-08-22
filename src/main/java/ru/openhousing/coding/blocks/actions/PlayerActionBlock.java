@@ -74,7 +74,7 @@ public class PlayerActionBlock extends CodeBlock {
     }
     
     public PlayerActionBlock() {
-        super(BlockType.PLAYER_ACTION);
+        super(BlockType.PLAYER_SEND_MESSAGE); // Используем любое действие игрока как базовое
         setParameter("actionType", PlayerActionType.SEND_MESSAGE);
         setParameter("value", "");
         setParameter("extra1", "");

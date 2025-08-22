@@ -64,7 +64,7 @@ public class PlayerEventBlock extends CodeBlock {
     }
     
     public PlayerEventBlock() {
-        super(BlockType.PLAYER_EVENT);
+        super(BlockType.PLAYER_JOIN); // Используем любое событие игрока как базовое
         setParameter("eventType", PlayerEventType.JOIN);
         setParameter("conditions", ""); // Дополнительные условия
     }

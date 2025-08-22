@@ -46,7 +46,7 @@ public class VariableActionBlock extends CodeBlock {
     }
     
     public VariableActionBlock() {
-        super(BlockType.VARIABLE_ACTION);
+        super(BlockType.VAR_SET); // Используем любое действие переменной как базовое
         setParameter("actionType", VariableActionType.SET);
         setParameter("variableName", "myVariable");
         setParameter("value", "");

@@ -172,9 +172,9 @@ public class CodeLine {
      * Проверяет, является ли блок условным
      */
     private boolean isConditionalBlock(ru.openhousing.coding.blocks.BlockType blockType) {
-        return blockType == ru.openhousing.coding.blocks.BlockType.IF_PLAYER ||
-               blockType == ru.openhousing.coding.blocks.BlockType.IF_ENTITY ||
-               blockType == ru.openhousing.coding.blocks.BlockType.IF_VARIABLE ||
+        return blockType.name().startsWith("IF_PLAYER") ||
+               blockType.name().startsWith("IF_ENTITY") ||
+               blockType.name().startsWith("IF_VARIABLE") ||
                blockType == ru.openhousing.coding.blocks.BlockType.ITEM_CHECK;
     }
     

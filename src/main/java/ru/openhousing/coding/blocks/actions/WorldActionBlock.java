@@ -110,7 +110,7 @@ public class WorldActionBlock extends CodeBlock {
     }
     
     public WorldActionBlock() {
-        super(BlockType.WORLD_ACTION);
+        super(BlockType.GAME_SET_TIME); // Используем любое действие мира как базовое
         setParameter("actionType", WorldActionType.SET_BLOCK);
         setParameter("value", "");
         setParameter("location", "");

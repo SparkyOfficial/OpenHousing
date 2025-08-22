@@ -239,20 +239,72 @@ public class CodeEditorGUI implements InventoryHolder {
         int slot = 10;
         
         for (BlockType.BlockCategory category : BlockType.BlockCategory.values()) {
-            inventory.setItem(slot, new ItemBuilder(category.getMaterial())
-                .name("§6" + category.getDisplayName())
-                .lore(Arrays.asList(
-                    "§7" + category.getDescription(),
-                    "",
-                    "§eНажмите, чтобы просмотреть блоки"
-                ))
-                .build());
-            
-            slot += 2;
-            if (slot > 16) {
-                slot = 19;
+            // Для условий создаем подкатегории
+            if (category == BlockType.BlockCategory.CONDITION) {
+                // Условия игрока
+                inventory.setItem(slot, new ItemBuilder(Material.PLAYER_HEAD)
+                    .name("§6Условия игрока")
+                    .lore(Arrays.asList(
+                        "§7Проверки связанные с игроком",
+                        "",
+                        "§eНажмите, чтобы просмотреть блоки"
+                    ))
+                    .build());
+                slot += 2;
+                
+                // Условия переменных
+                inventory.setItem(slot, new ItemBuilder(Material.REDSTONE)
+                    .name("§6Условия переменных")
+                    .lore(Arrays.asList(
+                        "§7Проверки переменных и их значений",
+                        "",
+                        "§eНажмите, чтобы просмотреть блоки"
+                    ))
+                    .build());
+                slot += 2;
+                
+                // Условия игры
+                inventory.setItem(slot, new ItemBuilder(Material.GRASS_BLOCK)
+                    .name("§6Условия игры")
+                    .lore(Arrays.asList(
+                        "§7Проверки состояния игры и мира",
+                        "",
+                        "§eНажмите, чтобы просмотреть блоки"
+                    ))
+                    .build());
+                slot += 2;
+                
+                // Условия существ
+                inventory.setItem(slot, new ItemBuilder(Material.ZOMBIE_HEAD)
+                    .name("§6Условия существ")
+                    .lore(Arrays.asList(
+                        "§7Проверки существ и их состояния",
+                        "",
+                        "§eНажмите, чтобы просмотреть блоки"
+                    ))
+                    .build());
+                slot += 2;
+                
+                if (slot > 16) {
+                    slot = 19;
+                }
+                if (slot > 25) break;
+            } else {
+                inventory.setItem(slot, new ItemBuilder(category.getMaterial())
+                    .name("§6" + category.getDisplayName())
+                    .lore(Arrays.asList(
+                        "§7" + category.getDescription(),
+                        "",
+                        "§eНажмите, чтобы просмотреть блоки"
+                    ))
+                    .build());
+                
+                slot += 2;
+                if (slot > 16) {
+                    slot = 19;
+                }
+                if (slot > 25) break;
             }
-            if (slot > 25) break;
         }
     }
     
@@ -265,7 +317,20 @@ public class CodeEditorGUI implements InventoryHolder {
         List<BlockType> blocksInCategory = new ArrayList<>();
         for (BlockType blockType : BlockType.values()) {
             if (blockType.getCategory() == selectedCategory) {
-                blocksInCategory.add(blockType);
+                // Применяем фильтр для условий
+                if (selectedCategory == BlockType.BlockCategory.CONDITION && conditionFilter != null) {
+                    if (conditionFilter.equals("player") && blockType.name().startsWith("IF_PLAYER")) {
+                        blocksInCategory.add(blockType);
+                    } else if (conditionFilter.equals("variable") && blockType.name().startsWith("IF_VARIABLE")) {
+                        blocksInCategory.add(blockType);
+                    } else if (conditionFilter.equals("game") && blockType.name().startsWith("IF_GAME")) {
+                        blocksInCategory.add(blockType);
+                    } else if (conditionFilter.equals("entity") && blockType.name().startsWith("IF_ENTITY")) {
+                        blocksInCategory.add(blockType);
+                    }
+                } else {
+                    blocksInCategory.add(blockType);
+                }
             }
         }
         
@@ -581,15 +646,55 @@ public class CodeEditorGUI implements InventoryHolder {
     }
     
     private void handleCategoriesClick(int slot) {
-        BlockType.BlockCategory[] categories = BlockType.BlockCategory.values();
-        int categoryIndex = getCategoryIndexFromSlot(slot);
-        
-        if (categoryIndex >= 0 && categoryIndex < categories.length) {
-            selectedCategory = categories[categoryIndex];
+        // Определяем, какая категория была выбрана
+        if (slot == 10) { // Условия игрока
+            selectedCategory = BlockType.BlockCategory.CONDITION;
+            // Устанавливаем фильтр для условий игрока
+            setConditionFilter("player");
             mode = EditorMode.BLOCKS;
             page = 0;
             updateInventory();
+        } else if (slot == 12) { // Условия переменных
+            selectedCategory = BlockType.BlockCategory.CONDITION;
+            setConditionFilter("variable");
+            mode = EditorMode.BLOCKS;
+            page = 0;
+            updateInventory();
+        } else if (slot == 14) { // Условия игры
+            selectedCategory = BlockType.BlockCategory.CONDITION;
+            setConditionFilter("game");
+            mode = EditorMode.BLOCKS;
+            page = 0;
+            updateInventory();
+        } else if (slot == 16) { // Условия существ
+            selectedCategory = BlockType.BlockCategory.CONDITION;
+            setConditionFilter("entity");
+            mode = EditorMode.BLOCKS;
+            page = 0;
+            updateInventory();
+        } else {
+            // Обычные категории
+            BlockType.BlockCategory[] categories = BlockType.BlockCategory.values();
+            int categoryIndex = getCategoryIndexFromSlot(slot);
+            
+            if (categoryIndex >= 0 && categoryIndex < categories.length) {
+                selectedCategory = categories[categoryIndex];
+                clearConditionFilter();
+                mode = EditorMode.BLOCKS;
+                page = 0;
+                updateInventory();
+            }
         }
+    }
+    
+    private String conditionFilter = null;
+    
+    private void setConditionFilter(String filter) {
+        this.conditionFilter = filter;
+    }
+    
+    private void clearConditionFilter() {
+        this.conditionFilter = null;
     }
     
     private void handleBlocksClick(int slot, boolean isRightClick) {
@@ -599,7 +704,20 @@ public class CodeEditorGUI implements InventoryHolder {
             List<BlockType> blocksInCategory = new ArrayList<>();
             for (BlockType blockType : BlockType.values()) {
                 if (blockType.getCategory() == selectedCategory) {
-                    blocksInCategory.add(blockType);
+                    // Применяем фильтр для условий
+                    if (selectedCategory == BlockType.BlockCategory.CONDITION && conditionFilter != null) {
+                        if (conditionFilter.equals("player") && blockType.name().startsWith("IF_PLAYER")) {
+                            blocksInCategory.add(blockType);
+                        } else if (conditionFilter.equals("variable") && blockType.name().startsWith("IF_VARIABLE")) {
+                            blocksInCategory.add(blockType);
+                        } else if (conditionFilter.equals("game") && blockType.name().startsWith("IF_GAME")) {
+                            blocksInCategory.add(blockType);
+                        } else if (conditionFilter.equals("entity") && blockType.name().startsWith("IF_ENTITY")) {
+                            blocksInCategory.add(blockType);
+                        }
+                    } else {
+                        blocksInCategory.add(blockType);
+                    }
                 }
             }
             
@@ -907,9 +1025,6 @@ public class CodeEditorGUI implements InventoryHolder {
                 case PLAYER_SMELT:
                 case PLAYER_TRADE:
                 case PLAYER_SNEAK:
-            case PLAYER_EVENT:
-                return new ru.openhousing.coding.blocks.events.PlayerEventBlock();
-                
                 // События мира
                 case WORLD_WEATHER_CHANGE:
                 case WORLD_TIME_CHANGE:
@@ -918,7 +1033,6 @@ public class CodeEditorGUI implements InventoryHolder {
                 case WORLD_STRUCTURE_GROW:
                 case WORLD_EXPLOSION:
                 case WORLD_PORTAL_CREATE:
-            case WORLD_EVENT:
                 return new ru.openhousing.coding.blocks.events.WorldEventBlock();
                 
                 // События существ
@@ -937,31 +1051,44 @@ public class CodeEditorGUI implements InventoryHolder {
                 case ENTITY_SHEAR:
                 case ENTITY_MILK:
                 case ENTITY_TRANSFORM:
-                case ENTITY_EVENT:
                     return new ru.openhousing.coding.blocks.events.EntityEventBlock();
             
-            // Условия
-            case IF_PLAYER:
-                case IF_PLAYER_ONLINE:
-                case IF_PLAYER_PERMISSION:
-                case IF_PLAYER_GAMEMODE:
-                case IF_PLAYER_WORLD:
-                case IF_PLAYER_FLYING:
-                case IF_PLAYER_SNEAKING:
-                case IF_PLAYER_BLOCKING:
-                case IF_PLAYER_ITEM:
+            // Условия игрока
+            case IF_PLAYER_ONLINE:
+            case IF_PLAYER_PERMISSION:
+            case IF_PLAYER_GAMEMODE:
+            case IF_PLAYER_WORLD:
+            case IF_PLAYER_FLYING:
+            case IF_PLAYER_SNEAKING:
+            case IF_PLAYER_BLOCKING:
+            case IF_PLAYER_ITEM:
+            case IF_PLAYER_HEALTH:
+            case IF_PLAYER_FOOD:
                 return new ru.openhousing.coding.blocks.conditions.IfPlayerBlock();
-            case IF_ENTITY:
+                
+            // Условия существ
+            case IF_ENTITY_EXISTS:
+            case IF_ENTITY_TYPE:
+            case IF_ENTITY_HEALTH:
                 return new ru.openhousing.coding.blocks.conditions.IfEntityBlock();
-            case IF_VARIABLE:
-                case IF_VARIABLE_EQUALS:
-                case IF_VARIABLE_GREATER:
-                case IF_VARIABLE_LESS:
-                case IF_VARIABLE_CONTAINS:
-                case IF_VARIABLE_EXISTS:
-                case IF_VARIABLE_SAVED:
-                case IF_VARIABLE_TYPE:
+                
+            // Условия переменных
+            case IF_VARIABLE_EQUALS:
+            case IF_VARIABLE_GREATER:
+            case IF_VARIABLE_LESS:
+            case IF_VARIABLE_CONTAINS:
+            case IF_VARIABLE_EXISTS:
+            case IF_VARIABLE_SAVED:
+            case IF_VARIABLE_TYPE:
                 return new ru.openhousing.coding.blocks.conditions.IfVariableBlock();
+                
+            // Условия игры
+            case IF_GAME_TIME:
+            case IF_GAME_WEATHER:
+            case IF_GAME_DIFFICULTY:
+            case IF_GAME_PLAYERS_ONLINE:
+            case IF_GAME_TPS:
+                return new ru.openhousing.coding.blocks.conditions.IfPlayerBlock(); // Временно используем IfPlayerBlock
             
                 // Действия игрока
                 case PLAYER_SEND_MESSAGE:
@@ -982,14 +1109,11 @@ public class CodeEditorGUI implements InventoryHolder {
                 case PLAYER_SET_GAMEMODE:
                 case PLAYER_KICK:
                 case PLAYER_BAN:
-                case PLAYER_OP:
-                case PLAYER_DEOP:
                 case PLAYER_WHITELIST_ADD:
                 case PLAYER_WHITELIST_REMOVE:
                 case PLAYER_SET_DISPLAY_NAME:
                 case PLAYER_RESET_DISPLAY_NAME:
                 case PLAYER_SEND_PLUGIN_MESSAGE:
-            case PLAYER_ACTION:
                 return new ru.openhousing.coding.blocks.actions.PlayerActionBlock();
                 
                 // Действия переменных
@@ -1031,11 +1155,7 @@ public class CodeEditorGUI implements InventoryHolder {
                 case GAME_SET_BLOCK:
                 case GAME_BREAK_BLOCK:
                 case GAME_SEND_PACKET:
-            case WORLD_ACTION:
                 return new ru.openhousing.coding.blocks.actions.WorldActionBlock();
-                
-                case ENTITY_ACTION:
-                    return new ru.openhousing.coding.blocks.actions.EntityActionBlock();
             
             // Функции
             case FUNCTION:

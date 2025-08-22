@@ -386,61 +386,70 @@ public class LineSelectorGUI implements Listener {
                 case PLAYER_SMELT:
                 case PLAYER_TRADE:
                 case PLAYER_SNEAK:
-                case PLAYER_EVENT:
-                    return new ru.openhousing.coding.blocks.events.PlayerEventBlock();
+                            // События мира
+            case WORLD_WEATHER_CHANGE:
+            case WORLD_TIME_CHANGE:
+            case WORLD_CHUNK_LOAD:
+            case WORLD_CHUNK_UNLOAD:
+            case WORLD_STRUCTURE_GROW:
+            case WORLD_EXPLOSION:
+            case WORLD_PORTAL_CREATE:
+                return new ru.openhousing.coding.blocks.events.WorldEventBlock();
                 
-                // События мира
-                case WORLD_WEATHER_CHANGE:
-                case WORLD_TIME_CHANGE:
-                case WORLD_CHUNK_LOAD:
-                case WORLD_CHUNK_UNLOAD:
-                case WORLD_STRUCTURE_GROW:
-                case WORLD_EXPLOSION:
-                case WORLD_PORTAL_CREATE:
-                case WORLD_EVENT:
-                    return new ru.openhousing.coding.blocks.events.WorldEventBlock();
-                
-                // События существ
-                case ENTITY_SPAWN:
-                case ENTITY_DEATH:
-                case ENTITY_DAMAGE:
-                case ENTITY_TARGET:
-                case ENTITY_TAME:
-                case ENTITY_BREED:
-                case ENTITY_EXPLODE:
-                case ENTITY_INTERACT:
-                case ENTITY_MOUNT:
-                case ENTITY_DISMOUNT:
-                case ENTITY_LEASH:
-                case ENTITY_UNLEASH:
-                case ENTITY_SHEAR:
-                case ENTITY_MILK:
-                case ENTITY_TRANSFORM:
-                case ENTITY_EVENT:
-                    return new ru.openhousing.coding.blocks.events.EntityEventBlock();
+            // События существ
+            case ENTITY_SPAWN:
+            case ENTITY_DEATH:
+            case ENTITY_DAMAGE:
+            case ENTITY_TARGET:
+            case ENTITY_TAME:
+            case ENTITY_BREED:
+            case ENTITY_EXPLODE:
+            case ENTITY_INTERACT:
+            case ENTITY_MOUNT:
+            case ENTITY_DISMOUNT:
+            case ENTITY_LEASH:
+            case ENTITY_UNLEASH:
+            case ENTITY_SHEAR:
+            case ENTITY_MILK:
+            case ENTITY_TRANSFORM:
+                return new ru.openhousing.coding.blocks.events.EntityEventBlock();
             
-                // Условия
-                case IF_PLAYER:
-                case IF_PLAYER_ONLINE:
-                case IF_PLAYER_PERMISSION:
-                case IF_PLAYER_GAMEMODE:
-                case IF_PLAYER_WORLD:
-                case IF_PLAYER_FLYING:
-                case IF_PLAYER_SNEAKING:
-                case IF_PLAYER_BLOCKING:
-                case IF_PLAYER_ITEM:
-                    return new ru.openhousing.coding.blocks.conditions.IfPlayerBlock();
-                case IF_ENTITY:
-                    return new ru.openhousing.coding.blocks.conditions.IfEntityBlock();
-                case IF_VARIABLE:
-                case IF_VARIABLE_EQUALS:
-                case IF_VARIABLE_GREATER:
-                case IF_VARIABLE_LESS:
-                case IF_VARIABLE_CONTAINS:
-                case IF_VARIABLE_EXISTS:
-                case IF_VARIABLE_SAVED:
-                case IF_VARIABLE_TYPE:
-                    return new ru.openhousing.coding.blocks.conditions.IfVariableBlock();
+            // Условия игрока
+            case IF_PLAYER_ONLINE:
+            case IF_PLAYER_PERMISSION:
+            case IF_PLAYER_GAMEMODE:
+            case IF_PLAYER_WORLD:
+            case IF_PLAYER_FLYING:
+            case IF_PLAYER_SNEAKING:
+            case IF_PLAYER_BLOCKING:
+            case IF_PLAYER_ITEM:
+            case IF_PLAYER_HEALTH:
+            case IF_PLAYER_FOOD:
+                return new ru.openhousing.coding.blocks.conditions.IfPlayerBlock();
+                
+            // Условия существ
+            case IF_ENTITY_EXISTS:
+            case IF_ENTITY_TYPE:
+            case IF_ENTITY_HEALTH:
+                return new ru.openhousing.coding.blocks.conditions.IfEntityBlock();
+                
+            // Условия переменных
+            case IF_VARIABLE_EQUALS:
+            case IF_VARIABLE_GREATER:
+            case IF_VARIABLE_LESS:
+            case IF_VARIABLE_CONTAINS:
+            case IF_VARIABLE_EXISTS:
+            case IF_VARIABLE_SAVED:
+            case IF_VARIABLE_TYPE:
+                return new ru.openhousing.coding.blocks.conditions.IfVariableBlock();
+                
+            // Условия игры
+            case IF_GAME_TIME:
+            case IF_GAME_WEATHER:
+            case IF_GAME_DIFFICULTY:
+            case IF_GAME_PLAYERS_ONLINE:
+            case IF_GAME_TPS:
+                return new ru.openhousing.coding.blocks.conditions.IfPlayerBlock(); // Временно используем IfPlayerBlock
             
                 // Действия игрока
                 case PLAYER_SEND_MESSAGE:
@@ -459,17 +468,14 @@ public class LineSelectorGUI implements Listener {
                 case PLAYER_STOP_SOUND:
                 case PLAYER_SPAWN_PARTICLE:
                 case PLAYER_SET_GAMEMODE:
-                case PLAYER_KICK:
+                                case PLAYER_KICK:
                 case PLAYER_BAN:
-                case PLAYER_OP:
-                case PLAYER_DEOP:
                 case PLAYER_WHITELIST_ADD:
                 case PLAYER_WHITELIST_REMOVE:
                 case PLAYER_SET_DISPLAY_NAME:
                 case PLAYER_RESET_DISPLAY_NAME:
                 case PLAYER_SEND_PLUGIN_MESSAGE:
-                case PLAYER_ACTION:
-                    return new ru.openhousing.coding.blocks.actions.PlayerActionBlock();
+                return new ru.openhousing.coding.blocks.actions.PlayerActionBlock();
                 
                 // Действия переменных
                 case VAR_SET:
@@ -509,12 +515,8 @@ public class LineSelectorGUI implements Listener {
                 case GAME_REMOVE_ENTITY:
                 case GAME_SET_BLOCK:
                 case GAME_BREAK_BLOCK:
-                case GAME_SEND_PACKET:
-                case WORLD_ACTION:
-                    return new ru.openhousing.coding.blocks.actions.WorldActionBlock();
-                
-                case ENTITY_ACTION:
-                    return new ru.openhousing.coding.blocks.actions.EntityActionBlock();
+                                case GAME_SEND_PACKET:
+                return new ru.openhousing.coding.blocks.actions.WorldActionBlock();
             
                 // Функции
                 case FUNCTION:

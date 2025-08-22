@@ -105,7 +105,7 @@ public class EntityActionBlock extends CodeBlock {
     }
     
     public EntityActionBlock() {
-        super(BlockType.ENTITY_ACTION);
+        super(BlockType.GAME_SPAWN_ENTITY); // Используем любое действие существа как базовое
         setParameter("actionType", EntityActionType.SPAWN);
         setParameter("value", "");
         setParameter("extra1", "");

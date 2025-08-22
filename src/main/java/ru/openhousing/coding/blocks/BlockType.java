@@ -47,9 +47,6 @@ public enum BlockType {
     WORLD_PORTAL_CREATE("Портал создан", Material.OBSIDIAN, BlockCategory.EVENT, "Создан портал"),
     
     // События существ (15 событий)
-    WORLD_EVENT("События мира", Material.GRASS_BLOCK, BlockCategory.EVENT, "События связанные с миром"),
-    PLAYER_EVENT("События игрока", Material.PLAYER_HEAD, BlockCategory.EVENT, "События связанные с игроком"),
-    ENTITY_EVENT("События существ", Material.ZOMBIE_HEAD, BlockCategory.EVENT, "События связанные с существами"),
     ENTITY_SPAWN("Существо появилось", Material.EGG, BlockCategory.EVENT, "Существо заспавнилось"),
     ENTITY_DEATH("Существо умерло", Material.BONE, BlockCategory.EVENT, "Существо погибло"),
     ENTITY_DAMAGE("Существо получило урон", Material.IRON_SWORD, BlockCategory.EVENT, "Существо получило урон"),
@@ -66,10 +63,7 @@ public enum BlockType {
     ENTITY_MILK("Существо подоено", Material.MILK_BUCKET, BlockCategory.EVENT, "Корова подоена"),
     ENTITY_TRANSFORM("Существо трансформировалось", Material.GOLDEN_APPLE, BlockCategory.EVENT, "Существо изменило тип"),
     
-    // Условия (20 условий)
-    IF_PLAYER("Условие игрока", Material.PLAYER_HEAD, BlockCategory.CONDITION, "Условия связанные с игроком"),
-    IF_ENTITY("Условие существа", Material.ZOMBIE_HEAD, BlockCategory.CONDITION, "Условия связанные с существами"),
-    IF_VARIABLE("Условие переменной", Material.REDSTONE, BlockCategory.CONDITION, "Условия связанные с переменными"),
+    // Условия игрока (10 условий)
     IF_PLAYER_ONLINE("Игрок онлайн", Material.EMERALD, BlockCategory.CONDITION, "Проверяет, онлайн ли игрок"),
     IF_PLAYER_PERMISSION("Если есть право", Material.GOLDEN_HELMET, BlockCategory.CONDITION, "Проверяет права игрока"),
     IF_PLAYER_GAMEMODE("Если режим игры", Material.GRASS_BLOCK, BlockCategory.CONDITION, "Проверяет режим игры"),
@@ -78,6 +72,8 @@ public enum BlockType {
     IF_PLAYER_SNEAKING("Если приседает", Material.LEATHER_LEGGINGS, BlockCategory.CONDITION, "Проверяет приседает ли игрок"),
     IF_PLAYER_BLOCKING("Если блокирует", Material.SHIELD, BlockCategory.CONDITION, "Проверяет блокирует ли игрок"),
     IF_PLAYER_ITEM("Если предмет в руке", Material.DIAMOND_SWORD, BlockCategory.CONDITION, "Проверяет предмет в руке"),
+    IF_PLAYER_HEALTH("Если здоровье", Material.GOLDEN_APPLE, BlockCategory.CONDITION, "Проверяет здоровье игрока"),
+    IF_PLAYER_FOOD("Если голод", Material.BREAD, BlockCategory.CONDITION, "Проверяет уровень голода"),
     
     // Условия переменных (7 условий)
     IF_VARIABLE_EQUALS("Если переменная равна", Material.COMPARATOR, BlockCategory.CONDITION, "Проверяет равенство переменной"),
@@ -94,6 +90,11 @@ public enum BlockType {
     IF_GAME_DIFFICULTY("Если сложность", Material.DIAMOND_SWORD, BlockCategory.CONDITION, "Проверяет сложность мира"),
     IF_GAME_PLAYERS_ONLINE("Если игроков онлайн", Material.PLAYER_HEAD, BlockCategory.CONDITION, "Проверяет количество игроков"),
     IF_GAME_TPS("Если TPS сервера", Material.REDSTONE_BLOCK, BlockCategory.CONDITION, "Проверяет производительность сервера"),
+    
+    // Условия существ (3 условия)
+    IF_ENTITY_EXISTS("Если существо существует", Material.ZOMBIE_HEAD, BlockCategory.CONDITION, "Проверяет существует ли существо"),
+    IF_ENTITY_TYPE("Если тип существа", Material.EGG, BlockCategory.CONDITION, "Проверяет тип существа"),
+    IF_ENTITY_HEALTH("Если здоровье существа", Material.BONE, BlockCategory.CONDITION, "Проверяет здоровье существа"),
     
     // Действия игрока (25 действий)
     PLAYER_SEND_MESSAGE("Отправить сообщение", Material.WRITABLE_BOOK, BlockCategory.ACTION, "Отправляет сообщение игроку"),
@@ -114,8 +115,6 @@ public enum BlockType {
     PLAYER_SET_GAMEMODE("Установить режим", Material.GRASS_BLOCK, BlockCategory.ACTION, "Устанавливает режим игры"),
     PLAYER_KICK("Кикнуть игрока", Material.IRON_DOOR, BlockCategory.ACTION, "Кикает игрока с сервера"),
     PLAYER_BAN("Забанить игрока", Material.BARRIER, BlockCategory.ACTION, "Банит игрока"),
-    PLAYER_OP("Дать ОП права", Material.GOLDEN_HELMET, BlockCategory.ACTION, "Дает ОП права игроку"),
-    PLAYER_DEOP("Забрать ОП права", Material.LEATHER_HELMET, BlockCategory.ACTION, "Забирает ОП права"),
     PLAYER_WHITELIST_ADD("Добавить в вайтлист", Material.PAPER, BlockCategory.ACTION, "Добавляет в белый список"),
     PLAYER_WHITELIST_REMOVE("Убрать из вайтлиста", Material.BARRIER, BlockCategory.ACTION, "Убирает из белого списка"),
     PLAYER_SET_DISPLAY_NAME("Установить ник", Material.NAME_TAG, BlockCategory.ACTION, "Устанавливает отображаемое имя"),
@@ -194,11 +193,7 @@ public enum BlockType {
     TEXT_OPERATION("Операции с текстом", Material.WRITABLE_BOOK, BlockCategory.UTILITY,
                    "Операции с текстовыми строками"),
     
-    // Действия категорий
-    PLAYER_ACTION("Действия игрока", Material.PLAYER_HEAD, BlockCategory.ACTION, "Действия связанные с игроком"),
-    ENTITY_ACTION("Действия существ", Material.ZOMBIE_HEAD, BlockCategory.ACTION, "Действия связанные с существами"),
-    WORLD_ACTION("Действия мира", Material.GRASS_BLOCK, BlockCategory.ACTION, "Действия связанные с миром"),
-    VARIABLE_ACTION("Действия переменных", Material.REDSTONE, BlockCategory.ACTION, "Действия с переменными"),
+    // Действия инвентаря
     INVENTORY_ACTION("Действия инвентаря", Material.CHEST, BlockCategory.ACTION, "Действия с инвентарем"),
     ITEM_CHECK("Проверка предмета", Material.DIAMOND, BlockCategory.CONDITION, "Проверяет предметы");
     
