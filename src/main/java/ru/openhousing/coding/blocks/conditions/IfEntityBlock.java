@@ -80,9 +80,9 @@ public class IfEntityBlock extends CodeBlock {
     
     public IfEntityBlock() {
         super(BlockType.IF_ENTITY_EXISTS); // Используем любое условие существа как базовое
-        setParameter("conditionType", EntityConditionType.TYPE_IS);
-        setParameter("value", "");
-        setParameter("compareValue", "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.CONDITION_TYPE, EntityConditionType.TYPE_IS);
+        setParameter(ru.openhousing.coding.constants.BlockParams.VALUE, "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.COMPARE_VALUE, "");
     }
     
     @Override

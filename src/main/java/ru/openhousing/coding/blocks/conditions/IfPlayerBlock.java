@@ -51,9 +51,9 @@ public class IfPlayerBlock extends CodeBlock {
     
     public IfPlayerBlock() {
         super(BlockType.IF_PLAYER_ONLINE); // Используем любое условие игрока как базовое
-        setParameter("conditionType", PlayerConditionType.HAS_PERMISSION);
-        setParameter("value", "");
-        setParameter("compareValue", "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.CONDITION_TYPE, PlayerConditionType.HAS_PERMISSION);
+        setParameter(ru.openhousing.coding.constants.BlockParams.VALUE, "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.COMPARE_VALUE, "");
     }
     
     @Override

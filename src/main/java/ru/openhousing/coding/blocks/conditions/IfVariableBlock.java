@@ -49,10 +49,10 @@ public class IfVariableBlock extends CodeBlock {
     
     public IfVariableBlock() {
         super(BlockType.IF_VARIABLE_EQUALS); // Используем любое условие переменной как базовое
-        setParameter("conditionType", VariableConditionType.EQUALS);
-        setParameter("variableName", "myVariable");
-        setParameter("value", "");
-        setParameter("secondValue", "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.CONDITION_TYPE, VariableConditionType.EQUALS);
+        setParameter(ru.openhousing.coding.constants.BlockParams.VARIABLE_NAME, "myVariable");
+        setParameter(ru.openhousing.coding.constants.BlockParams.VALUE, "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.SECOND_VALUE, "");
     }
     
     @Override

@@ -75,10 +75,10 @@ public class PlayerActionBlock extends CodeBlock {
     
     public PlayerActionBlock() {
         super(BlockType.PLAYER_SEND_MESSAGE); // Используем любое действие игрока как базовое
-        setParameter("actionType", PlayerActionType.SEND_MESSAGE);
-        setParameter("value", "");
-        setParameter("extra1", "");
-        setParameter("extra2", "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE, PlayerActionType.SEND_MESSAGE);
+        setParameter(ru.openhousing.coding.constants.BlockParams.VALUE, "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.EXTRA1, "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.EXTRA2, "");
     }
     
     @Override

@@ -57,8 +57,8 @@ public class EntityEventBlock extends CodeBlock {
     
     public EntityEventBlock() {
         super(BlockType.ENTITY_SPAWN); // Используем любое событие существа как базовое
-        setParameter("eventType", EntityEventType.SPAWN);
-        setParameter("entityType", ""); // Тип существа (или "любое")
+        setParameter(ru.openhousing.coding.constants.BlockParams.EVENT_TYPE, EntityEventType.SPAWN);
+        setParameter(ru.openhousing.coding.constants.BlockParams.ENTITY_TYPE, ""); // Тип существа (или "любое")
         setParameter("conditions", ""); // Дополнительные условия
     }
     
