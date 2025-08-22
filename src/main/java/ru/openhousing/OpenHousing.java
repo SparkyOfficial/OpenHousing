@@ -187,6 +187,12 @@ public class OpenHousing extends JavaPlugin {
         // Менеджер кода
         codeManager = new CodeManager(this);
         codeManager.initialize();
+        // Автосохранение кода каждые 5 минут (асинхронно)
+        getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
+            try {
+                codeManager.saveAllCodes();
+            } catch (Exception ignored) {}
+        }, 20L * 60 * 5, 20L * 60 * 5);
         
 
         
