@@ -205,6 +205,12 @@ public class OpenHousing extends JavaPlugin {
             housingManager.initialize();
             if (debugMode) getLogger().info("[DEBUG] HousingManager initialized successfully");
             
+            // Загружаем миры домов с задержкой для стабильности
+            getServer().getScheduler().runTaskLater(this, () -> {
+                if (debugMode) getLogger().info("[DEBUG] Starting delayed world loading...");
+                loadHouseWorlds();
+            }, 100L); // 5 секунд задержки
+            
             // Менеджер кода
             if (debugMode) getLogger().info("[DEBUG] Initializing CodeManager...");
             codeManager = new CodeManager(this);

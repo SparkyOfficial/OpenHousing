@@ -57,9 +57,22 @@ public class HousingManager {
                 if (house.getId() >= nextHouseId) {
                     nextHouseId = house.getId() + 1;
                 }
+                
+                // Предварительно загружаем мир дома
+                try {
+                    World houseWorld = house.getWorld();
+                    if (houseWorld != null) {
+                        plugin.getLogger().info("Preloaded world for house '" + house.getName() + "': " + house.getWorldName());
+                    } else {
+                        plugin.getLogger().warning("Failed to preload world for house '" + house.getName() + "': " + house.getWorldName());
+                    }
+                } catch (Exception e) {
+                    plugin.getLogger().severe("Error preloading world for house '" + house.getName() + "': " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
             
-            plugin.getLogger().info("Loaded " + houses.size() + " houses from database");
+            plugin.getLogger().info("Loaded " + houses.size() + " houses from database with world preloading");
         });
         
         plugin.getLogger().info("HousingManager initialized successfully!");

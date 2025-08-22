@@ -64,19 +64,42 @@ public class House {
      * Загрузка мира дома
      */
     private void loadWorld() {
+        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
+        
+        if (debugMode) plugin.getLogger().info("[DEBUG] Loading world for house '" + name + "': " + worldName);
+        
         world = Bukkit.getWorld(worldName);
         if (world == null) {
-            // Создаем новый мир если не существует
-            WorldCreator creator = new WorldCreator(worldName);
-            creator.type(WorldType.FLAT);
-            creator.generateStructures(false);
-            world = creator.createWorld();
-            
-            if (world != null) {
-                // Устанавливаем спавн в центре
-                world.setSpawnLocation(0, 64, 0);
-                plugin.getLogger().info("Мир дома '" + name + "' создан: " + worldName);
+            try {
+                if (debugMode) plugin.getLogger().info("[DEBUG] World not found, creating new world: " + worldName);
+                
+                // Создаем новый мир если не существует
+                WorldCreator creator = new WorldCreator(worldName);
+                creator.type(WorldType.FLAT);
+                creator.generateStructures(false);
+                creator.generator("OpenHousing"); // Используем наш генератор если есть
+                
+                world = creator.createWorld();
+                
+                if (world != null) {
+                    // Устанавливаем спавн в центре
+                    world.setSpawnLocation(0, 64, 0);
+                    world.setGameRuleValue("doDaylightCycle", "false");
+                    world.setGameRuleValue("doWeatherCycle", "false");
+                    world.setGameRuleValue("doMobSpawning", "false");
+                    world.setTime(6000); // Полдень
+                    
+                    plugin.getLogger().info("House world '" + name + "' created successfully: " + worldName);
+                    if (debugMode) plugin.getLogger().info("[DEBUG] World settings applied for: " + worldName);
+                } else {
+                    plugin.getLogger().severe("Failed to create world for house '" + name + "': " + worldName);
+                }
+            } catch (Exception e) {
+                plugin.getLogger().severe("Error creating world for house '" + name + "': " + e.getMessage());
+                e.printStackTrace();
             }
+        } else {
+            if (debugMode) plugin.getLogger().info("[DEBUG] World already exists for house '" + name + "': " + worldName);
         }
     }
     
