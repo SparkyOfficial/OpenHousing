@@ -330,4 +330,44 @@ public class OpenHousing extends JavaPlugin {
     public OpenHousingAPI getAPI() {
         return api;
     }
+    
+    /**
+     * Загрузка миров домов при старте сервера
+     */
+    private void loadHouseWorlds() {
+        boolean debugMode = configManager.getMainConfig().getBoolean("general.debug", false);
+        
+        if (housingManager == null) {
+            getLogger().warning("HousingManager is null, cannot load house worlds");
+            return;
+        }
+        
+        try {
+            if (debugMode) getLogger().info("[DEBUG] Loading all house worlds...");
+            
+            // Получаем все дома и загружаем их миры
+            for (House house : housingManager.getAllHouses()) {
+                try {
+                    World world = house.getWorld();
+                    if (world != null) {
+                        if (debugMode) getLogger().info("[DEBUG] Successfully loaded world for house: " + 
+                            house.getName() + " (" + house.getWorldName() + ")");
+                    } else {
+                        getLogger().warning("Failed to load world for house: " + 
+                            house.getName() + " (" + house.getWorldName() + ")");
+                    }
+                } catch (Exception e) {
+                    getLogger().severe("Error loading world for house " + 
+                        house.getName() + ": " + e.getMessage());
+                    if (debugMode) e.printStackTrace();
+                }
+            }
+            
+            getLogger().info("House world loading completed");
+            
+        } catch (Exception e) {
+            getLogger().severe("Error during house world loading: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }
