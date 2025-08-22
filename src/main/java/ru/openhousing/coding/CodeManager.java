@@ -96,13 +96,11 @@ public class CodeManager {
      */
     public void saveScript(Player player, CodeScript script) {
         playerScripts.put(player.getUniqueId(), script);
-        
         // Перерегистрация обработчиков событий через EventManager
         eventManager.unregisterPlayer(player);
         eventManager.registerPlayer(player, script);
-        
-        // Сохранение в базу данных
-        plugin.getDatabaseManager().saveCodeScript(script);
+        // Асинхронное сохранение в БД
+        plugin.getDatabaseManager().saveCodeScriptAsync(script, () -> {});
     }
     
     /**
@@ -153,7 +151,7 @@ public class CodeManager {
         // Сохраняем скрипт перед удалением из памяти
         CodeScript script = playerScripts.get(player.getUniqueId());
         if (script != null) {
-            plugin.getDatabaseManager().saveCodeScript(script);
+            plugin.getDatabaseManager().saveCodeScriptAsync(script, () -> {});
         }
         
         playerScripts.remove(player.getUniqueId());
@@ -206,8 +204,8 @@ public class CodeManager {
             UUID playerId = entry.getKey();
             CodeScript script = entry.getValue();
             
-            // Сохраняем скрипт в базу данных
-            plugin.getDatabaseManager().saveCodeScript(script);
+            // Асинхронное сохранение в базу данных
+            plugin.getDatabaseManager().saveCodeScriptAsync(script, () -> {});
         }
         plugin.getLogger().info("Saved " + playerScripts.size() + " code scripts to database");
     }

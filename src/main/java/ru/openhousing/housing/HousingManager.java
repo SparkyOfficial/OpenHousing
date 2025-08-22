@@ -182,6 +182,13 @@ public class HousingManager {
         // Создание и подготовка мира дома
         prepareHouseWorld(house);
         
+        // Привязываем код игрока к миру дома и сохраняем асинхронно
+        try {
+            ru.openhousing.coding.script.CodeScript script = plugin.getCodeManager().getOrCreateScript(player);
+            script.setBoundWorld(worldName);
+            plugin.getDatabaseManager().saveCodeScriptAsync(script, () -> {});
+        } catch (Exception ignored) {}
+        
         return new CreateHouseResult(true, "Дом '" + houseName + "' успешно создан!", house);
     }
     

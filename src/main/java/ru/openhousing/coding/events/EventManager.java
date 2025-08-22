@@ -104,6 +104,12 @@ public class EventManager implements Listener {
         Class<? extends Event> eventClass = getEventClass(eventType);
         
         if (eventClass != null) {
+            // Если это обработчик движения, регистрируем только для миров-домов
+            if (eventClass == org.bukkit.event.player.PlayerMoveEvent.class) {
+                Player player = plugin.getServer().getPlayer(playerId);
+                if (player == null || !player.isOnline()) return;
+                if (!player.getWorld().getName().startsWith("house_")) return;
+            }
             EventHandlerInfo handler = new EventHandlerInfo(eventBlock, null, playerId);
             eventHandlers.computeIfAbsent(eventClass, k -> new CopyOnWriteArrayList<>()).add(handler);
         }

@@ -124,8 +124,13 @@ public class RepeatBlock extends CodeBlock {
      */
     private ExecutionResult executeWhileRepeat(ExecutionContext context, String value, int maxIterations) {
         int iterations = 0;
+        long startNs = System.nanoTime();
+        final long budgetNs = 5_000_000L; // ~5 ms бюджет на цикл
         
         while (iterations < maxIterations) {
+            if (System.nanoTime() - startNs > budgetNs) {
+                return ExecutionResult.error("Превышено время выполнения цикла (WHILE)");
+            }
             // Проверяем условие
             if (!evaluateCondition(value, context)) {
                 break;
@@ -204,7 +209,12 @@ public class RepeatBlock extends CodeBlock {
      * Бесконечное повторение (с ограничением)
      */
     private ExecutionResult executeForeverRepeat(ExecutionContext context, int maxIterations) {
+        long startNs = System.nanoTime();
+        final long budgetNs = 5_000_000L; // ~5 ms бюджет на цикл
         for (int i = 0; i < maxIterations; i++) {
+            if (System.nanoTime() - startNs > budgetNs) {
+                return ExecutionResult.error("Превышено время выполнения цикла (FOREVER)");
+            }
             context.setVariable("_loop_index", i);
             context.setVariable("_loop_count", i + 1);
             
@@ -229,8 +239,13 @@ public class RepeatBlock extends CodeBlock {
      */
     private ExecutionResult executeUntilRepeat(ExecutionContext context, String value, int maxIterations) {
         int iterations = 0;
+        long startNs = System.nanoTime();
+        final long budgetNs = 5_000_000L; // ~5 ms бюджет на цикл
         
         while (iterations < maxIterations) {
+            if (System.nanoTime() - startNs > budgetNs) {
+                return ExecutionResult.error("Превышено время выполнения цикла (UNTIL)");
+            }
             context.setVariable("_loop_index", iterations);
             context.setVariable("_loop_count", iterations + 1);
             
