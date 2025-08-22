@@ -274,6 +274,15 @@ public class VariableSelectorGUI implements Listener {
                 break;
         }
     }
+    
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (event.getPlayer().getUniqueId().equals(player.getUniqueId()) && 
+            event.getInventory().equals(inventory)) {
+            // Отписываемся от событий при закрытии
+            org.bukkit.event.HandlerList.unregisterAll(this);
+        }
+    }
 
     private void showSystemVariables() {
         Inventory systemInventory = Bukkit.createInventory(null, 54, "§6Системные переменные");
