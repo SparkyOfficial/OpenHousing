@@ -214,35 +214,8 @@ public class ScriptSerializer {
          * Создание экземпляра блока по типу
          */
         private CodeBlock createBlockInstance(BlockType blockType) {
-            switch (blockType) {
-                // События игрока
-                case PLAYER_JOIN:
-                case PLAYER_QUIT:
-                case PLAYER_CHAT:
-                case PLAYER_COMMAND:
-                case PLAYER_MOVE:
-                case PLAYER_TELEPORT:
-                case PLAYER_DEATH:
-                case PLAYER_RESPAWN:
-                case PLAYER_DAMAGE:
-                case PLAYER_HEAL:
-                case PLAYER_FOOD_CHANGE:
-                case PLAYER_EXP_CHANGE:
-                case PLAYER_LEVEL_UP:
-                case PLAYER_INVENTORY_CLICK:
-                case PLAYER_ITEM_DROP:
-                case PLAYER_ITEM_PICKUP:
-                case PLAYER_ITEM_CONSUME:
-                case PLAYER_ITEM_BREAK:
-                case PLAYER_BLOCK_BREAK:
-                case PLAYER_BLOCK_PLACE:
-                case PLAYER_INTERACT:
-                case PLAYER_INTERACT_ENTITY:
-                case PLAYER_FISH:
-                case PLAYER_ENCHANT:
-                case PLAYER_CRAFT:
-                case PLAYER_SMELT:
-                case PLAYER_TRADE:
+            return ru.openhousing.coding.blocks.CodeBlockFactory.createBlock(blockType);
+        }
                 // События мира
                 case WORLD_WEATHER_CHANGE:
                 case WORLD_TIME_CHANGE:

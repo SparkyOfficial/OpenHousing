@@ -47,10 +47,10 @@ public class VariableActionBlock extends CodeBlock {
     
     public VariableActionBlock() {
         super(BlockType.VAR_SET); // Используем любое действие переменной как базовое
-        setParameter("actionType", VariableActionType.SET);
-        setParameter("variableName", "myVariable");
-        setParameter("value", "");
-        setParameter("secondVariable", "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE, VariableActionType.SET);
+        setParameter(ru.openhousing.coding.constants.BlockParams.VARIABLE_NAME, "myVariable");
+        setParameter(ru.openhousing.coding.constants.BlockParams.VALUE, "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.SECOND_VALUE, "");
     }
     
     @Override
