@@ -74,9 +74,9 @@ public class WorldEventBlock extends CodeBlock {
     
     public WorldEventBlock() {
         super(BlockType.WORLD_WEATHER_CHANGE); // Используем любое событие мира как базовое
-        setParameter("eventType", WorldEventType.BLOCK_BREAK);
-        setParameter("blockType", ""); // Тип блока (или "любой")
-        setParameter("world", ""); // Мир (или "любой")
+        setParameter(ru.openhousing.coding.constants.BlockParams.EVENT_TYPE, WorldEventType.BLOCK_BREAK);
+        setParameter(ru.openhousing.coding.constants.BlockParams.BLOCK_TYPE, ""); // Тип блока (или "любой")
+        setParameter(ru.openhousing.coding.constants.BlockParams.WORLD_NAME, ""); // Мир (или "любой")
     }
     
     @Override

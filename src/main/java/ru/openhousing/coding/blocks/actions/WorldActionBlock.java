@@ -111,10 +111,10 @@ public class WorldActionBlock extends CodeBlock {
     
     public WorldActionBlock() {
         super(BlockType.GAME_SET_TIME); // Используем любое действие мира как базовое
-        setParameter("actionType", WorldActionType.SET_BLOCK);
-        setParameter("value", "");
-        setParameter("location", "");
-        setParameter("extra", "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE, WorldActionType.SET_BLOCK);
+        setParameter(ru.openhousing.coding.constants.BlockParams.VALUE, "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.LOCATION, "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.EXTRA, "");
     }
     
     @Override

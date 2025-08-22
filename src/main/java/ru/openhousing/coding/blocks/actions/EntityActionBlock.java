@@ -106,10 +106,10 @@ public class EntityActionBlock extends CodeBlock {
     
     public EntityActionBlock() {
         super(BlockType.GAME_SPAWN_ENTITY); // Используем любое действие существа как базовое
-        setParameter("actionType", EntityActionType.SPAWN);
-        setParameter("value", "");
-        setParameter("extra1", "");
-        setParameter("extra2", "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE, EntityActionType.SPAWN);
+        setParameter(ru.openhousing.coding.constants.BlockParams.VALUE, "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.EXTRA1, "");
+        setParameter(ru.openhousing.coding.constants.BlockParams.EXTRA2, "");
     }
     
     @Override
