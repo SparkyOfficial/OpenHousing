@@ -14,6 +14,7 @@ import ru.openhousing.coding.blocks.BlockType;
 import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.script.CodeLine;
 import ru.openhousing.coding.script.CodeScript;
+import ru.openhousing.utils.AnvilGUIHelper;
 import ru.openhousing.utils.ItemBuilder;
 import ru.openhousing.utils.MessageUtil;
 
@@ -568,5 +569,159 @@ public class LineSelectorGUI implements Listener {
             InventoryClickEvent.getHandlerList().unregister(this);
             InventoryCloseEvent.getHandlerList().unregister(this);
         }
+    }
+    
+    /**
+     * Открытие редактора строки
+     */
+    private void openLineEditor(CodeLine line) {
+        // Создаем простое GUI для редактирования строки
+        Inventory editor = Bukkit.createInventory(null, 27, "§6Редактор строки: " + line.getName());
+        
+        // Кнопка переименования
+        editor.setItem(10, new ItemBuilder(Material.NAME_TAG)
+            .name("§eПереименовать строку")
+            .lore(Arrays.asList(
+                "§7Текущее имя: §f" + line.getName(),
+                "",
+                "§eКлик для изменения"
+            ))
+            .build());
+        
+        // Кнопка удаления строки
+        editor.setItem(16, new ItemBuilder(Material.BARRIER)
+            .name("§cУдалить строку")
+            .lore(Arrays.asList(
+                "§7Удалить строку и все блоки в ней",
+                "",
+                "§cКлик для подтверждения"
+            ))
+            .build());
+        
+        // Показать блоки в строке
+        List<CodeBlock> blocks = line.getBlocks();
+        if (!blocks.isEmpty()) {
+            editor.setItem(13, new ItemBuilder(Material.BOOK)
+                .name("§aБлоки в строке")
+                .lore(Arrays.asList(
+                    "§7Количество блоков: §f" + blocks.size(),
+                    "",
+                    "§eКлик для просмотра"
+                ))
+                .build());
+        }
+        
+        // Кнопка возврата
+        editor.setItem(22, new ItemBuilder(Material.ARROW)
+            .name("§7Назад")
+            .lore("§7Вернуться к выбору строки")
+            .build());
+        
+        player.openInventory(editor);
+        
+        // Регистрируем временный листенер для редактора
+        plugin.getServer().getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void onEditorClick(InventoryClickEvent event) {
+                if (!event.getInventory().equals(editor)) return;
+                if (!(event.getWhoClicked() instanceof Player)) return;
+                if (!event.getWhoClicked().equals(player)) return;
+                
+                event.setCancelled(true);
+                
+                int slot = event.getRawSlot();
+                
+                if (slot == 10) { // Переименование
+                    player.closeInventory();
+                    AnvilGUIHelper.openTextInput(plugin, player, "Введите новое имя строки:", line.getName(), newName -> {
+                        if (newName != null && !newName.trim().isEmpty()) {
+                            line.setName(newName.trim());
+                            plugin.getCodeManager().saveScript(player, script);
+                            player.sendMessage("§aСтрока переименована в: " + newName.trim());
+                        }
+                        // Возвращаемся к выбору строки
+                        open();
+                    });
+                } else if (slot == 16) { // Удаление
+                    player.closeInventory();
+                    player.sendMessage("§cСтрока удалена!");
+                    script.removeLine(line.getLineNumber());
+                    plugin.getCodeManager().saveScript(player, script);
+                    // Возвращаемся к выбору строки
+                    open();
+                } else if (slot == 13 && !blocks.isEmpty()) { // Просмотр блоков
+                    player.closeInventory();
+                    showLineBlocks(line);
+                } else if (slot == 22) { // Назад
+                    player.closeInventory();
+                    open();
+                }
+                
+                // Отменяем регистрацию листенера
+                InventoryClickEvent.getHandlerList().unregister(this);
+            }
+        }, plugin);
+    }
+    
+    /**
+     * Показать блоки в строке
+     */
+    private void showLineBlocks(CodeLine line) {
+        List<CodeBlock> blocks = line.getBlocks();
+        if (blocks.isEmpty()) {
+            player.sendMessage("§7В строке нет блоков.");
+            open();
+            return;
+        }
+        
+        Inventory blocksGUI = Bukkit.createInventory(null, 54, "§6Блоки в строке: " + line.getName());
+        
+        for (int i = 0; i < Math.min(blocks.size(), 45); i++) {
+            CodeBlock block = blocks.get(i);
+                                blocksGUI.setItem(i, new ItemBuilder(block.getType().getMaterial())
+                .name("§e" + block.getType().getDisplayName())
+                .lore(Arrays.asList(
+                    "§7Тип: §f" + block.getType().getDisplayName(),
+                    "§7Параметры: §f" + block.getParameters().size(),
+                    "",
+                    "§eКлик для настройки"
+                ))
+                .build());
+        }
+        
+        // Кнопка возврата
+        blocksGUI.setItem(49, new ItemBuilder(Material.ARROW)
+            .name("§7Назад")
+            .lore("§7Вернуться к редактору строки")
+            .build());
+        
+        player.openInventory(blocksGUI);
+        
+        // Регистрируем временный листенер
+        plugin.getServer().getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void onBlocksClick(InventoryClickEvent event) {
+                if (!event.getInventory().equals(blocksGUI)) return;
+                if (!(event.getWhoClicked() instanceof Player)) return;
+                if (!event.getWhoClicked().equals(player)) return;
+                
+                event.setCancelled(true);
+                
+                int slot = event.getRawSlot();
+                
+                if (slot == 49) { // Назад
+                    player.closeInventory();
+                    openLineEditor(line);
+                } else if (slot >= 0 && slot < blocks.size()) { // Настройка блока
+                    CodeBlock block = blocks.get(slot);
+                    player.closeInventory();
+                    BlockConfigGUI configGUI = new BlockConfigGUI(plugin, player, block, (CodeEditorGUI) null);
+                    configGUI.open();
+                }
+                
+                // Отменяем регистрацию листенера
+                InventoryClickEvent.getHandlerList().unregister(this);
+            }
+        }, plugin);
     }
 }
