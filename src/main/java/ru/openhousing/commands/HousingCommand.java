@@ -459,20 +459,49 @@ public class HousingCommand implements CommandExecutor, TabCompleter {
     private void allowPlayer(Player player, String[] args) {
         if (args.length < 2) {
             MessageUtil.send(player, "&cИспользование: &e/housing allow <игрок>");
+            MessageUtil.send(player, "&7Пример: &e/housing allow " + player.getName());
             return;
         }
         
         List<House> houses = plugin.getHousingManager().getPlayerHouses(player.getUniqueId());
         if (houses.isEmpty()) {
             MessageUtil.send(player, "&cУ вас нет домов!");
+            MessageUtil.send(player, "&7Создайте дом: &e/housing create");
             return;
         }
         
         House house = houses.get(0);
         String targetName = args[1];
         
+        // Проверяем, существует ли игрок
+        if (plugin.getServer().getPlayer(targetName) == null && 
+            !plugin.getServer().getOfflinePlayer(targetName).hasPlayedBefore()) {
+            MessageUtil.send(player, "&cИгрок &e" + targetName + " &cне найден!");
+            return;
+        }
+        
+        // Проверяем, не является ли игрок владельцем
+        if (targetName.equalsIgnoreCase(player.getName())) {
+            MessageUtil.send(player, "&cВы не можете разрешить доступ самому себе!");
+            return;
+        }
+        
+        // Проверяем, не заблокирован ли игрок
+        Player targetPlayer = plugin.getServer().getPlayer(targetName);
+        if (targetPlayer != null && house.getBannedPlayers().contains(targetPlayer.getUniqueId())) {
+            MessageUtil.send(player, "&cИгрок &e" + targetName + " &cзаблокирован в вашем доме!");
+            MessageUtil.send(player, "&7Сначала разблокируйте его: &e/housing unban " + targetName);
+            return;
+        }
+        
         house.allowPlayer(targetName);
         MessageUtil.send(player, "&aИгроку &e" + targetName + " &aразрешен доступ к вашему дому!");
+        
+        // Уведомляем игрока если он онлайн
+        if (targetPlayer != null) {
+            targetPlayer.sendMessage("§aИгрок §e" + player.getName() + " §aразрешил вам доступ к своему дому!");
+            targetPlayer.sendMessage("§7Используйте §e/housing visit " + player.getName() + " §7для посещения");
+        }
     }
     
     /**
@@ -508,24 +537,53 @@ public class HousingCommand implements CommandExecutor, TabCompleter {
     private void banPlayer(Player player, String[] args) {
         if (args.length < 2) {
             MessageUtil.send(player, "&cИспользование: &e/housing ban <игрок>");
+            MessageUtil.send(player, "&7Пример: &e/housing ban " + player.getName());
             return;
         }
         
         List<House> houses = plugin.getHousingManager().getPlayerHouses(player.getUniqueId());
         if (houses.isEmpty()) {
             MessageUtil.send(player, "&cУ вас нет домов!");
+            MessageUtil.send(player, "&7Создайте дом: &e/housing create");
             return;
         }
         
         House house = houses.get(0);
         String targetName = args[1];
+        
+        // Проверяем, существует ли игрок
+        if (plugin.getServer().getPlayer(targetName) == null && 
+            !plugin.getServer().getOfflinePlayer(targetName).hasPlayedBefore()) {
+            MessageUtil.send(player, "&cИгрок &e" + targetName + " &cне найден!");
+            return;
+        }
+        
+        // Проверяем, не является ли игрок владельцем
+        if (targetName.equalsIgnoreCase(player.getName())) {
+            MessageUtil.send(player, "&cВы не можете заблокировать сами себя!");
+            return;
+        }
+        
         Player targetPlayer = plugin.getServer().getPlayer(targetName);
         
         if (targetPlayer != null) {
             house.banPlayer(targetPlayer.getUniqueId());
             MessageUtil.send(player, "&cИгрок &e" + targetName + " &cзаблокирован в вашем доме!");
+            
+            // Уведомляем заблокированного игрока
+            targetPlayer.sendMessage("§cИгрок §e" + player.getName() + " §cзаблокировал вас в своем доме!");
+            
+            // Кикаем из дома если он там
+            if (house.isInside(targetPlayer.getLocation())) {
+                World mainWorld = plugin.getServer().getWorlds().get(0);
+                targetPlayer.teleport(mainWorld.getSpawnLocation());
+                targetPlayer.sendMessage("§cВы были исключены из дома!");
+            }
         } else {
-            MessageUtil.send(player, "&cИгрок не найден!");
+            // Блокируем оффлайн игрока
+            house.banPlayer(plugin.getServer().getOfflinePlayer(targetName).getUniqueId());
+            MessageUtil.send(player, "&cИгрок &e" + targetName + " &cзаблокирован в вашем доме!");
+            MessageUtil.send(player, "&7Блокировка вступит в силу при следующем входе игрока");
         }
     }
     
