@@ -411,6 +411,29 @@ public class CodeEditorGUI implements InventoryHolder {
                 "§eВ разработке"
             ))
             .build());
+            
+        // Кнопка выбора целевой строки
+        Material targetMaterial = currentTargetLine != null ? Material.GREEN_CONCRETE : Material.GRAY_CONCRETE;
+        String targetName = currentTargetLine != null ? 
+            "§aЦелевая строка: " + currentTargetLine.getLineNumber() : 
+            "§7Выбрать целевую строку";
+        List<String> targetLore = new ArrayList<>();
+        if (currentTargetLine != null) {
+            targetLore.add("§7Текущая цель: §e" + currentTargetLine.getName());
+            targetLore.add("§7Блоков в строке: §e" + currentTargetLine.getBlockCount());
+            targetLore.add("");
+            targetLore.add("§eКлик для сброса");
+        } else {
+            targetLore.add("§7Выберите строку для добавления");
+            targetLore.add("§7новых блоков");
+            targetLore.add("");
+            targetLore.add("§eКлик для выбора");
+        }
+        
+        inventory.setItem(3, new ItemBuilder(targetMaterial)
+            .name(targetName)
+            .lore(targetLore)
+            .build());
         
         // Отображение строк с пагинацией
         List<CodeLine> lines = script.getLines();
@@ -747,28 +770,32 @@ public class CodeEditorGUI implements InventoryHolder {
      */
     private void addBlockToScript(BlockType blockType) {
         try {
-            // Создаем блок
-            CodeBlock block = createBlockInstance(blockType);
-            if (block == null) {
-                player.sendMessage("§cНе удалось создать блок типа: " + blockType.getDisplayName());
-                return;
-            }
-            
             // Если нет строк, создаем первую
             if (script.getLines().isEmpty()) {
                 script.createLine("Строка 1");
             }
             
-            // Определяем целевую строку: выбранная пользователем или первая
-            CodeLine targetLine = currentTargetLine != null ? currentTargetLine : script.getLines().get(0);
-            script.addBlockToLine(targetLine.getLineNumber(), block);
-            
-            player.sendMessage("§aБлок добавлен: §f" + blockType.getDisplayName());
-            
-            // Возвращаемся к просмотру скрипта
-            mode = EditorMode.SCRIPT;
-            page = 0;
-            updateInventory();
+            // Если выбрана конкретная строка, добавляем блок сразу
+            if (currentTargetLine != null) {
+                CodeBlock block = createBlockInstance(blockType);
+                if (block == null) {
+                    player.sendMessage("§cНе удалось создать блок типа: " + blockType.getDisplayName());
+                    return;
+                }
+                
+                script.addBlockToLine(currentTargetLine.getLineNumber(), block);
+                player.sendMessage("§aБлок добавлен в строку " + currentTargetLine.getLineNumber() + ": §f" + blockType.getDisplayName());
+                
+                // Возвращаемся к просмотру скрипта
+                mode = EditorMode.SCRIPT;
+                page = 0;
+                updateInventory();
+            } else {
+                // Если строка не выбрана, открываем селектор строк
+                player.closeInventory();
+                LineSelectorGUI selectorGUI = new LineSelectorGUI(plugin, player, script, blockType);
+                selectorGUI.open();
+            }
             
         } catch (Exception e) {
             plugin.getLogger().severe("Error adding block to script: " + e.getMessage());

@@ -96,16 +96,6 @@ public class ScriptSerializer {
                 jsonObject.add("children", children);
             }
             
-            // Локация (если есть)
-            if (src.getLocation() != null) {
-                JsonObject location = new JsonObject();
-                location.addProperty("world", src.getLocation().getWorld().getName());
-                location.addProperty("x", src.getLocation().getX());
-                location.addProperty("y", src.getLocation().getY());
-                location.addProperty("z", src.getLocation().getZ());
-                jsonObject.add("location", location);
-            }
-            
             return jsonObject;
         }
         
@@ -114,267 +104,47 @@ public class ScriptSerializer {
             JsonObject jsonObject = json.getAsJsonObject();
             
             // Получаем тип блока
-            String typeString = jsonObject.get("type").getAsString();
-            BlockType blockType;
+            String typeName = jsonObject.get("type").getAsString();
+            BlockType blockType = BlockType.valueOf(typeName);
             
-            try {
-                blockType = BlockType.valueOf(typeString);
-            } catch (IllegalArgumentException e) {
-                throw new JsonParseException("Unknown block type: " + typeString);
-            }
-            
-            // Создаем блок
-            CodeBlock block = createBlockInstance(blockType);
+            // Создаем блок через фабрику
+            CodeBlock block = ru.openhousing.coding.blocks.CodeBlockFactory.createBlock(blockType);
             if (block == null) {
-                throw new JsonParseException("Cannot create block of type: " + typeString);
+                throw new JsonParseException("Unknown block type: " + typeName);
             }
             
-            // Загружаем параметры
+            // ID генерируется автоматически при создании блока
+            
+            // Устанавливаем параметры
             if (jsonObject.has("parameters")) {
                 JsonObject parameters = jsonObject.getAsJsonObject("parameters");
                 for (Map.Entry<String, JsonElement> entry : parameters.entrySet()) {
                     String key = entry.getKey();
                     JsonElement value = entry.getValue();
                     
-                    if (value.isJsonPrimitive()) {
-                        JsonPrimitive primitive = value.getAsJsonPrimitive();
-                        if (primitive.isString()) {
-                            block.setParameter(key, primitive.getAsString());
-                        } else if (primitive.isNumber()) {
-                            if (primitive.getAsString().contains(".")) {
-                                block.setParameter(key, primitive.getAsDouble());
-                            } else {
-                                block.setParameter(key, primitive.getAsInt());
-                            }
-                        } else if (primitive.isBoolean()) {
-                            block.setParameter(key, primitive.getAsBoolean());
-                        }
+                    // Десериализуем enum значения
+                    Object deserializedValue = deserializeEnumValue(key, value, blockType, context);
+                    if (deserializedValue != null) {
+                        block.setParameter(key, deserializedValue);
                     } else {
-                        // Для сложных объектов (например, enum)
-                        try {
-                            // Специальная обработка для enum значений
-                            if (key.equals("actionType") || key.equals("eventType") || key.equals("conditionType") || 
-                                key.equals("operation") || key.equals("targetType") || key.equals("repeatType")) {
-                                // Определяем правильный enum тип на основе ключа и типа блока
-                                Object enumValue = deserializeEnumValue(key, value, blockType, context);
-                                if (enumValue != null) {
-                                    block.setParameter(key, enumValue);
-                                } else {
-                                    // Если не удалось десериализовать, сохраняем как строку
-                                    block.setParameter(key, value.getAsString());
-                                }
-                            } else {
-                                Object deserializedValue = context.deserialize(value, Object.class);
-                                block.setParameter(key, deserializedValue);
-                            }
-                        } catch (Exception e) {
-                            // Игнорируем ошибки десериализации параметров
-                        }
+                        // Обычная десериализация
+                        block.setParameter(key, context.deserialize(value, Object.class));
                     }
                 }
             }
             
-            // Загружаем дочерние блоки
+            // Устанавливаем дочерние блоки
             if (jsonObject.has("children")) {
                 JsonArray children = jsonObject.getAsJsonArray("children");
                 for (JsonElement childElement : children) {
-                    try {
-                        CodeBlock child = context.deserialize(childElement, CodeBlock.class);
-                        if (child != null) {
-                            block.addChild(child);
-                        }
-                    } catch (Exception e) {
-                        // Игнорируем ошибки десериализации дочерних блоков
+                    CodeBlock child = context.deserialize(childElement, CodeBlock.class);
+                    if (child != null) {
+                        block.addChild(child);
                     }
-                }
-            }
-            
-            // Загружаем локацию
-            if (jsonObject.has("location")) {
-                try {
-                    JsonObject location = jsonObject.getAsJsonObject("location");
-                    String worldName = location.get("world").getAsString();
-                    double x = location.get("x").getAsDouble();
-                    double y = location.get("y").getAsDouble();
-                    double z = location.get("z").getAsDouble();
-                    
-                    org.bukkit.World world = org.bukkit.Bukkit.getWorld(worldName);
-                    if (world != null) {
-                        block.setLocation(new org.bukkit.Location(world, x, y, z));
-                    }
-                } catch (Exception e) {
-                    // Игнорируем ошибки загрузки локации
                 }
             }
             
             return block;
-        }
-        
-        /**
-         * Создание экземпляра блока по типу
-         */
-        private CodeBlock createBlockInstance(BlockType blockType) {
-            return ru.openhousing.coding.blocks.CodeBlockFactory.createBlock(blockType);
-        }
-                // События мира
-                case WORLD_WEATHER_CHANGE:
-                case WORLD_TIME_CHANGE:
-                case WORLD_CHUNK_LOAD:
-                case WORLD_CHUNK_UNLOAD:
-                case WORLD_STRUCTURE_GROW:
-                case WORLD_EXPLOSION:
-                case WORLD_PORTAL_CREATE:
-                    return new WorldEventBlock();
-                
-                // События существ
-                case ENTITY_SPAWN:
-                case ENTITY_DEATH:
-                case ENTITY_DAMAGE:
-                case ENTITY_TARGET:
-                case ENTITY_TAME:
-                case ENTITY_BREED:
-                case ENTITY_EXPLODE:
-                case ENTITY_INTERACT:
-                case ENTITY_MOUNT:
-                case ENTITY_DISMOUNT:
-                case ENTITY_LEASH:
-                case ENTITY_UNLEASH:
-                case ENTITY_SHEAR:
-                case ENTITY_MILK:
-                case ENTITY_TRANSFORM:
-                    return new EntityEventBlock();
-            
-                // Условия игрока
-                case IF_PLAYER_ONLINE:
-                case IF_PLAYER_PERMISSION:
-                case IF_PLAYER_GAMEMODE:
-                case IF_PLAYER_WORLD:
-                case IF_PLAYER_FLYING:
-                case IF_PLAYER_SNEAKING:
-                case IF_PLAYER_BLOCKING:
-                case IF_PLAYER_ITEM:
-                case IF_PLAYER_HEALTH:
-                case IF_PLAYER_FOOD:
-                    return new IfPlayerBlock();
-                    
-                // Условия существ
-                case IF_ENTITY_EXISTS:
-                case IF_ENTITY_TYPE:
-                case IF_ENTITY_HEALTH:
-                    return new IfEntityBlock();
-                    
-                // Условия переменных
-                case IF_VARIABLE_EQUALS:
-                case IF_VARIABLE_GREATER:
-                case IF_VARIABLE_LESS:
-                case IF_VARIABLE_CONTAINS:
-                case IF_VARIABLE_EXISTS:
-                case IF_VARIABLE_SAVED:
-                case IF_VARIABLE_TYPE:
-                    return new IfVariableBlock();
-                    
-                // Условия игры
-                case IF_GAME_TIME:
-                case IF_GAME_WEATHER:
-                case IF_GAME_DIFFICULTY:
-                case IF_GAME_PLAYERS_ONLINE:
-                case IF_GAME_TPS:
-                    return new IfPlayerBlock(); // Временно используем IfPlayerBlock
-            
-                // Действия игрока
-                case PLAYER_SEND_MESSAGE:
-                case PLAYER_SEND_TITLE:
-                case PLAYER_SEND_ACTIONBAR:
-                case PLAYER_TELEPORT_ACTION:
-                case PLAYER_GIVE_ITEM:
-                case PLAYER_REMOVE_ITEM:
-                case PLAYER_CLEAR_INVENTORY:
-                case PLAYER_SET_HEALTH:
-                case PLAYER_SET_FOOD:
-                case PLAYER_SET_EXP:
-                case PLAYER_GIVE_EFFECT:
-                case PLAYER_REMOVE_EFFECT:
-                case PLAYER_PLAY_SOUND:
-                case PLAYER_STOP_SOUND:
-                case PLAYER_SPAWN_PARTICLE:
-                case PLAYER_SET_GAMEMODE:
-                case PLAYER_KICK:
-                case PLAYER_BAN:
-                case PLAYER_WHITELIST_ADD:
-                case PLAYER_WHITELIST_REMOVE:
-                case PLAYER_SET_DISPLAY_NAME:
-                case PLAYER_RESET_DISPLAY_NAME:
-                case PLAYER_SEND_PLUGIN_MESSAGE:
-                    return new PlayerActionBlock();
-                
-                // Действия переменных
-                case VAR_SET:
-                case VAR_ADD:
-                case VAR_SUBTRACT:
-                case VAR_MULTIPLY:
-                case VAR_DIVIDE:
-                case VAR_APPEND_TEXT:
-                case VAR_REPLACE_TEXT:
-                case VAR_UPPERCASE:
-                case VAR_LOWERCASE:
-                case VAR_REVERSE:
-                case VAR_LENGTH:
-                case VAR_SUBSTRING:
-                case VAR_RANDOM_NUMBER:
-                case VAR_ROUND:
-                case VAR_ABS:
-                case VAR_MIN:
-                case VAR_MAX:
-                case VAR_SAVE:
-                case VAR_DELETE:
-                case VAR_COPY:
-                    return new VariableActionBlock();
-                
-                // Действия мира
-                case GAME_SET_TIME:
-                case GAME_SET_WEATHER:
-                case GAME_SET_DIFFICULTY:
-                case GAME_BROADCAST:
-                case GAME_EXECUTE_COMMAND:
-                case GAME_STOP_SERVER:
-                case GAME_RESTART_SERVER:
-                case GAME_SAVE_WORLD:
-                case GAME_LOAD_WORLD:
-                case GAME_CREATE_EXPLOSION:
-                case GAME_SPAWN_ENTITY:
-                case GAME_REMOVE_ENTITY:
-                case GAME_SET_BLOCK:
-                case GAME_BREAK_BLOCK:
-                case GAME_SEND_PACKET:
-                    return new WorldActionBlock();
-            
-                // Функции
-                case FUNCTION:
-                    return new FunctionBlock();
-                case CALL_FUNCTION:
-                    return new CallFunctionBlock();
-            
-                // Управление
-                case REPEAT:
-                    return new RepeatBlock();
-                case ELSE:
-                    return new ElseBlock();
-                case TARGET:
-                    return new ru.openhousing.coding.blocks.control.TargetBlock();
-            
-                // Математика и утилиты
-                case MATH:
-                    return new ru.openhousing.coding.blocks.math.MathBlock();
-                case TEXT_OPERATION:
-                    return new ru.openhousing.coding.blocks.text.TextOperationBlock();
-                case INVENTORY_ACTION:
-                    return new ru.openhousing.coding.blocks.inventory.InventoryActionBlock();
-                case ITEM_CHECK:
-                    return new ru.openhousing.coding.blocks.inventory.ItemCheckBlock();
-            
-                default:
-                    return null;
-            }
         }
         
         /**
@@ -384,208 +154,97 @@ public class ScriptSerializer {
             try {
                 String stringValue = value.getAsString();
                 
-                switch (blockType) {
-                    // Обработка действий игрока
-                    case PLAYER_SEND_MESSAGE:
-                    case PLAYER_SEND_TITLE:
-                    case PLAYER_SEND_ACTIONBAR:
-                    case PLAYER_TELEPORT_ACTION:
-                    case PLAYER_GIVE_ITEM:
-                    case PLAYER_REMOVE_ITEM:
-                    case PLAYER_CLEAR_INVENTORY:
-                    case PLAYER_SET_HEALTH:
-                    case PLAYER_SET_FOOD:
-                    case PLAYER_SET_EXP:
-                    case PLAYER_GIVE_EFFECT:
-                    case PLAYER_REMOVE_EFFECT:
-                    case PLAYER_PLAY_SOUND:
-                    case PLAYER_STOP_SOUND:
-                    case PLAYER_SPAWN_PARTICLE:
-                    case PLAYER_SET_GAMEMODE:
-                    case PLAYER_KICK:
-                    case PLAYER_BAN:
-                    case PLAYER_WHITELIST_ADD:
-                    case PLAYER_WHITELIST_REMOVE:
-                    case PLAYER_SET_DISPLAY_NAME:
-                    case PLAYER_RESET_DISPLAY_NAME:
-                    case PLAYER_SEND_PLUGIN_MESSAGE:
-                        if (key.equals("actionType")) {
-                            return ru.openhousing.coding.blocks.actions.PlayerActionBlock.PlayerActionType.valueOf(stringValue);
-                        }
-                        break;
-                        
-                    // Обработка действий мира
-                    case GAME_SET_TIME:
-                    case GAME_SET_WEATHER:
-                    case GAME_SET_DIFFICULTY:
-                    case GAME_BROADCAST:
-                    case GAME_EXECUTE_COMMAND:
-                    case GAME_STOP_SERVER:
-                    case GAME_RESTART_SERVER:
-                    case GAME_SAVE_WORLD:
-                    case GAME_LOAD_WORLD:
-                    case GAME_CREATE_EXPLOSION:
-                    case GAME_SPAWN_ENTITY:
-                    case GAME_REMOVE_ENTITY:
-                    case GAME_SET_BLOCK:
-                    case GAME_BREAK_BLOCK:
-                    case GAME_SEND_PACKET:
-                        if (key.equals("actionType")) {
-                            return ru.openhousing.coding.blocks.actions.WorldActionBlock.WorldActionType.valueOf(stringValue);
-                        }
-                        break;
-                        
-                    // Обработка событий игрока
-                    case PLAYER_JOIN:
-                    case PLAYER_QUIT:
-                    case PLAYER_CHAT:
-                    case PLAYER_COMMAND:
-                    case PLAYER_MOVE:
-                    case PLAYER_TELEPORT:
-                    case PLAYER_DEATH:
-                    case PLAYER_RESPAWN:
-                    case PLAYER_DAMAGE:
-                    case PLAYER_HEAL:
-                    case PLAYER_FOOD_CHANGE:
-                    case PLAYER_EXP_CHANGE:
-                    case PLAYER_LEVEL_UP:
-                    case PLAYER_INVENTORY_CLICK:
-                    case PLAYER_ITEM_DROP:
-                    case PLAYER_ITEM_PICKUP:
-                    case PLAYER_ITEM_CONSUME:
-                    case PLAYER_ITEM_BREAK:
-                    case PLAYER_BLOCK_BREAK:
-                    case PLAYER_BLOCK_PLACE:
-                    case PLAYER_INTERACT:
-                    case PLAYER_INTERACT_ENTITY:
-                    case PLAYER_FISH:
-                    case PLAYER_ENCHANT:
-                    case PLAYER_CRAFT:
-                    case PLAYER_SMELT:
-                    case PLAYER_TRADE:
-                    case PLAYER_SNEAK:
-                        if (key.equals("eventType")) {
-                            return ru.openhousing.coding.blocks.events.PlayerEventBlock.PlayerEventType.valueOf(stringValue);
-                        }
-                        break;
-                        
-                    // Обработка событий существ
-                    case ENTITY_SPAWN:
-                    case ENTITY_DEATH:
-                    case ENTITY_DAMAGE:
-                    case ENTITY_TARGET:
-                    case ENTITY_TAME:
-                    case ENTITY_BREED:
-                    case ENTITY_EXPLODE:
-                    case ENTITY_INTERACT:
-                    case ENTITY_MOUNT:
-                    case ENTITY_DISMOUNT:
-                    case ENTITY_LEASH:
-                    case ENTITY_UNLEASH:
-                    case ENTITY_SHEAR:
-                    case ENTITY_MILK:
-                    case ENTITY_TRANSFORM:
-                        if (key.equals("eventType")) {
-                            return ru.openhousing.coding.blocks.events.EntityEventBlock.EntityEventType.valueOf(stringValue);
-                        }
-                        break;
-                        
-                    // Обработка событий мира
-                    case WORLD_WEATHER_CHANGE:
-                    case WORLD_TIME_CHANGE:
-                    case WORLD_CHUNK_LOAD:
-                    case WORLD_CHUNK_UNLOAD:
-                    case WORLD_STRUCTURE_GROW:
-                    case WORLD_EXPLOSION:
-                    case WORLD_PORTAL_CREATE:
-                        if (key.equals("eventType")) {
-                            return ru.openhousing.coding.blocks.events.WorldEventBlock.WorldEventType.valueOf(stringValue);
-                        }
-                        break;
-                        
-                    // Обработка условий игрока
-                    case IF_PLAYER_ONLINE:
-                    case IF_PLAYER_PERMISSION:
-                    case IF_PLAYER_GAMEMODE:
-                    case IF_PLAYER_WORLD:
-                    case IF_PLAYER_FLYING:
-                    case IF_PLAYER_SNEAKING:
-                    case IF_PLAYER_BLOCKING:
-                    case IF_PLAYER_ITEM:
-                    case IF_PLAYER_HEALTH:
-                    case IF_PLAYER_FOOD:
-                        if (key.equals("conditionType")) {
-                            return ru.openhousing.coding.blocks.conditions.IfPlayerBlock.PlayerConditionType.valueOf(stringValue);
-                        }
-                        break;
-                        
-                    // Обработка условий существ
-                    case IF_ENTITY_EXISTS:
-                    case IF_ENTITY_TYPE:
-                    case IF_ENTITY_HEALTH:
-                        if (key.equals("conditionType")) {
-                            return ru.openhousing.coding.blocks.conditions.IfEntityBlock.EntityConditionType.valueOf(stringValue);
-                        }
-                        break;
-                        
-                    // Обработка условий переменных
-                    case IF_VARIABLE_EQUALS:
-                    case IF_VARIABLE_GREATER:
-                    case IF_VARIABLE_LESS:
-                    case IF_VARIABLE_CONTAINS:
-                    case IF_VARIABLE_EXISTS:
-                    case IF_VARIABLE_SAVED:
-                    case IF_VARIABLE_TYPE:
-                        if (key.equals("conditionType")) {
-                            return ru.openhousing.coding.blocks.conditions.IfVariableBlock.VariableConditionType.valueOf(stringValue);
-                        }
-                        break;
-                    case MATH:
-                        if (key.equals("operation")) {
-                            return ru.openhousing.coding.blocks.math.MathBlock.MathOperation.valueOf(stringValue);
-                        }
-                        break;
-                    case TEXT_OPERATION:
-                        if (key.equals("operation")) {
-                            return ru.openhousing.coding.blocks.text.TextOperationBlock.TextOperation.valueOf(stringValue);
-                        }
-                        break;
-                    case REPEAT:
-                        if (key.equals("repeatType")) {
-                            return ru.openhousing.coding.blocks.control.RepeatBlock.RepeatType.valueOf(stringValue);
-                        }
-                        break;
-                    case TARGET:
-                        if (key.equals("targetType")) {
-                            return ru.openhousing.coding.blocks.control.TargetBlock.TargetType.valueOf(stringValue);
-                        }
-                        break;
-                    // Обработка действий переменных
-                    case VAR_SET:
-                    case VAR_ADD:
-                    case VAR_SUBTRACT:
-                    case VAR_MULTIPLY:
-                    case VAR_DIVIDE:
-                    case VAR_APPEND_TEXT:
-                    case VAR_REPLACE_TEXT:
-                    case VAR_UPPERCASE:
-                    case VAR_LOWERCASE:
-                    case VAR_REVERSE:
-                    case VAR_LENGTH:
-                    case VAR_SUBSTRING:
-                    case VAR_RANDOM_NUMBER:
-                    case VAR_ROUND:
-                    case VAR_ABS:
-                    case VAR_MIN:
-                    case VAR_MAX:
-                    case VAR_SAVE:
-                    case VAR_DELETE:
-                    case VAR_COPY:
-                        if (key.equals("actionType")) {
-                            return ru.openhousing.coding.blocks.variables.VariableActionBlock.VariableActionType.valueOf(stringValue);
-                        }
-                        break;
+                // Обработка действий игрока
+                if (blockType.name().startsWith("PLAYER_") && blockType.getCategory() == BlockType.BlockCategory.ACTION) {
+                    if (key.equals("actionType")) {
+                        return ru.openhousing.coding.blocks.actions.PlayerActionBlock.PlayerActionType.valueOf(stringValue);
+                    }
                 }
+                
+                // Обработка действий мира
+                if (blockType.name().startsWith("GAME_") && blockType.getCategory() == BlockType.BlockCategory.ACTION) {
+                    if (key.equals("actionType")) {
+                        return ru.openhousing.coding.blocks.actions.WorldActionBlock.WorldActionType.valueOf(stringValue);
+                    }
+                }
+                
+                // Обработка событий игрока
+                if (blockType.name().startsWith("PLAYER_") && blockType.getCategory() == BlockType.BlockCategory.EVENT) {
+                    if (key.equals("eventType")) {
+                        return ru.openhousing.coding.blocks.events.PlayerEventBlock.PlayerEventType.valueOf(stringValue);
+                    }
+                }
+                
+                // Обработка событий существ
+                if (blockType.name().startsWith("ENTITY_") && blockType.getCategory() == BlockType.BlockCategory.EVENT) {
+                    if (key.equals("eventType")) {
+                        return ru.openhousing.coding.blocks.events.EntityEventBlock.EntityEventType.valueOf(stringValue);
+                    }
+                }
+                
+                // Обработка событий мира
+                if (blockType.name().startsWith("WORLD_") && blockType.getCategory() == BlockType.BlockCategory.EVENT) {
+                    if (key.equals("eventType")) {
+                        return ru.openhousing.coding.blocks.events.WorldEventBlock.WorldEventType.valueOf(stringValue);
+                    }
+                }
+                
+                // Обработка условий игрока
+                if (blockType.name().startsWith("IF_PLAYER")) {
+                    if (key.equals("conditionType")) {
+                        return ru.openhousing.coding.blocks.conditions.IfPlayerBlock.PlayerConditionType.valueOf(stringValue);
+                    }
+                }
+                
+                // Обработка условий существ
+                if (blockType.name().startsWith("IF_ENTITY")) {
+                    if (key.equals("conditionType")) {
+                        return ru.openhousing.coding.blocks.conditions.IfEntityBlock.EntityConditionType.valueOf(stringValue);
+                    }
+                }
+                
+                // Обработка условий переменных
+                if (blockType.name().startsWith("IF_VARIABLE")) {
+                    if (key.equals("conditionType")) {
+                        return ru.openhousing.coding.blocks.conditions.IfVariableBlock.VariableConditionType.valueOf(stringValue);
+                    }
+                }
+                
+                // Обработка действий переменных
+                if (blockType.name().startsWith("VAR_")) {
+                    if (key.equals("actionType")) {
+                        return ru.openhousing.coding.blocks.variables.VariableActionBlock.VariableActionType.valueOf(stringValue);
+                    }
+                }
+                
+                // Обработка математических операций
+                if (blockType == BlockType.MATH) {
+                    if (key.equals("operation")) {
+                        return ru.openhousing.coding.blocks.math.MathBlock.MathOperation.valueOf(stringValue);
+                    }
+                }
+                
+                // Обработка текстовых операций
+                if (blockType == BlockType.TEXT_OPERATION) {
+                    if (key.equals("operation")) {
+                        return ru.openhousing.coding.blocks.text.TextOperationBlock.TextOperation.valueOf(stringValue);
+                    }
+                }
+                
+                // Обработка повторений
+                if (blockType == BlockType.REPEAT) {
+                    if (key.equals("repeatType")) {
+                        return ru.openhousing.coding.blocks.control.RepeatBlock.RepeatType.valueOf(stringValue);
+                    }
+                }
+                
+                // Обработка целей
+                if (blockType == BlockType.TARGET) {
+                    if (key.equals("targetType")) {
+                        return ru.openhousing.coding.blocks.control.TargetBlock.TargetType.valueOf(stringValue);
+                    }
+                }
+                
             } catch (IllegalArgumentException e) {
                 // Если enum значение не найдено, возвращаем null
                 return null;
@@ -613,13 +272,28 @@ public class ScriptSerializer {
                 jsonObject.addProperty("boundWorld", src.getBoundWorld());
             }
             
-            // Блоки
-            if (!src.getBlocks().isEmpty()) {
-                JsonArray blocks = new JsonArray();
-                for (CodeBlock block : src.getBlocks()) {
-                    blocks.add(context.serialize(block, CodeBlock.class));
+            // Строки кода
+            if (!src.getLines().isEmpty()) {
+                JsonArray lines = new JsonArray();
+                for (ru.openhousing.coding.script.CodeLine line : src.getLines()) {
+                    JsonObject lineObject = new JsonObject();
+                    lineObject.addProperty("name", line.getName());
+                    lineObject.addProperty("description", line.getDescription());
+                    lineObject.addProperty("enabled", line.isEnabled());
+                    lineObject.addProperty("lineNumber", line.getLineNumber());
+                    
+                    // Блоки в строке
+                    if (!line.getBlocks().isEmpty()) {
+                        JsonArray blocks = new JsonArray();
+                        for (CodeBlock block : line.getBlocks()) {
+                            blocks.add(context.serialize(block, CodeBlock.class));
+                        }
+                        lineObject.add("blocks", blocks);
+                    }
+                    
+                    lines.add(lineObject);
                 }
-                jsonObject.add("blocks", blocks);
+                jsonObject.add("lines", lines);
             }
             
             // Глобальные переменные
@@ -631,15 +305,6 @@ public class ScriptSerializer {
                     }
                 }
                 jsonObject.add("globalVariables", variables);
-            }
-            
-            // Функции (сохраняем только их имена, так как они уже есть в блоках)
-            if (!src.getFunctions().isEmpty()) {
-                JsonArray functions = new JsonArray();
-                for (String functionName : src.getFunctions().keySet()) {
-                    functions.add(functionName);
-                }
-                jsonObject.add("functionNames", functions);
             }
             
             return jsonObject;
@@ -663,6 +328,34 @@ public class ScriptSerializer {
                 script.setBoundWorld(jsonObject.get("boundWorld").getAsString());
             }
             
+            // Строки кода
+            if (jsonObject.has("lines")) {
+                JsonArray lines = jsonObject.getAsJsonArray("lines");
+                for (JsonElement lineElement : lines) {
+                    JsonObject lineObject = lineElement.getAsJsonObject();
+                    
+                    String lineName = lineObject.get("name").getAsString();
+                    String description = lineObject.has("description") ? lineObject.get("description").getAsString() : "";
+                    boolean enabled = lineObject.has("enabled") ? lineObject.get("enabled").getAsBoolean() : true;
+                    int lineNumber = lineObject.has("lineNumber") ? lineObject.get("lineNumber").getAsInt() : 0;
+                    
+                    ru.openhousing.coding.script.CodeLine line = script.createLine(lineName);
+                    line.setDescription(description);
+                    line.setEnabled(enabled);
+                    
+                    // Блоки в строке
+                    if (lineObject.has("blocks")) {
+                        JsonArray blocks = lineObject.getAsJsonArray("blocks");
+                        for (JsonElement blockElement : blocks) {
+                            CodeBlock block = context.deserialize(blockElement, CodeBlock.class);
+                            if (block != null) {
+                                line.addBlock(block);
+                            }
+                        }
+                    }
+                }
+            }
+            
             // Глобальные переменные
             if (jsonObject.has("globalVariables")) {
                 JsonObject variables = jsonObject.getAsJsonObject("globalVariables");
@@ -683,21 +376,6 @@ public class ScriptSerializer {
                         } else if (primitive.isBoolean()) {
                             script.setGlobalVariable(key, primitive.getAsBoolean());
                         }
-                    }
-                }
-            }
-            
-            // Блоки
-            if (jsonObject.has("blocks")) {
-                JsonArray blocks = jsonObject.getAsJsonArray("blocks");
-                for (JsonElement blockElement : blocks) {
-                    try {
-                        CodeBlock block = context.deserialize(blockElement, CodeBlock.class);
-                        if (block != null) {
-                            script.addBlock(block);
-                        }
-                    } catch (Exception e) {
-                        // Игнорируем ошибки десериализации блоков
                     }
                 }
             }
