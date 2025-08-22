@@ -138,7 +138,7 @@ src/main/java/ru/openhousing/
 
 Этот проект распространяется под лицензией GNU GPLv3. Подробности в файле `LICENSE`.
 
-- **Discord**: [[Ссылка на Discord сервер]](https://discord.gg/gz8KUkWWMj)
+- **Discord**: https://discord.gg/gz8KUkWWMj
 
 
 **OpenHousing** - создавай, программируй, играй! 🚀
