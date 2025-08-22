@@ -190,9 +190,23 @@ public class HousingCommand implements CommandExecutor, TabCompleter {
      * Создание дома
      */
     private void createHouse(Player player, String[] args) {
+        // Проверяем, есть ли уже дом у игрока
+        if (plugin.getHousingManager().hasHouse(player.getName())) {
+            MessageUtil.send(player, "&cУ вас уже есть дом! Удалите его перед созданием нового: &e/housing delete");
+            return;
+        }
+        
         String houseName = null;
         if (args.length > 1) {
             houseName = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+        }
+        
+        // Показываем информацию о создании
+        MessageUtil.send(player, "&6Создание дома...");
+        if (houseName != null && !houseName.isEmpty()) {
+            MessageUtil.send(player, "&7Название: &e" + houseName);
+        } else {
+            MessageUtil.send(player, "&7Название: &eДом " + player.getName());
         }
         
         HousingManager.CreateHouseResult result = plugin.getHousingManager().createHouse(player, houseName);
@@ -200,8 +214,11 @@ public class HousingCommand implements CommandExecutor, TabCompleter {
         if (result.isSuccess()) {
             MessageUtil.send(player, "&a" + result.getMessage());
             MessageUtil.send(player, "&7Используйте &e/housing home &7для телепортации домой!");
+            MessageUtil.send(player, "&7Используйте &e/code editor &7для создания кода!");
+            MessageUtil.send(player, "&7Используйте &e/housing settings &7для настройки дома!");
         } else {
             MessageUtil.send(player, "&c" + result.getMessage());
+            MessageUtil.send(player, "&7Попробуйте: &e/housing create [название]");
         }
     }
     
@@ -264,18 +281,46 @@ public class HousingCommand implements CommandExecutor, TabCompleter {
     private void visitHouse(Player player, String[] args) {
         if (args.length < 2) {
             MessageUtil.send(player, "&cИспользование: &e/housing visit <игрок>");
+            MessageUtil.send(player, "&7Пример: &e/housing visit " + player.getName());
             return;
         }
         
         String targetPlayer = args[1];
+        
+        // Проверяем, существует ли игрок
+        if (plugin.getServer().getPlayer(targetPlayer) == null && 
+            !plugin.getServer().getOfflinePlayer(targetPlayer).hasPlayedBefore()) {
+            MessageUtil.send(player, "&cИгрок &e" + targetPlayer + " &cне найден!");
+            return;
+        }
+        
+        MessageUtil.send(player, "&6Поиск дома игрока &e" + targetPlayer + "&6...");
+        
         List<House> houses = plugin.getHousingManager().getPlayerHouses(targetPlayer);
         
         if (houses.isEmpty()) {
-            MessageUtil.send(player, "&cУ игрока " + targetPlayer + " нет домов!");
+            MessageUtil.send(player, "&cУ игрока &e" + targetPlayer + " &cнет домов!");
+            MessageUtil.send(player, "&7Попробуйте: &e/housing list public &7для просмотра публичных домов");
             return;
         }
         
         House house = houses.get(0); // Первый дом
+        
+        // Проверяем доступ
+        if (!house.canVisit(player)) {
+            if (house.getBannedPlayers().contains(player.getUniqueId())) {
+                MessageUtil.send(player, "&cВы заблокированы в доме игрока &e" + targetPlayer + "&c!");
+            } else if (!house.isPublic()) {
+                MessageUtil.send(player, "&cДом игрока &e" + targetPlayer + " &cприватный!");
+                MessageUtil.send(player, "&7Попросите владельца разрешить вам доступ");
+            } else {
+                MessageUtil.send(player, "&cНет доступа к дому игрока &e" + targetPlayer + "&c!");
+            }
+            return;
+        }
+        
+        MessageUtil.send(player, "&6Телепортация в дом &e" + house.getName() + "&6...");
+        
         if (plugin.getHousingManager().teleportToHouse(player, house)) {
             MessageUtil.send(player, "&aВы посетили дом игрока " + targetPlayer + "!");
         } else {
@@ -373,16 +418,39 @@ public class HousingCommand implements CommandExecutor, TabCompleter {
         
         if (houses.isEmpty()) {
             MessageUtil.send(player, "&cУ вас нет домов!");
+            MessageUtil.send(player, "&7Создайте дом: &e/housing create");
             return;
         }
         
         House house = houses.get(0); // Удаляем первый дом
         
-        if (plugin.getHousingManager().deleteHouse(house, player)) {
-            MessageUtil.send(player, "&aДом &e" + house.getName() + " &aуспешно удален!");
-        } else {
-            MessageUtil.send(player, "&cНе удалось удалить дом!");
-        }
+        MessageUtil.send(player, 
+            "&c&l=== УДАЛЕНИЕ ДОМА ===",
+            "&7Название: &e" + house.getName(),
+            "&7Размер: &e" + house.getSize().getDisplayName(),
+            "&cВНИМАНИЕ: Дом будет удален навсегда!",
+            "&cВсе данные и код будут потеряны!",
+            "",
+            "&eНапишите в чат: &cУДАЛИТЬ &eдля подтверждения",
+            "&7Или любое другое сообщение для отмены"
+        );
+        
+        // Регистрируем временный слушатель чата
+        ru.openhousing.listeners.ChatListener.registerTemporaryInput(player, (input) -> {
+            if ("УДАЛИТЬ".equalsIgnoreCase(input.trim())) {
+                MessageUtil.send(player, "&6Удаление дома...");
+                
+                if (plugin.getHousingManager().deleteHouse(house, player)) {
+                    MessageUtil.send(player, "&aДом &e" + house.getName() + " &aуспешно удален!");
+                    MessageUtil.send(player, "&7Создайте новый дом: &e/housing create");
+                } else {
+                    MessageUtil.send(player, "&cНе удалось удалить дом!");
+                    MessageUtil.send(player, "&7Попробуйте позже или обратитесь к администратору");
+                }
+            } else {
+                MessageUtil.send(player, "&7Удаление дома отменено");
+            }
+        });
     }
     
     /**

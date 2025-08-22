@@ -22,8 +22,13 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         
-        // Загружаем данные игрока
-        plugin.getCodeManager().loadScript(player);
+        // Асинхронно загружаем данные игрока
+        plugin.getDatabaseManager().loadCodeScriptAsync(player.getUniqueId(), script -> {
+            if (script != null) {
+                // Регистрируем обработчики событий в основном потоке
+                plugin.getCodeManager().registerScript(player, script);
+            }
+        });
         
         // Приветственное сообщение (если первый заход)
         if (!player.hasPlayedBefore()) {

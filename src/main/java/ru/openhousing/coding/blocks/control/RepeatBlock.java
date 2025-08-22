@@ -37,9 +37,9 @@ public class RepeatBlock extends CodeBlock {
     
     public RepeatBlock() {
         super(BlockType.REPEAT);
-        setParameter("repeatType", RepeatType.TIMES);
-        setParameter("value", "5"); // Количество повторений или условие
-        setParameter("maxIterations", "1000"); // Максимальное количество итераций для безопасности
+        setParameter(ru.openhousing.coding.constants.BlockParams.REPEAT_TYPE, RepeatType.TIMES);
+        setParameter(ru.openhousing.coding.constants.BlockParams.VALUE, "5"); // Количество повторений или условие
+        setParameter(ru.openhousing.coding.constants.BlockParams.MAX_ITERATIONS, "1000"); // Максимальное количество итераций для безопасности
     }
     
     @Override
