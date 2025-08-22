@@ -38,6 +38,9 @@ public class CodeListener implements Listener {
         
         // Обрабатываем событие в коде
         plugin.getCodeManager().handleEvent(event, player);
+        
+        // Показываем приветствие
+        plugin.getSoundEffects().showWelcomeTitle(player);
     }
     
     @EventHandler(priority = EventPriority.MONITOR)

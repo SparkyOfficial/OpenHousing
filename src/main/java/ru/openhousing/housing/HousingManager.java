@@ -189,6 +189,11 @@ public class HousingManager {
             plugin.getDatabaseManager().saveCodeScriptAsync(script, () -> {});
         } catch (Exception ignored) {}
         
+        // Звуковые эффекты и уведомления
+        plugin.getSoundEffects().playHouseCreate(player);
+        plugin.getSoundEffects().showHouseCreatedTitle(player, houseName);
+        plugin.getSoundEffects().showHouseBossBar(player, houseName, player.getName());
+        
         return new CreateHouseResult(true, "Дом '" + houseName + "' успешно создан!", house);
     }
     

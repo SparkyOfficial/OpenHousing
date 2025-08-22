@@ -1,5 +1,6 @@
 ru\openhousing\coding\gui\blocks\EntityActionConfigGUI.class
 ru\openhousing\coding\gui\WorldActionSelectorGUI$1.class
+ru\openhousing\utils\SoundEffects$1.class
 ru\openhousing\coding\gui\CodeEditorGUI$1.class
 ru\openhousing\database\DatabaseManager.class
 ru\openhousing\coding\blocks\control\TargetBlock$TargetType.class
@@ -22,6 +23,7 @@ ru\openhousing\coding\blocks\BlockType$BlockCategory.class
 ru\openhousing\listeners\PlayerListener.class
 ru\openhousing\coding\gui\StringSelectorGUI.class
 ru\openhousing\coding\values\ParticleValue$ParticleData.class
+ru\openhousing\utils\SoundEffects$4.class
 ru\openhousing\coding\gui\EntityActionSelectorGUI.class
 ru\openhousing\coding\gui\LocationSelectorGUI.class
 ru\openhousing\coding\constants\BlockParams.class
@@ -38,6 +40,7 @@ ru\openhousing\coding\values\TextValue.class
 ru\openhousing\coding\gui\blocks\VariableActionConfigGUI.class
 ru\openhousing\coding\gui\LineSelectorGUI.class
 ru\openhousing\notifications\NotificationManager$2.class
+ru\openhousing\utils\SoundEffects$3.class
 ru\openhousing\coding\listeners\VariableInteractionListener.class
 ru\openhousing\listeners\BlockListener.class
 ru\openhousing\coding\blocks\math\MathBlock$MathOperation.class
@@ -97,6 +100,7 @@ ru\openhousing\coding\values\ParticleValue.class
 ru\openhousing\coding\variables\DynamicVariable.class
 ru\openhousing\coding\gui\LineBlocksGUI.class
 ru\openhousing\coding\gui\PlayerSelectorGUI.class
+ru\openhousing\utils\SoundEffects$2.class
 ru\openhousing\coding\script\CodeScript.class
 ru\openhousing\coding\variables\VariableType.class
 ru\openhousing\coding\blocks\actions\PlayerActionBlock.class
@@ -114,6 +118,7 @@ ru\openhousing\coding\blocks\conditions\IfPlayerBlock.class
 ru\openhousing\coding\blocks\events\WorldEventBlock$WorldEventType.class
 ru\openhousing\coding\gui\VariableToolbarGUI$1.class
 ru\openhousing\coding\gui\WorldActionSelectorGUI.class
+ru\openhousing\utils\SoundEffects.class
 ru\openhousing\coding\gui\PlayerEventSelectorGUI$1.class
 ru\openhousing\listeners\HousingListener$1.class
 ru\openhousing\coding\blocks\actions\WorldActionBlock.class

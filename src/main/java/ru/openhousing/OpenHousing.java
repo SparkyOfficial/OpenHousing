@@ -45,6 +45,7 @@ public class OpenHousing extends JavaPlugin {
     private ru.openhousing.integrations.WorldGuardIntegration worldGuardIntegration;
     private ru.openhousing.teleportation.TeleportationManager teleportationManager;
     private ru.openhousing.notifications.NotificationManager notificationManager;
+    private ru.openhousing.utils.SoundEffects soundEffects;
     
     // API
     private OpenHousingAPI api;
@@ -180,6 +181,9 @@ public class OpenHousing extends JavaPlugin {
         // Менеджер уведомлений
         notificationManager = new ru.openhousing.notifications.NotificationManager(this);
         
+        // Звуковые эффекты
+        soundEffects = new ru.openhousing.utils.SoundEffects(this);
+        
         // Менеджер домов
         housingManager = new HousingManager(this);
         housingManager.initialize();
@@ -257,6 +261,10 @@ public class OpenHousing extends JavaPlugin {
     
     public CodeManager getCodeManager() {
         return codeManager;
+    }
+    
+    public ru.openhousing.utils.SoundEffects getSoundEffects() {
+        return soundEffects;
     }
     
     public ru.openhousing.listeners.ChatListener getChatListener() {

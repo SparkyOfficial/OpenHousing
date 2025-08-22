@@ -77,6 +77,8 @@ public class CodeManager {
             if (script != null) {
                 saveScript(player, script);
                 player.sendMessage("§aКод автоматически сохранен!");
+                plugin.getSoundEffects().playSave(player);
+                plugin.getSoundEffects().showCodeSavedTitle(player);
             }
             editor.close();
         }

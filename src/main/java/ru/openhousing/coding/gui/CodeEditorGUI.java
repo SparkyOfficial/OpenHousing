@@ -61,6 +61,7 @@ public class CodeEditorGUI implements InventoryHolder {
      */
     public void open() {
         player.openInventory(inventory);
+        plugin.getSoundEffects().playOpenGUI(player);
     }
     
     /**
@@ -68,6 +69,7 @@ public class CodeEditorGUI implements InventoryHolder {
      */
     public void close() {
         player.closeInventory();
+        plugin.getSoundEffects().playCloseGUI(player);
     }
     
     /**
