@@ -60,8 +60,59 @@ public class BlockConfigGUI implements Listener {
      * Открытие GUI
      */
     public void open() {
+        // Проверяем, нужно ли использовать специализированный GUI
+        if (shouldUseSpecializedGUI()) {
+            openSpecializedGUI();
+            return;
+        }
+        
+        // Используем стандартный GUI для остальных блоков
         setupInventory();
         player.openInventory(inventory);
+    }
+    
+    /**
+     * Проверяет, нужно ли использовать специализированный GUI для данного блока
+     */
+    private boolean shouldUseSpecializedGUI() {
+        BlockType.BlockCategory category = block.getType().getCategory();
+        String typeName = block.getType().name();
+        
+        // PlayerAction блоки используют специализированный GUI
+        if (category == BlockType.BlockCategory.ACTION && typeName.startsWith("PLAYER_")) {
+            return true;
+        }
+        
+        // Можно добавить другие типы блоков здесь в будущем
+        // if (category == BlockType.BlockCategory.EVENT && typeName.startsWith("PLAYER_")) {
+        //     return true;
+        // }
+        
+        return false;
+    }
+    
+    /**
+     * Открывает специализированный GUI для блока
+     */
+    private void openSpecializedGUI() {
+        // Отменяем регистрацию текущего листенера
+        org.bukkit.event.HandlerList.unregisterAll(this);
+        
+        BlockType.BlockCategory category = block.getType().getCategory();
+        String typeName = block.getType().name();
+        
+        Runnable saveCallback = () -> {
+            if (onSave != null) {
+                onSave.accept(block);
+            } else if (editorGUI != null) {
+                editorGUI.open();
+            }
+        };
+        
+        if (category == BlockType.BlockCategory.ACTION && typeName.startsWith("PLAYER_")) {
+            new PlayerActionBlockConfigGUI(plugin, player, block, saveCallback).open();
+        }
+        // Здесь можно добавить другие специализированные GUI
     }
     
     private void setupInventory() {

@@ -74,8 +74,8 @@ public class IfPlayerBlock extends CodeBlock {
     
     private boolean checkCondition(Player player, ExecutionContext context) {
         PlayerConditionType conditionType = (PlayerConditionType) getParameter(ru.openhousing.coding.constants.BlockParams.CONDITION_TYPE);
-        String value = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE);
-        String compareValue = (String) getParameter(ru.openhousing.coding.constants.BlockParams.COMPARE_VALUE);
+        String value = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE), context);
+        String compareValue = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.COMPARE_VALUE), context);
         
         if (conditionType == null || value == null) {
             return false;
@@ -84,7 +84,7 @@ public class IfPlayerBlock extends CodeBlock {
         try {
             switch (conditionType) {
                 case HAS_PERMISSION:
-                    return player.hasPermission(value);
+                    return checkPermissionCondition(player, value, context);
                     
                 case IN_GAMEMODE:
                     GameMode gameMode = GameMode.valueOf(value.toUpperCase());
@@ -266,6 +266,87 @@ public class IfPlayerBlock extends CodeBlock {
         } catch (Exception e) {
             return false;
         }
+    }
+    
+    /**
+     * Проверка разрешения с поддержкой различных форматов
+     */
+    private boolean checkPermissionCondition(Player player, String permission, ExecutionContext context) {
+        if (permission == null || permission.trim().isEmpty()) {
+            if (context.isDebugMode()) {
+                player.sendMessage("§8[DEBUG] Пустое разрешение для проверки");
+            }
+            return false;
+        }
+        
+        permission = permission.trim();
+        
+        // Поддержка отрицания разрешений (начинается с !)
+        boolean negated = false;
+        if (permission.startsWith("!")) {
+            negated = true;
+            permission = permission.substring(1).trim();
+        }
+        
+        // Поддержка множественных разрешений через OR (разделенных |)
+        if (permission.contains("|")) {
+            String[] permissions = permission.split("\\|");
+            boolean hasAnyPermission = false;
+            
+            for (String perm : permissions) {
+                perm = perm.trim();
+                if (!perm.isEmpty() && player.hasPermission(perm)) {
+                    hasAnyPermission = true;
+                    if (context.isDebugMode()) {
+                        player.sendMessage("§8[DEBUG] Игрок имеет разрешение: §7" + perm);
+                    }
+                    break;
+                }
+            }
+            
+            boolean result = negated ? !hasAnyPermission : hasAnyPermission;
+            
+            if (context.isDebugMode()) {
+                player.sendMessage("§8[DEBUG] Проверка разрешений " + permission + " (отрицание: " + negated + "): §7" + result);
+            }
+            
+            return result;
+        }
+        
+        // Поддержка множественных разрешений через AND (разделенных &)
+        if (permission.contains("&")) {
+            String[] permissions = permission.split("&");
+            boolean hasAllPermissions = true;
+            
+            for (String perm : permissions) {
+                perm = perm.trim();
+                if (!perm.isEmpty() && !player.hasPermission(perm)) {
+                    hasAllPermissions = false;
+                    if (context.isDebugMode()) {
+                        player.sendMessage("§8[DEBUG] Игрок НЕ имеет разрешение: §7" + perm);
+                    }
+                    break;
+                }
+            }
+            
+            boolean result = negated ? !hasAllPermissions : hasAllPermissions;
+            
+            if (context.isDebugMode()) {
+                player.sendMessage("§8[DEBUG] Проверка всех разрешений " + permission + " (отрицание: " + negated + "): §7" + result);
+            }
+            
+            return result;
+        }
+        
+        // Обычная проверка одного разрешения
+        boolean hasPermission = player.hasPermission(permission);
+        boolean result = negated ? !hasPermission : hasPermission;
+        
+        if (context.isDebugMode()) {
+            player.sendMessage("§8[DEBUG] Проверка разрешения '" + permission + "' (отрицание: " + negated + "): §7" + result);
+        }
+        
+        return result;
     }
     
     @Override

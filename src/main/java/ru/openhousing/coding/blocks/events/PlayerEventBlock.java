@@ -154,7 +154,8 @@ public class PlayerEventBlock extends CodeBlock {
             case QUIT:
                 return event instanceof org.bukkit.event.player.PlayerQuitEvent;
             case CHAT:
-                return event instanceof org.bukkit.event.player.AsyncPlayerChatEvent;
+                return event instanceof org.bukkit.event.player.AsyncPlayerChatEvent && 
+                       matchesChatConditions((org.bukkit.event.player.AsyncPlayerChatEvent) event);
             case MOVE:
                 return event instanceof org.bukkit.event.player.PlayerMoveEvent;
             case INTERACT:
@@ -207,6 +208,139 @@ public class PlayerEventBlock extends CodeBlock {
      */
     private boolean isJumpEvent(org.bukkit.event.player.PlayerMoveEvent moveEvent) {
         return moveEvent.getTo().getY() > moveEvent.getFrom().getY() + 0.1;
+    }
+    
+    /**
+     * Проверка дополнительных условий для события чата
+     */
+    private boolean matchesChatConditions(org.bukkit.event.player.AsyncPlayerChatEvent chatEvent) {
+        Object conditionsParam = getParameter("conditions");
+        if (conditionsParam == null || conditionsParam.toString().trim().isEmpty()) {
+            return true; // Нет дополнительных условий
+        }
+        
+        String conditions = conditionsParam.toString().trim();
+        String message = chatEvent.getMessage();
+        Player player = chatEvent.getPlayer();
+        
+        // Создаем временный контекст для проверки условий
+        ExecutionContext tempContext = new ExecutionContext(player);
+        tempContext.setVariable("chat_message", message);
+        tempContext.setVariable("chat_format", chatEvent.getFormat());
+        
+        // Обрабатываем переменные в условиях
+        String processedConditions = replaceVariables(conditions, tempContext);
+        
+        // Проверяем различные типы условий
+        return checkChatConditions(processedConditions, message, player);
+    }
+    
+    /**
+     * Проверка конкретных условий чата
+     */
+    private boolean checkChatConditions(String conditions, String message, Player player) {
+        // Разбиваем условия по операторам AND/OR
+        String[] andConditions = conditions.split("(?i)\\s+and\\s+");
+        
+        for (String andCondition : andConditions) {
+            String[] orConditions = andCondition.split("(?i)\\s+or\\s+");
+            boolean orResult = false;
+            
+            for (String condition : orConditions) {
+                if (checkSingleChatCondition(condition.trim(), message, player)) {
+                    orResult = true;
+                    break;
+                }
+            }
+            
+            if (!orResult) {
+                return false; // Если хотя бы одно AND условие не выполнено
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Проверка одного условия чата
+     */
+    private boolean checkSingleChatCondition(String condition, String message, Player player) {
+        condition = condition.toLowerCase().trim();
+        String lowerMessage = message.toLowerCase();
+        
+        // Проверка содержания текста
+        if (condition.startsWith("contains:")) {
+            String searchText = condition.substring(9).trim();
+            return lowerMessage.contains(searchText);
+        }
+        
+        // Проверка начала сообщения
+        if (condition.startsWith("starts_with:")) {
+            String prefix = condition.substring(12).trim();
+            return lowerMessage.startsWith(prefix);
+        }
+        
+        // Проверка окончания сообщения
+        if (condition.startsWith("ends_with:")) {
+            String suffix = condition.substring(10).trim();
+            return lowerMessage.endsWith(suffix);
+        }
+        
+        // Проверка точного соответствия
+        if (condition.startsWith("equals:")) {
+            String exactText = condition.substring(7).trim();
+            return lowerMessage.equals(exactText);
+        }
+        
+        // Проверка регулярного выражения
+        if (condition.startsWith("regex:")) {
+            String regex = condition.substring(6).trim();
+            try {
+                return message.matches(regex);
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        
+        // Проверка длины сообщения
+        if (condition.startsWith("length>")) {
+            try {
+                int minLength = Integer.parseInt(condition.substring(7).trim());
+                return message.length() > minLength;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+        
+        if (condition.startsWith("length<")) {
+            try {
+                int maxLength = Integer.parseInt(condition.substring(7).trim());
+                return message.length() < maxLength;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+        
+        // Проверка разрешений игрока
+        if (condition.startsWith("has_permission:")) {
+            String permission = condition.substring(15).trim();
+            return player.hasPermission(permission);
+        }
+        
+        // Проверка мира игрока
+        if (condition.startsWith("world:")) {
+            String worldName = condition.substring(6).trim();
+            return player.getWorld().getName().equalsIgnoreCase(worldName);
+        }
+        
+        // Проверка режима игры
+        if (condition.startsWith("gamemode:")) {
+            String gamemode = condition.substring(9).trim();
+            return player.getGameMode().name().equalsIgnoreCase(gamemode);
+        }
+        
+        // Простая проверка содержания (по умолчанию)
+        return lowerMessage.contains(condition);
     }
     
     /**

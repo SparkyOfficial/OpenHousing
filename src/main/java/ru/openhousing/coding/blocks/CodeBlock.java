@@ -277,6 +277,7 @@ public abstract class CodeBlock {
         private final Map<String, Object> variables;
         private final Map<String, CodeBlock> functions;
         private Object target;
+        private boolean debugMode = false;
         
         public ExecutionContext(Player player) {
             this.player = player;
@@ -320,6 +321,14 @@ public abstract class CodeBlock {
             this.target = target;
         }
         
+        public boolean isDebugMode() {
+            return debugMode;
+        }
+        
+        public void setDebugMode(boolean debugMode) {
+            this.debugMode = debugMode;
+        }
+        
         /**
          * Создание дочернего контекста для функций
          */
@@ -328,6 +337,7 @@ public abstract class CodeBlock {
             child.variables.putAll(this.variables); // Копируем переменные
             child.functions.putAll(this.functions); // Копируем функции
             child.target = this.target; // Копируем цель
+            child.debugMode = this.debugMode; // Копируем режим отладки
             return child;
         }
     }

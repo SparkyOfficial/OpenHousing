@@ -106,7 +106,7 @@ public class PlayerActionBlock extends CodeBlock {
         
         switch (actionType) {
             case SEND_MESSAGE:
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', value));
+                sendMessageToPlayer(player, value, extra1, context);
                 break;
                 
             case TELEPORT:
@@ -549,9 +549,37 @@ public class PlayerActionBlock extends CodeBlock {
     }
     
     /**
-     * Замена переменных в строке
+     * Отправка сообщения игроку с поддержкой заголовка
      */
-
+    private void sendMessageToPlayer(Player player, String message, String title, ExecutionContext context) {
+        if (message == null || message.trim().isEmpty()) {
+            return; // Не отправляем пустые сообщения
+        }
+        
+        // Обрабатываем цветовые коды
+        String processedMessage = ChatColor.translateAlternateColorCodes('&', message);
+        
+        // Если есть заголовок, отправляем как title/subtitle
+        if (title != null && !title.trim().isEmpty()) {
+            String processedTitle = ChatColor.translateAlternateColorCodes('&', title);
+            
+            // Отправляем title с сообщением как subtitle
+            player.sendTitle(processedTitle, processedMessage, 10, 70, 20);
+            
+            // Добавляем отладочное сообщение если включен режим отладки
+            if (context.isDebugMode()) {
+                player.sendMessage("§8[DEBUG] Отправлен заголовок: §7" + processedTitle + " §8| Подзаголовок: §7" + processedMessage);
+            }
+        } else {
+            // Обычное сообщение в чат
+            player.sendMessage(processedMessage);
+            
+            // Добавляем отладочное сообщение если включен режим отладки
+            if (context.isDebugMode()) {
+                player.sendMessage("§8[DEBUG] Отправлено сообщение: §7" + processedMessage);
+            }
+        }
+    }
     
     @Override
     public boolean validate() {
