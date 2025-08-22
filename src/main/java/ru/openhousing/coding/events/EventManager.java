@@ -297,6 +297,15 @@ public class EventManager implements Listener {
      */
     private void executeEventHandler(Player player, CodeBlock eventBlock, Event event) {
         try {
+            // Фильтр по привязке мира: если скрипт привязан к конкретному миру дома
+            CodeScript scriptForPlayer = playerScripts.get(player.getUniqueId());
+            if (scriptForPlayer != null && scriptForPlayer.getBoundWorld() != null) {
+                String currentWorld = player.getWorld().getName();
+                if (!currentWorld.equalsIgnoreCase(scriptForPlayer.getBoundWorld())) {
+                    return; // не запускаем код вне привязанного мира
+                }
+            }
+
             CodeBlock.ExecutionContext context = eventBlock.createContextFromEvent(event);
             context.setVariable("player", player);
             context.setVariable("event_type", event.getClass().getSimpleName());

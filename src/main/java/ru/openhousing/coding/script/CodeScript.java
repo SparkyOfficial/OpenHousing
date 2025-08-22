@@ -17,6 +17,7 @@ public class CodeScript {
     private long lastModified;
     private boolean enabled;
     private int nextLineNumber;
+    private String boundWorld; // мир/дом, к которому привязан код
     
     public CodeScript(UUID playerId, String playerName) {
         this.playerId = playerId;
@@ -27,6 +28,7 @@ public class CodeScript {
         this.lastModified = System.currentTimeMillis();
         this.enabled = true;
         this.nextLineNumber = 1;
+        this.boundWorld = null;
     }
     
     /**
@@ -297,6 +299,7 @@ public class CodeScript {
         CodeScript clone = new CodeScript(this.playerId, this.playerName);
         clone.globalVariables.putAll(this.globalVariables);
         clone.enabled = this.enabled;
+        clone.boundWorld = this.boundWorld;
         
         // Клонирование строк (поверхностное)
         clone.lines.putAll(this.lines);
@@ -369,6 +372,13 @@ public class CodeScript {
     public boolean isEmpty() {
         return lines.isEmpty() || getAllBlocks().isEmpty();
     }
+
+    // Привязка к миру/дому
+    public void setBoundWorld(String worldName) {
+        this.boundWorld = worldName;
+        updateModified();
+    }
+    public String getBoundWorld() { return boundWorld; }
     
     /**
      * Статистика кода

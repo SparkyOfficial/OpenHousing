@@ -46,10 +46,10 @@ public class CodeManager {
         try {
             CodeScript script = getOrCreateScript(player);
             
-            // Всегда создаем новый редактор для избежания проблем с состоянием
-            CodeEditorGUI editor = new CodeEditorGUI(plugin, player, script);
-            openEditors.put(player.getUniqueId(), editor);
-            
+            // Переиспользуем один экземпляр GUI на игрока, чтобы исключить спам переоткрытий
+            CodeEditorGUI editor = openEditors.computeIfAbsent(player.getUniqueId(),
+                id -> new CodeEditorGUI(plugin, player, script));
+            editor.updateInventory();
             editor.open();
             plugin.getLogger().info("Code editor opened for player: " + player.getName());
         } catch (Exception e) {

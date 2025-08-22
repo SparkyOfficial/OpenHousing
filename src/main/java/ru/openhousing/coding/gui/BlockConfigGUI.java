@@ -573,7 +573,7 @@ public class BlockConfigGUI implements Listener {
             
             conditionInventory.setItem(slot, new ItemBuilder(Material.PAPER)
                 .name("§e" + condition)
-                .lore(Arrays.asList(
+            .lore(Arrays.asList(
                     "§7Условие: " + condition,
                     "",
                     "§eЛКМ - редактировать",

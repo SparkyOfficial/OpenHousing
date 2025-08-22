@@ -60,14 +60,22 @@ public class CodeListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
-        
-        // Проверяем, действительно ли игрок переместился
-        if (event.getFrom().getBlockX() != event.getTo().getBlockX() ||
-            event.getFrom().getBlockY() != event.getTo().getBlockY() ||
-            event.getFrom().getBlockZ() != event.getTo().getBlockZ()) {
-            
-            plugin.getCodeManager().handleEvent(event, player);
+        // Фильтр миров: обрабатываем только миры домов или при наличии обработчика
+        String worldName = player.getWorld().getName();
+        boolean isHouseWorld = worldName.startsWith("house_");
+
+        if (!isHouseWorld) {
+            return; // игнорируем для обычных миров
         }
+
+        // Проверяем, действительно ли игрок переместился по блокам
+        if (event.getFrom().getBlockX() == event.getTo().getBlockX() &&
+            event.getFrom().getBlockY() == event.getTo().getBlockY() &&
+            event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
+            return;
+        }
+
+        plugin.getCodeManager().handleEvent(event, player);
     }
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

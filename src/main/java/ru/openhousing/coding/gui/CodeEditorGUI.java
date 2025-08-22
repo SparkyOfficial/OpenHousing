@@ -35,6 +35,7 @@ public class CodeEditorGUI implements InventoryHolder {
     private BlockType.BlockCategory selectedCategory;
     private int page;
     private CodeBlock selectedBlock;
+    private CodeLine currentTargetLine;
     
     public enum EditorMode {
         MAIN,           // Главное меню
@@ -74,27 +75,27 @@ public class CodeEditorGUI implements InventoryHolder {
      */
     public void updateInventory() {
         try {
-            inventory.clear();
-            
-            switch (mode) {
-                case MAIN:
-                    setupMainMenu();
-                    break;
-                case CATEGORIES:
-                    setupCategoriesMenu();
-                    break;
-                case BLOCKS:
-                    setupBlocksMenu();
-                    break;
-                case SCRIPT:
+        inventory.clear();
+        
+        switch (mode) {
+            case MAIN:
+                setupMainMenu();
+                break;
+            case CATEGORIES:
+                setupCategoriesMenu();
+                break;
+            case BLOCKS:
+                setupBlocksMenu();
+                break;
+            case SCRIPT:
                     setupScriptMenu();
-                    break;
-                case BLOCK_EDIT:
-                    setupBlockEdit();
-                    break;
-            }
-            
-            addNavigationItems();
+                break;
+            case BLOCK_EDIT:
+                setupBlockEdit();
+                break;
+        }
+        
+        addNavigationItems();
             
             // Принудительно обновляем инвентарь для игрока
             if (player.getOpenInventory().getTopInventory().equals(inventory)) {
@@ -462,10 +463,10 @@ public class CodeEditorGUI implements InventoryHolder {
      */
     private void addNavigationItems() {
         // Назад
-        inventory.setItem(0, new ItemBuilder(Material.ARROW)
+            inventory.setItem(0, new ItemBuilder(Material.ARROW)
             .name("§cНазад")
             .lore("§7Вернуться назад")
-            .build());
+                .build());
             
         // Переменные (железный слиток в 9 слот)
         inventory.setItem(8, new ItemBuilder(Material.IRON_INGOT)
@@ -477,7 +478,7 @@ public class CodeEditorGUI implements InventoryHolder {
                 "§eКлик для открытия"
             ))
             .build());
-            
+        
         // Домой
         inventory.setItem(17, new ItemBuilder(Material.BARRIER)
             .name("§cЗакрыть")
@@ -555,10 +556,8 @@ public class CodeEditorGUI implements InventoryHolder {
                 mode = EditorMode.CATEGORIES;
                 updateInventory();
                 break;
-            case 14: // Выполнить код
-                plugin.getLogger().info("Executing script");
-                plugin.getCodeManager().executeScript(player);
-                player.sendMessage("§aКод выполнен!");
+            case 14: // Выполнить код (устарело)
+                player.sendMessage("§eЗапуск кода из редактора отключен. Используйте события и команду §6/play§e в доме.");
                 break;
             case 16: // Поиск блоков
                 openBlockSearch();
@@ -572,10 +571,8 @@ public class CodeEditorGUI implements InventoryHolder {
                 player.sendMessage("§cКод очищен!");
                 updateInventory();
                 break;
-            case 33: // Запустить код
-                plugin.getLogger().info("Running script immediately");
-                plugin.getCodeManager().executeScript(player);
-                player.sendMessage("§aКод запущен!");
+            case 33: // Запустить код (устарело)
+                player.sendMessage("§eЗапуск кода доступен только в режиме игры. Используйте §6/play§e.");
                 break;
             default:
                 plugin.getLogger().info("Unhandled main menu slot: " + slot);
@@ -597,26 +594,26 @@ public class CodeEditorGUI implements InventoryHolder {
     
     private void handleBlocksClick(int slot, boolean isRightClick) {
         try {
-            int blockIndex = getBlockIndexFromSlot(slot);
-            if (blockIndex >= 0 && selectedCategory != null) {
-                List<BlockType> blocksInCategory = new ArrayList<>();
-                for (BlockType blockType : BlockType.values()) {
-                    if (blockType.getCategory() == selectedCategory) {
-                        blocksInCategory.add(blockType);
-                    }
+        int blockIndex = getBlockIndexFromSlot(slot);
+        if (blockIndex >= 0 && selectedCategory != null) {
+            List<BlockType> blocksInCategory = new ArrayList<>();
+            for (BlockType blockType : BlockType.values()) {
+                if (blockType.getCategory() == selectedCategory) {
+                    blocksInCategory.add(blockType);
                 }
+            }
+            
+            int actualIndex = page * 28 + blockIndex;
+            if (actualIndex < blocksInCategory.size()) {
+                BlockType blockType = blocksInCategory.get(actualIndex);
                 
-                int actualIndex = page * 28 + blockIndex;
-                if (actualIndex < blocksInCategory.size()) {
-                    BlockType blockType = blocksInCategory.get(actualIndex);
-                    
-                    if (isRightClick) {
-                        // Предварительный просмотр
-                        player.sendMessage("§eПредварительный просмотр: §f" + blockType.getDisplayName());
-                        player.sendMessage("§7" + blockType.getDescription());
-                    } else {
+                if (isRightClick) {
+                    // Предварительный просмотр
+                    player.sendMessage("§eПредварительный просмотр: §f" + blockType.getDisplayName());
+                    player.sendMessage("§7" + blockType.getDescription());
+                } else {
                         // Добавить блок напрямую в первую доступную строку
-                        addBlockToScript(blockType);
+                    addBlockToScript(blockType);
                     }
                 }
             }
@@ -644,9 +641,9 @@ public class CodeEditorGUI implements InventoryHolder {
                 script.createLine("Строка 1");
             }
             
-            // Добавляем в первую строку
-            CodeLine firstLine = script.getLines().get(0);
-            script.addBlockToLine(firstLine.getLineNumber(), block);
+            // Определяем целевую строку: выбранная пользователем или первая
+            CodeLine targetLine = currentTargetLine != null ? currentTargetLine : script.getLines().get(0);
+            script.addBlockToLine(targetLine.getLineNumber(), block);
             
             player.sendMessage("§aБлок добавлен: §f" + blockType.getDisplayName());
             
@@ -691,13 +688,15 @@ public class CodeEditorGUI implements InventoryHolder {
             
                 if (actualIndex < lines.size()) {
                     CodeLine selectedLine = lines.get(actualIndex);
-                    
-                    if (isRightClick) {
+                    // Запоминаем выбранную строку как текущую цель для добавления блоков
+                    this.currentTargetLine = selectedLine;
+                
+                if (isRightClick) {
                         // Открыть настройки строки
                         player.closeInventory();
                         LineSettingsGUI settingsGUI = new LineSettingsGUI(plugin, player, script, selectedLine);
                         settingsGUI.open();
-                    } else {
+                } else {
                         // Просмотр блоков в строке
                         player.closeInventory();
                         LineBlocksGUI lineBlocksGUI = new LineBlocksGUI(plugin, player, script, selectedLine);
@@ -726,7 +725,7 @@ public class CodeEditorGUI implements InventoryHolder {
                         }
                     }
                     if (removed) {
-                        player.sendMessage("§cБлок удален!");
+                    player.sendMessage("§cБлок удален!");
                     } else {
                         player.sendMessage("§cНе удалось найти блок для удаления!");
                     }
@@ -755,10 +754,20 @@ public class CodeEditorGUI implements InventoryHolder {
             // Небольшая задержка для корректного закрытия
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 try {
-                    // Предполагается, что VariableSelectorGUI существует
-                    // VariableSelectorGUI variableSelector = new VariableSelectorGUI(plugin, player, script);
-                    // variableSelector.open();
-                    player.sendMessage("§eОткрытие выбора переменных...");
+                    VariableSelectorGUI variableSelector = new VariableSelectorGUI(
+                        plugin,
+                        player,
+                        (variableValue) -> {
+                            // Добавляем в недавние и сообщаем игроку
+                            String varName = variableValue.getVariableName();
+                            VariableSelectorGUI.addRecentVariable(plugin, player, varName);
+                            player.sendMessage("§aВыбрана переменная: §f" + varName);
+                            // Возвращаемся в редактор
+                            Bukkit.getScheduler().runTaskLater(plugin, this::open, 1L);
+                        },
+                        false
+                    );
+                    variableSelector.open();
                 } catch (Exception e) {
                     plugin.getLogger().severe("Error opening variable selector: " + e.getMessage());
                     e.printStackTrace();
@@ -772,20 +781,20 @@ public class CodeEditorGUI implements InventoryHolder {
             e.printStackTrace();
         }
     }
-
+    
     private void handleNavigationClick(int slot) {
         try {
-            switch (slot) {
-                case 0: // Назад
+        switch (slot) {
+            case 0: // Назад
                     switch (mode) {
                         case CATEGORIES:
                             mode = EditorMode.MAIN;
-                            break;
+                break;
                         case BLOCKS:
                             mode = EditorMode.CATEGORIES;
                             break;
                         case SCRIPT:
-                            mode = EditorMode.MAIN;
+                    mode = EditorMode.MAIN;
                             break;
                         case BLOCK_EDIT:
                             mode = EditorMode.SCRIPT;
@@ -795,37 +804,37 @@ public class CodeEditorGUI implements InventoryHolder {
                     }
                     page = 0;
                     updateInventory();
-                    break;
+                break;
                 case 17: // Закрыть
                     player.closeInventory();
                     break;
                 case 8: // Переменные
                     openVariableSelector();
-                    break;
-                case 45: // Предыдущая страница
-                    if (page > 0) {
-                        page--;
-                        updateInventory();
-                    }
-                    break;
-                case 53: // Следующая страница
-                    page++;
+                break;
+            case 45: // Предыдущая страница
+                if (page > 0) {
+                    page--;
                     updateInventory();
-                    break;
+                }
+                break;
+            case 53: // Следующая страница
+                page++;
+                updateInventory();
+                break;
                 case 46: // Категории
-                    mode = EditorMode.CATEGORIES;
+                mode = EditorMode.CATEGORIES;
                     page = 0;
                     updateInventory();
-                    break;
+                break;
                 case 47: // Скрипт
                     mode = EditorMode.SCRIPT;
                     page = 0;
                     updateInventory();
-                    break;
+                break;
                 case 48: // Редактирование блока
                     mode = EditorMode.MAIN;
-                    page = 0;
-                    updateInventory();
+        page = 0;
+        updateInventory();
                     break;
             }
         } catch (Exception e) {
@@ -868,7 +877,7 @@ public class CodeEditorGUI implements InventoryHolder {
         try {
             plugin.getLogger().info("Creating block instance for: " + blockType.name());
             
-            switch (blockType) {
+        switch (blockType) {
                 // События игрока
                 case PLAYER_JOIN:
                 case PLAYER_QUIT:
@@ -898,8 +907,8 @@ public class CodeEditorGUI implements InventoryHolder {
                 case PLAYER_SMELT:
                 case PLAYER_TRADE:
                 case PLAYER_SNEAK:
-                case PLAYER_EVENT:
-                    return new ru.openhousing.coding.blocks.events.PlayerEventBlock();
+            case PLAYER_EVENT:
+                return new ru.openhousing.coding.blocks.events.PlayerEventBlock();
                 
                 // События мира
                 case WORLD_WEATHER_CHANGE:
@@ -909,8 +918,8 @@ public class CodeEditorGUI implements InventoryHolder {
                 case WORLD_STRUCTURE_GROW:
                 case WORLD_EXPLOSION:
                 case WORLD_PORTAL_CREATE:
-                case WORLD_EVENT:
-                    return new ru.openhousing.coding.blocks.events.WorldEventBlock();
+            case WORLD_EVENT:
+                return new ru.openhousing.coding.blocks.events.WorldEventBlock();
                 
                 // События существ
                 case ENTITY_SPAWN:
@@ -931,8 +940,8 @@ public class CodeEditorGUI implements InventoryHolder {
                 case ENTITY_EVENT:
                     return new ru.openhousing.coding.blocks.events.EntityEventBlock();
             
-                // Условия
-                case IF_PLAYER:
+            // Условия
+            case IF_PLAYER:
                 case IF_PLAYER_ONLINE:
                 case IF_PLAYER_PERMISSION:
                 case IF_PLAYER_GAMEMODE:
@@ -941,10 +950,10 @@ public class CodeEditorGUI implements InventoryHolder {
                 case IF_PLAYER_SNEAKING:
                 case IF_PLAYER_BLOCKING:
                 case IF_PLAYER_ITEM:
-                    return new ru.openhousing.coding.blocks.conditions.IfPlayerBlock();
-                case IF_ENTITY:
-                    return new ru.openhousing.coding.blocks.conditions.IfEntityBlock();
-                case IF_VARIABLE:
+                return new ru.openhousing.coding.blocks.conditions.IfPlayerBlock();
+            case IF_ENTITY:
+                return new ru.openhousing.coding.blocks.conditions.IfEntityBlock();
+            case IF_VARIABLE:
                 case IF_VARIABLE_EQUALS:
                 case IF_VARIABLE_GREATER:
                 case IF_VARIABLE_LESS:
@@ -952,7 +961,7 @@ public class CodeEditorGUI implements InventoryHolder {
                 case IF_VARIABLE_EXISTS:
                 case IF_VARIABLE_SAVED:
                 case IF_VARIABLE_TYPE:
-                    return new ru.openhousing.coding.blocks.conditions.IfVariableBlock();
+                return new ru.openhousing.coding.blocks.conditions.IfVariableBlock();
             
                 // Действия игрока
                 case PLAYER_SEND_MESSAGE:
@@ -980,8 +989,8 @@ public class CodeEditorGUI implements InventoryHolder {
                 case PLAYER_SET_DISPLAY_NAME:
                 case PLAYER_RESET_DISPLAY_NAME:
                 case PLAYER_SEND_PLUGIN_MESSAGE:
-                case PLAYER_ACTION:
-                    return new ru.openhousing.coding.blocks.actions.PlayerActionBlock();
+            case PLAYER_ACTION:
+                return new ru.openhousing.coding.blocks.actions.PlayerActionBlock();
                 
                 // Действия переменных
                 case VAR_SET:
@@ -1022,44 +1031,44 @@ public class CodeEditorGUI implements InventoryHolder {
                 case GAME_SET_BLOCK:
                 case GAME_BREAK_BLOCK:
                 case GAME_SEND_PACKET:
-                case WORLD_ACTION:
-                    return new ru.openhousing.coding.blocks.actions.WorldActionBlock();
+            case WORLD_ACTION:
+                return new ru.openhousing.coding.blocks.actions.WorldActionBlock();
                 
                 case ENTITY_ACTION:
                     return new ru.openhousing.coding.blocks.actions.EntityActionBlock();
             
-                // Функции
-                case FUNCTION:
-                    return new ru.openhousing.coding.blocks.functions.FunctionBlock();
-                case CALL_FUNCTION:
-                    return new ru.openhousing.coding.blocks.functions.CallFunctionBlock();
+            // Функции
+            case FUNCTION:
+                return new ru.openhousing.coding.blocks.functions.FunctionBlock();
+            case CALL_FUNCTION:
+                return new ru.openhousing.coding.blocks.functions.CallFunctionBlock();
             
-                // Управление
-                case REPEAT:
-                    return new ru.openhousing.coding.blocks.control.RepeatBlock();
-                case ELSE:
-                    return new ru.openhousing.coding.blocks.control.ElseBlock();
-                case TARGET:
-                    return new ru.openhousing.coding.blocks.control.TargetBlock();
+                                    // Управление
+                        case REPEAT:
+                            return new ru.openhousing.coding.blocks.control.RepeatBlock();
+                        case ELSE:
+                            return new ru.openhousing.coding.blocks.control.ElseBlock();
+                                    case TARGET:
+                return new ru.openhousing.coding.blocks.control.TargetBlock();
             
-                // Математика и утилиты
-                case MATH:
-                    return new ru.openhousing.coding.blocks.math.MathBlock();
-                case TEXT_OPERATION:
-                    return new ru.openhousing.coding.blocks.text.TextOperationBlock();
-                case INVENTORY_ACTION:
-                    return new ru.openhousing.coding.blocks.inventory.InventoryActionBlock();
-                case ITEM_CHECK:
-                    return new ru.openhousing.coding.blocks.inventory.ItemCheckBlock();
+            // Математика и утилиты
+            case MATH:
+                return new ru.openhousing.coding.blocks.math.MathBlock();
+            case TEXT_OPERATION:
+                return new ru.openhousing.coding.blocks.text.TextOperationBlock();
+            case INVENTORY_ACTION:
+                return new ru.openhousing.coding.blocks.inventory.InventoryActionBlock();
+            case ITEM_CHECK:
+                return new ru.openhousing.coding.blocks.inventory.ItemCheckBlock();
             
-                default:
+            default:
                     plugin.getLogger().warning("Unknown block type: " + blockType.name());
                     return null;
             }
         } catch (Exception e) {
             plugin.getLogger().severe("Error creating block instance for " + blockType.name() + ": " + e.getMessage());
             e.printStackTrace();
-            return null;
+                return null;
         }
     }
     

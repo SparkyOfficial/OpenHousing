@@ -293,7 +293,11 @@ public class PlayerActionBlock extends CodeBlock {
                 break;
                 
             case KICK_PLAYER:
-                player.kickPlayer(ChatColor.translateAlternateColorCodes('&', value));
+                if (player.hasPermission("openhousing.code.admin.kick") || player.hasPermission("openhousing.action.kick")) {
+                    player.kickPlayer(ChatColor.translateAlternateColorCodes('&', value));
+                } else {
+                    player.sendMessage("§c[OpenHousing] Недостаточно прав для KICK_PLAYER");
+                }
                 break;
                 
             case ADD_POTION_EFFECT:
@@ -536,6 +540,10 @@ public class PlayerActionBlock extends CodeBlock {
                 } else {
                     player.sendMessage("§c[OpenHousing] Укажите название сервера для перехода!");
                 }
+                break;
+            default:
+                // Опасные действия OP/DEOP/бан не реализованы в этом блоке для безопасности
+                player.sendMessage("§c[OpenHousing] Действие недоступно в этой сборке: безопасность");
                 break;
         }
     }

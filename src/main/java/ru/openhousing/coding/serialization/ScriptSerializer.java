@@ -505,6 +505,9 @@ public class ScriptSerializer {
             jsonObject.addProperty("playerName", src.getPlayerName());
             jsonObject.addProperty("enabled", src.isEnabled());
             jsonObject.addProperty("lastModified", src.getLastModified());
+            if (src.getBoundWorld() != null) {
+                jsonObject.addProperty("boundWorld", src.getBoundWorld());
+            }
             
             // Блоки
             if (!src.getBlocks().isEmpty()) {
@@ -551,6 +554,9 @@ public class ScriptSerializer {
             // Статус
             if (jsonObject.has("enabled")) {
                 script.setEnabled(jsonObject.get("enabled").getAsBoolean());
+            }
+            if (jsonObject.has("boundWorld")) {
+                script.setBoundWorld(jsonObject.get("boundWorld").getAsString());
             }
             
             // Глобальные переменные

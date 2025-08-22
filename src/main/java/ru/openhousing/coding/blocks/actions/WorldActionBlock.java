@@ -288,12 +288,20 @@ public class WorldActionBlock extends CodeBlock {
                 
             case RUN_COMMAND:
                 if (player != null) {
-                    player.performCommand(value);
+                    if (player.hasPermission("openhousing.code.admin.playercommand")) {
+                        player.performCommand(value);
+                    } else {
+                        player.sendMessage("§c[OpenHousing] У вас нет прав на выполнение команд от лица игрока.");
+                    }
                 }
                 break;
                 
             case RUN_COMMAND_CONSOLE:
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), value);
+                if (player != null && !player.hasPermission("openhousing.code.admin.consolecommand")) {
+                    player.sendMessage("§c[OpenHousing] У вас нет прав на выполнение консольных команд.");
+                } else {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), value);
+                }
                 break;
                 
             case SET_SPAWN:
@@ -529,27 +537,29 @@ public class WorldActionBlock extends CodeBlock {
                 break;
                 
             case KICK_PLAYER:
-                // Реализована логика кика игрока
                 if (player != null && !value.isEmpty()) {
-                    String reason = extra.isEmpty() ? "Кикнут администратором" : extra;
-                    player.kickPlayer(ChatColor.translateAlternateColorCodes('&', reason));
-                    
-                    if (context.getPlayer() != null) {
-                        context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " кикнут с сервера!");
+                    if (context.getPlayer() == null || context.getPlayer().hasPermission("openhousing.code.admin.kick")) {
+                        String reason = extra.isEmpty() ? "Кикнут администратором" : extra;
+                        player.kickPlayer(ChatColor.translateAlternateColorCodes('&', reason));
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " кикнут с сервера!");
+                        }
+                    } else {
+                        context.getPlayer().sendMessage("§c[OpenHousing] У вас нет прав на кик игроков.");
                     }
                 }
                 break;
                 
             case BAN_PLAYER:
-                // Реализована логика бана игрока
                 if (player != null && !value.isEmpty()) {
-                    String reason = extra.isEmpty() ? "Забанен администратором" : extra;
-                    
-                    // Баним игрока
-                    player.banPlayer(ChatColor.translateAlternateColorCodes('&', reason));
-                    
-                    if (context.getPlayer() != null) {
-                        context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " забанен на сервере!");
+                    if (context.getPlayer() == null || context.getPlayer().hasPermission("openhousing.code.admin.ban")) {
+                        String reason = extra.isEmpty() ? "Забанен администратором" : extra;
+                        player.banPlayer(ChatColor.translateAlternateColorCodes('&', reason));
+                        if (context.getPlayer() != null) {
+                            context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " забанен на сервере!");
+                        }
+                    } else {
+                        context.getPlayer().sendMessage("§c[OpenHousing] У вас нет прав на бан игроков.");
                     }
                 }
                 break;
