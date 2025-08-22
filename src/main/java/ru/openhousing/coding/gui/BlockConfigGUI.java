@@ -12,6 +12,7 @@ import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.BlockType;
 import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.gui.helpers.AnvilGUIHelper;
+import ru.openhousing.coding.values.VariableValue;
 import ru.openhousing.utils.ItemBuilder;
 
 import java.util.Arrays;
@@ -175,34 +176,12 @@ public class BlockConfigGUI implements Listener {
             ))
             .build());
             
-        // Основное значение (зависит от типа действия)
-        inventory.setItem(startSlot + 1, new ItemBuilder(Material.NAME_TAG)
-            .name("§eОсновное значение")
-            .lore(Arrays.asList(
-                "§7Текущее: §f" + block.getParameter("value"),
-                "",
-                "§7Клик для изменения"
-            ))
-            .build());
+        // Основное значение (drag-n-drop слот для переменной)
+        updateVariableSlot(startSlot + 1, "value", block.getParameter("value"));
             
-        // Дополнительные параметры
-        inventory.setItem(startSlot + 2, new ItemBuilder(Material.PAPER)
-            .name("§eДополнительный параметр 1")
-            .lore(Arrays.asList(
-                "§7Текущий: §f" + block.getParameter("extra1"),
-                "",
-                "§7Клик для изменения"
-            ))
-            .build());
-            
-        inventory.setItem(startSlot + 3, new ItemBuilder(Material.PAPER)
-            .name("§eДополнительный параметр 2")
-            .lore(Arrays.asList(
-                "§7Текущий: §f" + block.getParameter("extra2"),
-                "",
-                "§7Клик для изменения"
-            ))
-            .build());
+        // Дополнительные параметры (drag-n-drop слоты)
+        updateVariableSlot(startSlot + 2, "extra1", block.getParameter("extra1"));
+        updateVariableSlot(startSlot + 3, "extra2", block.getParameter("extra2"));
     }
     
     private void setupEntityActionSettings(int startSlot) {
@@ -300,15 +279,8 @@ public class BlockConfigGUI implements Listener {
             ))
             .build());
             
-        // Значение для сравнения
-        inventory.setItem(startSlot + 1, new ItemBuilder(Material.BOOK)
-            .name("§eЗначение для сравнения")
-            .lore(Arrays.asList(
-                "§7Текущее: §f" + block.getParameter("value"),
-                "",
-                "§7Клик для изменения"
-            ))
-            .build());
+        // Значение для сравнения (drag-n-drop слот для переменной)
+        updateVariableSlot(startSlot + 1, "value", block.getParameter("value"));
             
         // Оператор сравнения
         inventory.setItem(startSlot + 2, new ItemBuilder(Material.REDSTONE_TORCH)
@@ -329,10 +301,11 @@ public class BlockConfigGUI implements Listener {
     }
     
     private void setupIfVariableSettings(int startSlot) {
-        inventory.setItem(startSlot, new ItemBuilder(Material.BOOK)
-            .name("§eИмя переменной")
-            .lore("§7Клик для выбора")
-            .build());
+        // Имя переменной (drag-n-drop слот для переменной)
+        updateVariableSlot(startSlot, "variableName", block.getParameter("variableName"));
+        
+        // Значение для сравнения (drag-n-drop слот для переменной)
+        updateVariableSlot(startSlot + 1, "compareValue", block.getParameter("compareValue"));
     }
     
     private void setupFunctionSettings(int startSlot) {
@@ -350,15 +323,21 @@ public class BlockConfigGUI implements Listener {
     }
     
     private void setupVariableActionSettings(int startSlot) {
+        // Тип действия с переменной
         inventory.setItem(startSlot, new ItemBuilder(Material.NAME_TAG)
             .name("§eДействие с переменной")
-            .lore("§7Клик для настройки")
+            .lore(Arrays.asList(
+                "§7Текущий: §f" + block.getParameter("actionType"),
+                "",
+                "§7Клик для изменения"
+            ))
             .build());
         
-        inventory.setItem(startSlot + 1, new ItemBuilder(Material.BOOK)
-            .name("§eИмя переменной")
-            .lore("§7Клик для выбора")
-            .build());
+        // Имя переменной (drag-n-drop слот для переменной)
+        updateVariableSlot(startSlot + 1, "variableName", block.getParameter("variableName"));
+        
+        // Значение для установки (drag-n-drop слот для переменной)
+        updateVariableSlot(startSlot + 2, "setValue", block.getParameter("setValue"));
     }
     
     private void setupMathSettings(int startSlot) {
@@ -372,35 +351,14 @@ public class BlockConfigGUI implements Listener {
             ))
             .build());
             
-        // Первое значение
-        inventory.setItem(startSlot + 1, new ItemBuilder(Material.BOOK)
-            .name("§eПервое значение")
-            .lore(Arrays.asList(
-                "§7Текущее: §f" + block.getParameter("value1"),
-                "",
-                "§7Клик для изменения"
-            ))
-            .build());
+        // Первое значение (drag-n-drop слот для переменной)
+        updateVariableSlot(startSlot + 1, "value1", block.getParameter("value1"));
             
-        // Второе значение
-        inventory.setItem(startSlot + 2, new ItemBuilder(Material.BOOK)
-            .name("§eВторое значение")
-            .lore(Arrays.asList(
-                "§7Текущее: §f" + block.getParameter("value2"),
-                "",
-                "§7Клик для изменения"
-            ))
-            .build());
+        // Второе значение (drag-n-drop слот для переменной)
+        updateVariableSlot(startSlot + 2, "value2", block.getParameter("value2"));
             
-        // Переменная результата
-        inventory.setItem(startSlot + 3, new ItemBuilder(Material.NAME_TAG)
-            .name("§eПеременная результата")
-            .lore(Arrays.asList(
-                "§7Текущая: §f" + block.getParameter("resultVariable"),
-                "",
-                "§7Клик для выбора"
-            ))
-            .build());
+        // Переменная результата (drag-n-drop слот для переменной)
+        updateVariableSlot(startSlot + 3, "resultVariable", block.getParameter("resultVariable"));
     }
     
     private void setupTextOperationSettings(int startSlot) {
@@ -443,8 +401,149 @@ public class BlockConfigGUI implements Listener {
         
         int slot = event.getSlot();
         boolean isShiftClick = event.isShiftClick();
+        boolean isRightClick = event.isRightClick();
+        
+        // Проверяем, является ли слот слотом для переменной
+        if (isVariableSlot(slot)) {
+            handleVariableSlotClick(slot, isRightClick);
+            return;
+        }
         
         handleClick(slot, isShiftClick);
+    }
+    
+    /**
+     * Проверяет, является ли слот слотом для переменной
+     */
+    private boolean isVariableSlot(int slot) {
+        // Слоты 10-25 могут быть слотами для переменных
+        return slot >= 10 && slot <= 25;
+    }
+    
+    /**
+     * Обработка клика по слоту переменной
+     */
+    private void handleVariableSlotClick(int slot, boolean isRightClick) {
+        if (isRightClick) {
+            // Правый клик - очистить переменную
+            clearVariableSlot(slot);
+        } else {
+            // Левый клик - открыть селектор переменных
+            openVariableSelector(slot);
+        }
+    }
+    
+    /**
+     * Очистка слота переменной
+     */
+    private void clearVariableSlot(int slot) {
+        // Находим параметр для этого слота
+        String paramName = getParameterNameForSlot(slot);
+        if (paramName != null) {
+            block.setParameter(paramName, null);
+            updateVariableSlot(slot, paramName, null);
+            player.sendMessage("§7Переменная очищена: " + paramName);
+        }
+    }
+    
+    /**
+     * Открытие селектора переменных
+     */
+    private void openVariableSelector(int slot) {
+        String paramName = getParameterNameForSlot(slot);
+        if (paramName == null) {
+            player.sendMessage("§cНе удалось определить параметр для слота " + slot);
+            return;
+        }
+        
+        player.closeInventory();
+        
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            VariableSelectorGUI variableSelector = new VariableSelectorGUI(
+                plugin,
+                player,
+                (variableValue) -> {
+                    // Устанавливаем переменную в блок
+                    block.setParameter(paramName, variableValue);
+                    
+                    // Обновляем отображение
+                    updateVariableSlot(slot, paramName, variableValue);
+                    
+                    player.sendMessage("§aПеременная установлена: §f" + paramName + " = " + variableValue.getVariableName());
+                    
+                    // Возвращаемся к настройке блока
+                    Bukkit.getScheduler().runTaskLater(plugin, this::open, 1L);
+                },
+                false
+            );
+            variableSelector.open();
+        }, 1L);
+    }
+    
+    /**
+     * Получение имени параметра для слота
+     */
+    private String getParameterNameForSlot(int slot) {
+        // Маппинг слотов на параметры в зависимости от типа блока
+        if (block.getType().name().startsWith("PLAYER_") && block.getType().getCategory() == BlockType.BlockCategory.ACTION) {
+            switch (slot) {
+                case 10: return "actionType";
+                case 11: return "value";
+                case 12: return "extra1";
+                case 13: return "extra2";
+                case 14: return "target";
+            }
+        } else if (block.getType().name().startsWith("IF_")) {
+            switch (slot) {
+                case 10: return "condition";
+                case 11: return "value";
+                case 12: return "compareTo";
+            }
+        } else if (block.getType() == BlockType.MATH) {
+            switch (slot) {
+                case 10: return "operation";
+                case 11: return "value1";
+                case 12: return "value2";
+                case 13: return "result";
+            }
+        }
+        
+        // По умолчанию используем номер слота
+        return "param" + (slot - 9);
+    }
+    
+    /**
+     * Обновление слота переменной
+     */
+    private void updateVariableSlot(int slot, String paramName, Object value) {
+        if (value == null) {
+            // Пустой слот
+            inventory.setItem(slot, new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE)
+                .name("§7" + paramName)
+                .lore(Arrays.asList(
+                    "§7Перетащите переменную сюда",
+                    "",
+                    "§eЛКМ - выбрать переменную",
+                    "§eПКМ - очистить"
+                ))
+                .build());
+        } else {
+            // Слот с переменной
+            String displayValue = value.toString();
+            if (value instanceof VariableValue) {
+                displayValue = ((VariableValue) value).getVariableName();
+            }
+            
+            inventory.setItem(slot, new ItemBuilder(Material.EMERALD)
+                .name("§a" + paramName + " = " + displayValue)
+                .lore(Arrays.asList(
+                    "§7Текущее значение",
+                    "",
+                    "§eЛКМ - изменить переменную",
+                    "§eПКМ - очистить"
+                ))
+                .build());
+        }
     }
     
     /**
