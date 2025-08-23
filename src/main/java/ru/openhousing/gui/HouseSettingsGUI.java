@@ -363,14 +363,14 @@ public class HouseSettingsGUI implements Listener {
      * Настройки времени
      */
     private void openTimeSettings() {
-        MessageUtil.send(player, "&7Настройки времени будут добавлены в следующем обновлении");
+        new TimeSettingsGUI(plugin, player, house).open();
     }
     
     /**
      * Настройки звука
      */
     private void openSoundSettings() {
-        MessageUtil.send(player, "&7Настройки звука будут добавлены в следующем обновлении");
+        new SoundSettingsGUI(plugin, player, house).open();
     }
     
     /**
