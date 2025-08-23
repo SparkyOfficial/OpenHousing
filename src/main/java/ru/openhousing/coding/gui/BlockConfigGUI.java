@@ -215,7 +215,7 @@ public class BlockConfigGUI implements Listener {
                 
             // --- МАТЕМАТИКА ---
             case MATH:
-                new ru.openhousing.coding.gui.blocks.MathConfigGUI(plugin, player, block).open();
+                new ru.openhousing.coding.gui.blocks.MathConfigGUI(plugin, player, (ru.openhousing.coding.blocks.math.MathBlock) block, saveCallback).open();
                 break;
                 
             // --- ОПЕРАЦИИ С ТЕКСТОМ ---
@@ -270,7 +270,7 @@ public class BlockConfigGUI implements Listener {
         } else if (block.getType().name().startsWith("VAR_")) {
             setupVariableActionSettings(10);
         } else if (block.getType() == BlockType.MATH) {
-            setupMathSettings(10);
+            // MathConfigGUI теперь используется автоматически через openSpecializedGUI
         } else if (block.getType() == BlockType.TEXT_OPERATION) {
             setupTextOperationSettings(10);
         } else {
