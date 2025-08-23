@@ -10,6 +10,7 @@ import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.blocks.actions.PlayerActionBlock;
 import ru.openhousing.coding.constants.BlockParams;
 import ru.openhousing.coding.blocks.actions.PlayerActionBlock.PlayerActionType;
+import ru.openhousing.coding.blocks.BlockType;
 
 /**
  * Модульные тесты для CodeBlock и его реализаций
@@ -159,9 +160,9 @@ public class CodeBlockTest {
         parent.addChild(child2);
         
         // Assert
-        assertEquals(2, parent.getChildren().size(), "Должно быть 2 дочерних блока");
-        assertTrue(parent.getChildren().contains(child1), "Первый дочерний блок должен присутствовать");
-        assertTrue(parent.getChildren().contains(child2), "Второй дочерний блок должен присутствовать");
+        assertEquals(2, parent.getChildBlocks().size(), "Должно быть 2 дочерних блока");
+        assertTrue(parent.getChildBlocks().contains(child1), "Первый дочерний блок должен присутствовать");
+        assertTrue(parent.getChildBlocks().contains(child2), "Второй дочерний блок должен присутствовать");
     }
     
     @Test
@@ -184,11 +185,11 @@ public class CodeBlockTest {
     @DisplayName("Тест замены переменных в строке")
     void testVariableReplacement() {
         // Arrange
-        PlayerActionBlock block = new PlayerActionBlock();
+        TestCodeBlock block = new TestCodeBlock();
         String template = "Привет, %playerName%! Твое число: %testNumber%";
         
         // Act
-        String result = block.replaceVariables(template, mockContext);
+        String result = block.testReplaceVariables(template, mockContext);
         
         // Assert
         assertEquals("Привет, TestUser! Твое число: 42", result);
@@ -198,13 +199,43 @@ public class CodeBlockTest {
     @DisplayName("Тест замены переменных с несуществующими")
     void testVariableReplacementWithMissing() {
         // Arrange
-        PlayerActionBlock block = new PlayerActionBlock();
+        TestCodeBlock block = new TestCodeBlock();
         String template = "Привет, %playerName%! Несуществующая: %missingVar%";
         
         // Act
-        String result = block.replaceVariables(template, mockContext);
+        String result = block.testReplaceVariables(template, mockContext);
         
         // Assert
         assertEquals("Привет, TestUser! Несуществующая: %missingVar%", result);
+    }
+    
+    /**
+     * Тестовый блок для доступа к protected методам
+     */
+    private static class TestCodeBlock extends CodeBlock {
+        
+        public TestCodeBlock() {
+            super(BlockType.PLAYER_SEND_MESSAGE);
+        }
+        
+        @Override
+        public ExecutionResult execute(ExecutionContext context) {
+            return ExecutionResult.success();
+        }
+        
+        @Override
+        public boolean validate() {
+            return true;
+        }
+        
+        @Override
+        public List<String> getDescription() {
+            return Arrays.asList("Тестовый блок");
+        }
+        
+        // Делаем protected метод доступным для тестов
+        public String testReplaceVariables(String text, ExecutionContext context) {
+            return replaceVariables(text, context);
+        }
     }
 }
