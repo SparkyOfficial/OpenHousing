@@ -356,7 +356,7 @@ public class HouseSettingsGUI implements Listener {
      * Настройки безопасности
      */
     private void openSecuritySettings() {
-        MessageUtil.send(player, "&7Настройки безопасности будут добавлены в следующем обновлении");
+        new SecuritySettingsGUI(plugin, player, house).open();
     }
     
     /**
