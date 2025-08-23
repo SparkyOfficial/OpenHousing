@@ -118,9 +118,6 @@ public class BlockConfigGUI implements Listener {
         // Отменяем регистрацию текущего листенера
         org.bukkit.event.HandlerList.unregisterAll(this);
         
-        BlockType.BlockCategory category = block.getType().getCategory();
-        String typeName = block.getType().name();
-        
         Runnable saveCallback = () -> {
             if (onSave != null) {
                 onSave.accept(block);
@@ -129,50 +126,102 @@ public class BlockConfigGUI implements Listener {
             }
         };
         
-        switch (category) {
-            case ACTION:
-                if (typeName.startsWith("PLAYER_")) {
-                    new ru.openhousing.coding.gui.blocks.PlayerActionConfigGUI(plugin, player, block).open();
-                } else if (typeName.startsWith("VAR_")) {
-                    new ru.openhousing.coding.gui.blocks.VariableActionConfigGUI(plugin, player, block).open();
-                } else if (typeName.startsWith("GAME_")) {
-                    new ru.openhousing.coding.gui.blocks.GameActionConfigGUI(plugin, player, block).open();
-                } else {
-                    // Используем PlayerAction GUI как универсальный для действий
-                    new ru.openhousing.coding.gui.blocks.PlayerActionConfigGUI(plugin, player, block).open();
-                }
+        // Используем switch по конкретному типу блока для точного выбора GUI
+        switch (block.getType()) {
+            // --- ДЕЙСТВИЯ ИГРОКА ---
+            case PLAYER_SEND_MESSAGE, PLAYER_SEND_TITLE, PLAYER_SEND_ACTIONBAR,
+                 PLAYER_TELEPORT_ACTION, PLAYER_GIVE_ITEM, PLAYER_REMOVE_ITEM,
+                 PLAYER_CLEAR_INVENTORY, PLAYER_SET_HEALTH, PLAYER_SET_FOOD,
+                 PLAYER_SET_EXP, PLAYER_GIVE_EFFECT, PLAYER_REMOVE_EFFECT,
+                 PLAYER_PLAY_SOUND, PLAYER_STOP_SOUND, PLAYER_SPAWN_PARTICLE,
+                 PLAYER_SET_GAMEMODE, PLAYER_KICK, PLAYER_BAN,
+                 PLAYER_WHITELIST_ADD, PLAYER_WHITELIST_REMOVE,
+                 PLAYER_SET_DISPLAY_NAME, PLAYER_RESET_DISPLAY_NAME,
+                 PLAYER_SEND_PLUGIN_MESSAGE:
+                new ru.openhousing.coding.gui.blocks.PlayerActionConfigGUI(plugin, player, block).open();
                 break;
                 
-            case CONDITION:
+            // --- ДЕЙСТВИЯ ПЕРЕМЕННЫХ ---
+            case VAR_SET, VAR_ADD, VAR_SUBTRACT, VAR_MULTIPLY, VAR_DIVIDE,
+                 VAR_APPEND_TEXT, VAR_REPLACE_TEXT, VAR_UPPERCASE, VAR_LOWERCASE,
+                 VAR_REVERSE, VAR_LENGTH, VAR_SUBSTRING, VAR_RANDOM_NUMBER,
+                 VAR_ROUND, VAR_ABS, VAR_MIN, VAR_MAX, VAR_SAVE, VAR_DELETE, VAR_COPY:
+                new ru.openhousing.coding.gui.blocks.VariableActionConfigGUI(plugin, player, block).open();
+                break;
+                
+            // --- ДЕЙСТВИЯ ИГРЫ И СУЩЕСТВ ---
+            case GAME_SET_TIME, GAME_SET_WEATHER, GAME_SET_DIFFICULTY,
+                 GAME_BROADCAST, GAME_EXECUTE_COMMAND, GAME_STOP_SERVER,
+                 GAME_RESTART_SERVER, GAME_SAVE_WORLD, GAME_LOAD_WORLD,
+                 GAME_CREATE_EXPLOSION, GAME_SPAWN_ENTITY, GAME_REMOVE_ENTITY,
+                 GAME_SET_BLOCK, GAME_BREAK_BLOCK, GAME_SEND_PACKET:
+                new ru.openhousing.coding.gui.blocks.GameActionConfigGUI(plugin, player, block).open();
+                break;
+                
+
+                
+            // --- ДЕЙСТВИЯ ИНВЕНТАРЯ ---
+            case INVENTORY_ACTION:
+                new ru.openhousing.coding.gui.blocks.InventoryActionConfigGUI(plugin, player, block).open();
+                break;
+                
+            // --- УСЛОВИЯ ---
+            case IF_PLAYER_ONLINE, IF_PLAYER_PERMISSION, IF_PLAYER_GAMEMODE,
+                 IF_PLAYER_WORLD, IF_PLAYER_FLYING, IF_PLAYER_SNEAKING,
+                 IF_PLAYER_BLOCKING, IF_PLAYER_ITEM, IF_PLAYER_HEALTH, IF_PLAYER_FOOD,
+                 IF_VARIABLE_EQUALS, IF_VARIABLE_GREATER, IF_VARIABLE_LESS,
+                 IF_VARIABLE_CONTAINS, IF_VARIABLE_EXISTS, IF_VARIABLE_SAVED, IF_VARIABLE_TYPE,
+                 IF_GAME_TIME, IF_GAME_WEATHER, IF_GAME_DIFFICULTY,
+                 IF_GAME_PLAYERS_ONLINE, IF_GAME_TPS,
+                 IF_ENTITY_EXISTS, IF_ENTITY_TYPE, IF_ENTITY_HEALTH,
+                 ITEM_CHECK:
                 new ru.openhousing.coding.gui.blocks.ConditionConfigGUI(plugin, player, block).open();
                 break;
                 
-            case EVENT:
+            // --- СОБЫТИЯ ---
+            case PLAYER_JOIN, PLAYER_QUIT, PLAYER_CHAT, PLAYER_COMMAND, PLAYER_MOVE,
+                 PLAYER_TELEPORT, PLAYER_DEATH, PLAYER_RESPAWN, PLAYER_DAMAGE,
+                 PLAYER_HEAL, PLAYER_FOOD_CHANGE, PLAYER_EXP_CHANGE, PLAYER_LEVEL_UP,
+                 PLAYER_INVENTORY_CLICK, PLAYER_ITEM_DROP, PLAYER_ITEM_PICKUP,
+                 PLAYER_ITEM_CONSUME, PLAYER_ITEM_BREAK, PLAYER_BLOCK_BREAK,
+                 PLAYER_BLOCK_PLACE, PLAYER_INTERACT, PLAYER_INTERACT_ENTITY,
+                 PLAYER_FISH, PLAYER_ENCHANT, PLAYER_CRAFT, PLAYER_SMELT,
+                 PLAYER_TRADE, PLAYER_SNEAK,
+                 WORLD_WEATHER_CHANGE, WORLD_TIME_CHANGE, WORLD_CHUNK_LOAD,
+                 WORLD_CHUNK_UNLOAD, WORLD_STRUCTURE_GROW, WORLD_EXPLOSION,
+                 WORLD_PORTAL_CREATE,
+                 ENTITY_SPAWN, ENTITY_DEATH, ENTITY_DAMAGE, ENTITY_TARGET,
+                 ENTITY_TAME, ENTITY_BREED, ENTITY_EXPLODE, ENTITY_INTERACT,
+                 ENTITY_MOUNT, ENTITY_DISMOUNT, ENTITY_LEASH, ENTITY_UNLEASH,
+                 ENTITY_SHEAR, ENTITY_MILK, ENTITY_TRANSFORM:
                 new ru.openhousing.coding.gui.blocks.EventConfigGUI(plugin, player, block).open();
                 break;
                 
-            case FUNCTION:
+            // --- ФУНКЦИИ ---
+            case FUNCTION, CALL_FUNCTION:
                 new ru.openhousing.coding.gui.blocks.FunctionConfigGUI(plugin, player, block).open();
                 break;
                 
-            case CONTROL:
-                if (block.getType() == BlockType.REPEAT) {
-                    new ru.openhousing.coding.gui.blocks.LoopConfigGUI(plugin, player, block).open();
-                } else {
-                    // Для остальных элементов управления используем стандартный GUI
-                    setupInventory();
-                    player.openInventory(inventory);
-                }
+            // --- ЦИКЛЫ ---
+            case REPEAT:
+                new ru.openhousing.coding.gui.blocks.LoopConfigGUI(plugin, player, block).open();
                 break;
                 
+            // --- МАТЕМАТИКА ---
+            case MATH:
+                new ru.openhousing.coding.gui.blocks.MathConfigGUI(plugin, player, block).open();
+                break;
+                
+            // --- ОПЕРАЦИИ С ТЕКСТОМ ---
+            case TEXT_OPERATION:
+                new ru.openhousing.coding.gui.blocks.TextOperationConfigGUI(plugin, player, block).open();
+                break;
+                
+            // --- ВСЕ ОСТАЛЬНЫЕ (стандартный GUI) ---
             default:
-                if (block.getType() == BlockType.MATH) {
-                    new ru.openhousing.coding.gui.blocks.MathConfigGUI(plugin, player, block).open();
-                } else {
-                    // Используем стандартный GUI
-                    setupInventory();
-                    player.openInventory(inventory);
-                }
+                player.sendMessage("§7Для этого блока нет специального GUI, открыт стандартный");
+                setupInventory();
+                player.openInventory(inventory);
                 break;
         }
     }
