@@ -9,6 +9,8 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
+import com.sk89q.worldguard.session.SessionManager;
+import com.sk89q.worldguard.session.handler.Handler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -228,8 +230,8 @@ public class WorldGuardIntegration {
                 BlockVector3.at(location.getBlockX(), location.getBlockY(), location.getBlockZ())
             );
             
-            return regions.testState(WorldGuard.getInstance().getPlatform().getSessionManager()
-                .get(BukkitAdapter.adapt(player)), Flags.BUILD);
+            SessionManager sessionManager = WorldGuard.getInstance().getPlatform().getSessionManager();
+            return regions.testState(sessionManager.get(BukkitAdapter.adapt(player)), Flags.BUILD);
                 
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to check build permission: " + e.getMessage());
@@ -253,8 +255,8 @@ public class WorldGuardIntegration {
                 BlockVector3.at(location.getBlockX(), location.getBlockY(), location.getBlockZ())
             );
             
-            return regions.testState(WorldGuard.getInstance().getPlatform().getSessionManager()
-                .get(BukkitAdapter.adapt(player)), Flags.ENTRY);
+            SessionManager sessionManager = WorldGuard.getInstance().getPlatform().getSessionManager();
+            return regions.testState(sessionManager.get(BukkitAdapter.adapt(player)), Flags.ENTRY);
                 
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to check entry permission: " + e.getMessage());
@@ -274,5 +276,40 @@ public class WorldGuardIntegration {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+    
+    /**
+     * Проверка доступа игрока к дому (для совместимости)
+     */
+    public boolean canPlayerAccess(Player player, House house) {
+        if (!enabled) return true;
+        
+        // Проверяем, является ли игрок владельцем
+        if (house.getOwnerId().equals(player.getUniqueId())) {
+            return true;
+        }
+        
+        // Проверяем, разрешен ли игрок
+        if (house.getAllowedPlayers().contains(player.getUniqueId())) {
+            return true;
+        }
+        
+        // Проверяем, заблокирован ли игрок
+        if (house.getBannedPlayers().contains(player.getUniqueId())) {
+            return false;
+        }
+        
+        // Проверяем публичность дома
+        Object isPublicObj = house.getSetting("isPublic");
+        boolean isPublic = isPublicObj instanceof Boolean ? (Boolean) isPublicObj : false;
+        
+        return isPublic;
+    }
+    
+    /**
+     * Проверка активности WorldGuard (для совместимости)
+     */
+    public boolean isWorldGuardEnabled() {
+        return isEnabled();
     }
 }
