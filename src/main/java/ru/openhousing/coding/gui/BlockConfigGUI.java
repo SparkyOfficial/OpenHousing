@@ -960,13 +960,13 @@ public class BlockConfigGUI implements Listener {
     private void handleMathClick(int slot, boolean isShiftClick) {
         // Открываем специализированное GUI для математических операций
         player.closeInventory();
-        new ru.openhousing.coding.gui.blocks.MathConfigGUI(plugin, player, block).open();
+        new ru.openhousing.coding.gui.blocks.MathConfigGUI(plugin, player, (ru.openhousing.coding.blocks.math.MathBlock) block, () -> this.open()).open();
     }
     
     private void handleTextOperationClick(int slot, boolean isShiftClick) {
         // Открываем специализированное GUI для текстовых операций
         player.closeInventory();
-        new ru.openhousing.coding.gui.blocks.MathConfigGUI(plugin, player, block).open(); // Пока используем MathConfigGUI
+        new ru.openhousing.coding.gui.blocks.MathConfigGUI(plugin, player, (ru.openhousing.coding.blocks.math.MathBlock) block, () -> this.open()).open(); // Пока используем MathConfigGUI
     }
     
     private void handleOldMathClick(int slot, boolean isShiftClick) {
