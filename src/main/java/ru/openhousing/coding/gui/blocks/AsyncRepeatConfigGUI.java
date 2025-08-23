@@ -34,7 +34,7 @@ public class AsyncRepeatConfigGUI extends BaseBlockConfigGUI {
     
     @Override
     public void setupInventory() {
-        this.inventory = Bukkit.createInventory(this, 36, "§8Настройка асинхронного цикла");
+        this.inventory = Bukkit.createInventory(null, 36, "§8Настройка асинхронного цикла");
         
         // Заполняем фон
         for (int i = 0; i < inventory.getSize(); i++) {
@@ -240,9 +240,12 @@ public class AsyncRepeatConfigGUI extends BaseBlockConfigGUI {
             return;
         }
         
-        // Открываем ValueSelectorGUI с подходящими типами
-        ValueSelectorGUI.openValueSelector(player, "Значение для " + currentType.getDisplayName(), 
-            new String[]{"TEXT", "VARIABLE", "NUMBER"}, this::onValueSelected);
+        // Открываем простой селектор значений
+        player.sendMessage("§eВыберите тип значения для " + currentType.getDisplayName() + ":");
+        player.sendMessage("§7• TEXT - текстовое значение");
+        player.sendMessage("§7• VARIABLE - переменная");
+        player.sendMessage("§7• NUMBER - числовое значение");
+        player.sendMessage("§7Используйте команду: /openhousing set " + block.getId() + " value <значение>");
     }
     
     /**
@@ -252,10 +255,9 @@ public class AsyncRepeatConfigGUI extends BaseBlockConfigGUI {
         player.sendMessage("§eВведите максимальное количество итераций (1-10000):");
         player.sendMessage("§7Используйте команду: /openhousing set " + block.getId() + " max_iterations <число>");
         
-        // Альтернативно можно использовать AnvilGUI
-        openAnvilInput("Максимум итераций", 
-            (String) block.getParameter(BlockParams.MAX_ITERATIONS), 
-            this::onMaxIterationsSet);
+        // Используем простой ввод через чат
+        player.sendMessage("§eВведите максимальное количество итераций (1-10000):");
+        player.sendMessage("§7Используйте команду: /openhousing set " + block.getId() + " max_iterations <число>");
     }
     
     /**
@@ -265,10 +267,9 @@ public class AsyncRepeatConfigGUI extends BaseBlockConfigGUI {
         player.sendMessage("§eВведите задержку между итерациями в тиках (1-100):");
         player.sendMessage("§7Используйте команду: /openhousing set " + block.getId() + " delay_ticks <число>");
         
-        // Альтернативно можно использовать AnvilGUI
-        openAnvilInput("Задержка (тики)", 
-            (String) block.getParameter("delay_ticks"), 
-            this::onDelayTicksSet);
+        // Используем простой ввод через чат
+        player.sendMessage("§eВведите задержку между итерациями в тиках (1-100):");
+        player.sendMessage("§7Используйте команду: /openhousing set " + block.getId() + " delay_ticks <число>");
     }
     
     /**
@@ -348,6 +349,7 @@ public class AsyncRepeatConfigGUI extends BaseBlockConfigGUI {
      * Обновление инвентаря
      */
     private void refreshInventory() {
-        player.openInventory(createInventory());
+        setupInventory();
+        player.openInventory(inventory);
     }
 }

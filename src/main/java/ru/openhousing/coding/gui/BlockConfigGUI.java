@@ -204,7 +204,13 @@ public class BlockConfigGUI implements Listener {
                 
             // --- ЦИКЛЫ ---
             case REPEAT:
-                new ru.openhousing.coding.gui.blocks.LoopConfigGUI(plugin, player, block).open();
+                // Используем новый AsyncRepeatConfigGUI для асинхронных циклов
+                new ru.openhousing.coding.gui.blocks.AsyncRepeatConfigGUI(plugin, player, (ru.openhousing.coding.blocks.control.AsyncRepeatBlock) block, saveCallback).open();
+                break;
+                
+            // --- ЭЛЕМЕНТЫ УПРАВЛЕНИЯ ---
+            case TARGET:
+                new ru.openhousing.coding.gui.blocks.TargetConfigGUI(plugin, player, (ru.openhousing.coding.blocks.control.TargetBlock) block, saveCallback).open();
                 break;
                 
             // --- МАТЕМАТИКА ---
