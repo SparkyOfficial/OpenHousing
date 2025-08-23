@@ -6,6 +6,9 @@ import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.util.List;
+import java.util.Arrays;
+
 import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.blocks.actions.PlayerActionBlock;
 import ru.openhousing.coding.constants.BlockParams;
