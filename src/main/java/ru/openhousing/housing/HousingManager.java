@@ -203,6 +203,11 @@ public class HousingManager {
             plugin.getDatabaseManager().saveCodeScriptAsync(script, () -> {});
         } catch (Exception ignored) {}
         
+        // Создание WorldGuard региона
+        if (plugin.getWorldGuardIntegration().isEnabled()) {
+            plugin.getWorldGuardIntegration().createHouseRegion(house);
+        }
+        
         // Звуковые эффекты и уведомления
         plugin.getSoundEffects().playHouseCreate(player);
         plugin.getSoundEffects().showHouseCreatedTitle(player, houseName);
@@ -268,6 +273,11 @@ public class HousingManager {
         
         // Удаление из базы данных
         plugin.getDatabaseManager().deleteHouse(house.getId());
+        
+        // Удаление WorldGuard региона
+        if (plugin.getWorldGuardIntegration().isEnabled()) {
+            plugin.getWorldGuardIntegration().deleteHouseRegion(house);
+        }
         
         // Очистка территории
         clearHouseArea(house);

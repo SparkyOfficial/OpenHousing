@@ -321,6 +321,12 @@ public class SecuritySettingsGUI implements Listener {
      */
     private void saveAndClose() {
         plugin.getDatabaseManager().saveHouse(house);
+        
+        // Обновляем WorldGuard регион с новыми настройками
+        if (plugin.getWorldGuardIntegration().isEnabled()) {
+            plugin.getWorldGuardIntegration().updateHouseRegion(house);
+        }
+        
         MessageUtil.send(player, "§aНастройки безопасности сохранены!");
         close();
     }
