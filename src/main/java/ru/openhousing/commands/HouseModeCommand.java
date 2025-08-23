@@ -75,7 +75,7 @@ public class HouseModeCommand implements CommandExecutor {
             
             if (script != null && !script.isEmpty()) {
                 if (debugMode) plugin.getLogger().info("[DEBUG] Registering script with EventManager for player: " + player.getName());
-                plugin.getCodeManager().getEventManager().registerPlayerScript(player, script);
+                plugin.getCodeManager().getEventManager().registerPlayer(player, script);
                 plugin.getLogger().info("[PLAY MODE] Зарегистрирован код игрока " + player.getName() + " с " + script.getBlockCount() + " блоками");
             } else {
                 if (debugMode) plugin.getLogger().info("[DEBUG] No script found or script is empty for player: " + player.getName());
