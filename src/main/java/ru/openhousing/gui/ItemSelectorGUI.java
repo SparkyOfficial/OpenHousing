@@ -154,7 +154,7 @@ public class ItemSelectorGUI implements Listener {
             .build());
         
         // Случайный предмет
-        inventory.setItem(51, new ItemBuilder(Material.DICE)
+        inventory.setItem(51, new ItemBuilder(Material.EMERALD)
             .name("§eСлучайный предмет")
             .lore(Arrays.asList("§7Выбрать случайный предмет"))
             .build());
@@ -223,8 +223,8 @@ public class ItemSelectorGUI implements Listener {
                 Material[] popularItems = {
                     Material.DIAMOND, Material.IRON_INGOT, Material.GOLD_INGOT, Material.EMERALD,
                     Material.COAL, Material.REDSTONE, Material.LAPIS_LAZULI, Material.QUARTZ,
-                    Material.STONE, Material.DIRT, Material.WOOD, Material.PLANKS,
-                    Material.APPLE, Material.BREAD, Material.COOKED_BEEF, Material.TORCH
+                                    Material.STONE, Material.DIRT, Material.OAK_LOG, Material.OAK_PLANKS,
+                Material.APPLE, Material.BREAD, Material.COOKED_BEEF, Material.TORCH
                 };
                 
                 if (itemIndex < popularItems.length) {
