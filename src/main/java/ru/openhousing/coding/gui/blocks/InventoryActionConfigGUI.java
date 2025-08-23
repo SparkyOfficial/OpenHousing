@@ -472,6 +472,9 @@ public class InventoryActionConfigGUI {
      */
     public void open() {
         player.openInventory(inventory);
+        // Простой тест - отправляем сообщение
+        MessageUtil.send(player, "§aОткрыт GUI для настройки блока инвентаря");
+        MessageUtil.send(player, "§7Выберите действие и настройте параметры");
     }
     
     /**
