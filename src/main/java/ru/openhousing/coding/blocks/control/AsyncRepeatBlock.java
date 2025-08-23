@@ -9,6 +9,8 @@ import ru.openhousing.coding.constants.BlockParams;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
+import java.util.Arrays;
 
 /**
  * Асинхронный блок повторения (цикла) - предотвращает server lag
@@ -87,8 +89,12 @@ public class AsyncRepeatBlock extends CodeBlock {
     }
     
     @Override
-    public String getDescription() {
-        return "Асинхронный блок повторения - предотвращает server lag";
+    public List<String> getDescription() {
+        return Arrays.asList(
+            "§6Повторение (асинхронно)",
+            "§7Этот цикл предотвращает зависания сервера.",
+            "§7Выполняет код определенное количество раз асинхронно."
+        );
     }
     
     @Override
