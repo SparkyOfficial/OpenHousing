@@ -6,7 +6,7 @@ import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.blocks.events.PlayerEventBlock;
 import ru.openhousing.coding.blocks.events.EntityEventBlock;
-import ru.openhousing.coding.events.EventManager;
+import ru.openhousing.coding.events.OptimizedEventManager;
 import ru.openhousing.coding.gui.CodeEditorGUI;
 import ru.openhousing.coding.script.CodeScript;
 import ru.openhousing.coding.script.CodeLine;
@@ -22,13 +22,13 @@ public class CodeManager {
     private final OpenHousing plugin;
     private final Map<UUID, CodeScript> playerScripts;
     private final Map<UUID, CodeEditorGUI> openEditors;
-    private final EventManager eventManager;
+    private final OptimizedEventManager eventManager;
     
     public CodeManager(OpenHousing plugin) {
         this.plugin = plugin;
         this.playerScripts = new ConcurrentHashMap<>();
         this.openEditors = new ConcurrentHashMap<>();
-        this.eventManager = new EventManager(plugin);
+        this.eventManager = new OptimizedEventManager(plugin);
     }
     
     /**
@@ -38,9 +38,7 @@ public class CodeManager {
         boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
         
         try {
-            if (debugMode) plugin.getLogger().info("[DEBUG] Initializing EventManager...");
-            eventManager.initialize();
-            if (debugMode) plugin.getLogger().info("[DEBUG] EventManager initialized successfully");
+            if (debugMode) plugin.getLogger().info("[DEBUG] OptimizedEventManager initialized successfully");
             
             if (debugMode) plugin.getLogger().info("[DEBUG] CodeManager playerScripts map size: " + playerScripts.size());
             if (debugMode) plugin.getLogger().info("[DEBUG] CodeManager openEditors map size: " + openEditors.size());
@@ -176,13 +174,13 @@ public class CodeManager {
         try {
             playerScripts.put(player.getUniqueId(), script);
             
-            // Перерегистрация обработчиков событий через EventManager
+            // Перерегистрация обработчиков событий через OptimizedEventManager
             if (eventManager != null) {
-                eventManager.unregisterPlayerScript(player.getUniqueId());
-                eventManager.registerPlayerScript(player, script);
-                if (debugMode) plugin.getLogger().info("[DEBUG] Script re-registered in EventManager");
+                eventManager.unregisterPlayer(player);
+                eventManager.registerPlayer(player, script);
+                if (debugMode) plugin.getLogger().info("[DEBUG] Script re-registered in OptimizedEventManager");
             } else {
-                plugin.getLogger().warning("[WARNING] EventManager is null during script save");
+                plugin.getLogger().warning("[WARNING] OptimizedEventManager is null during script save");
             }
             
             // Асинхронное сохранение в БД
@@ -217,10 +215,10 @@ public class CodeManager {
             if (script != null) {
                 playerScripts.put(player.getUniqueId(), script);
                 if (eventManager != null) {
-                    eventManager.registerPlayerScript(player, script);
+                    eventManager.registerPlayer(player, script);
                     if (debugMode) plugin.getLogger().info("[DEBUG] Script loaded and registered for player: " + player.getName());
                 } else {
-                    plugin.getLogger().warning("[WARNING] EventManager is null during script load");
+                    plugin.getLogger().warning("[WARNING] OptimizedEventManager is null during script load");
                 }
             } else {
                 if (debugMode) plugin.getLogger().info("[DEBUG] No script found in database for player: " + player.getName());
