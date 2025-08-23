@@ -322,25 +322,45 @@ public class EventManager implements Listener {
      */
     private void executeEventHandler(Player player, CodeBlock eventBlock, Event event) {
         try {
-            // Фильтр по привязке мира: если скрипт привязан к конкретному миру дома
-            CodeScript scriptForPlayer = playerScripts.get(player.getUniqueId());
-            if (scriptForPlayer != null && scriptForPlayer.getBoundWorld() != null) {
+            // 1. Получаем скрипт игрока
+            CodeScript script = playerScripts.get(player.getUniqueId());
+            if (script == null || !script.isEnabled()) {
+                return; // Если скрипта нет или он выключен, ничего не делаем
+            }
+            
+            // 2. Фильтр по привязке мира
+            if (script.getBoundWorld() != null) {
                 String currentWorld = player.getWorld().getName();
-                if (!currentWorld.equalsIgnoreCase(scriptForPlayer.getBoundWorld())) {
-                    return; // не запускаем код вне привязанного мира
+                if (!currentWorld.equalsIgnoreCase(script.getBoundWorld())) {
+                    return; // Не запускаем код вне привязанного мира
                 }
             }
 
-            CodeBlock.ExecutionContext context = eventBlock.createContextFromEvent(event);
-            context.setVariable("player", player);
+            // 3. Создаем контекст С ПЕРЕМЕННЫМИ ИЗ СКРИПТА
+            CodeBlock.ExecutionContext context = new CodeBlock.ExecutionContext(player);
+            context.getVariables().putAll(script.getGlobalVariables());
+            context.getFunctions().putAll(script.getFunctions());
+
+            // 4. Добавляем информацию о событии в уже существующий контекст
             context.setVariable("event_type", event.getClass().getSimpleName());
-            
-            // Выполняем блок события
+            if (event instanceof org.bukkit.event.player.PlayerEvent) {
+                context.setVariable("player", ((org.bukkit.event.player.PlayerEvent) event).getPlayer());
+            }
+
+            // 5. Выполняем блок
             eventBlock.execute(context);
+
+            // 6. Сохраняем измененные переменные обратно в скрипт
+            script.getGlobalVariables().putAll(context.getVariables());
+            
+            // 7. Обновляем статистику
+            String eventType = event.getClass().getSimpleName();
+            executionStats.merge(eventType, 1L, Long::sum);
             
         } catch (Exception e) {
             plugin.getLogger().warning("Ошибка выполнения кода события для игрока " + player.getName() + 
                                      ": " + e.getMessage());
+            e.printStackTrace(); // Очень полезно для отладки
         }
     }
     

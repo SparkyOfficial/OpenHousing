@@ -23,7 +23,7 @@ import ru.openhousing.utils.MessageUtil;
 /**
  * OpenHousing - Hypixel Housing аналог с кодингом в инвентаре
  * 
- * @author YourName
+ * @author Sparky
  * @version 1.0.0
  */
 public class OpenHousing extends JavaPlugin {
