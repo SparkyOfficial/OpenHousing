@@ -302,9 +302,9 @@ public abstract class CodeBlock {
          * Инициализация системных переменных (read-only)
          */
         private void initializeSystemVariables() {
-            systemVariables.put("player_name", player.getName());
-            systemVariables.put("player_uuid", player.getUniqueId().toString());
-            systemVariables.put("world_name", player.getWorld().getName());
+            systemVariables.put("player_name", player.getName() != null ? player.getName() : "Unknown");
+            systemVariables.put("player_uuid", player.getUniqueId() != null ? player.getUniqueId().toString() : "unknown");
+            systemVariables.put("world_name", player.getWorld() != null ? player.getWorld().getName() : "unknown");
             systemVariables.put("execution_time", startTime);
             systemVariables.put("tps", 20.0); // Будет обновляться
         }

@@ -70,6 +70,10 @@ public class CodeCommand implements CommandExecutor, TabCompleter {
                 showScriptInfo(player);
                 break;
                 
+            case "debug":
+                openDebugger(player);
+                break;
+                
             case "share":
                 shareScript(player, args);
                 break;
@@ -226,6 +230,14 @@ public class CodeCommand implements CommandExecutor, TabCompleter {
         // Например, загрузка из базы данных по коду
         
         MessageUtil.send(player, "&aФункция импорта кода будет добавлена в будущих обновлениях!");
+    }
+    
+    /**
+     * Открытие отладчика кода
+     */
+    private void openDebugger(Player player) {
+        plugin.getCodeManager().openCodeDebugger(player);
+        MessageUtil.send(player, "&aОтладчик кода открыт!");
     }
     
     /**

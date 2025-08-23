@@ -102,6 +102,30 @@ public class CodeManager {
     }
     
     /**
+     * Открытие отладчика кода для игрока
+     */
+    public void openCodeDebugger(Player player) {
+        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
+        
+        try {
+            if (debugMode) plugin.getLogger().info("[DEBUG] Opening code debugger for player: " + player.getName());
+            
+            // Создаем контекст выполнения для отладки
+            CodeBlock.ExecutionContext context = new CodeBlock.ExecutionContext(player);
+            
+            // Открываем GUI отладчика
+            ru.openhousing.coding.gui.DebugGUI debugger = new ru.openhousing.coding.gui.DebugGUI(plugin, player, context);
+            debugger.open();
+            
+            if (debugMode) plugin.getLogger().info("[DEBUG] Code debugger opened for player: " + player.getName());
+        } catch (Exception e) {
+            plugin.getLogger().severe("Error opening code debugger for " + player.getName() + ": " + e.getMessage());
+            e.printStackTrace();
+            player.sendMessage("§cОшибка открытия отладчика кода!");
+        }
+    }
+    
+    /**
      * Закрытие редактора кода
      */
     public void closeCodeEditor(Player player) {
