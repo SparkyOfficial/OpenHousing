@@ -13,7 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.blocks.CodeBlock.ExecutionContext;
-import ru.openhousing.coding.blocks.CodeBlock.ExecutionStats;
+import ru.openhousing.coding.blocks.CodeBlockТы .ExecutionStats;
 
 import java.util.*;
 
