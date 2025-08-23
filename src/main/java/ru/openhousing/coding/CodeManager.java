@@ -243,10 +243,10 @@ public class CodeManager {
         try {
             playerScripts.put(player.getUniqueId(), script);
             if (eventManager != null) {
-                eventManager.registerPlayerScript(player, script);
+                eventManager.registerPlayer(player, script);
                 if (debugMode) plugin.getLogger().info("[DEBUG] Script registered for player: " + player.getName());
             } else {
-                plugin.getLogger().warning("[WARNING] EventManager is null during script registration");
+                plugin.getLogger().warning("[WARNING] OptimizedEventManager is null during script registration");
             }
         } catch (Exception e) {
             plugin.getLogger().severe("[ERROR] Failed to register script for player " + player.getName() + ": " + e.getMessage());
@@ -265,10 +265,10 @@ public class CodeManager {
     }
     
     /**
-     * Обработка события Bukkit через EventManager
+     * Обработка события Bukkit через OptimizedEventManager
      */
     public void handleEvent(Event event, Player player) {
-        eventManager.handleEvent(event, player);
+        eventManager.processEvent(event, player);
     }
     
 
@@ -315,7 +315,7 @@ public class CodeManager {
      */
     public void reloadAll() {
         // Очищаем все регистрации событий
-        eventManager.unregisterAll();
+        eventManager.cleanup();
         
         // Перерегистрируем все скрипты через EventManager
         for (Map.Entry<UUID, CodeScript> entry : playerScripts.entrySet()) {
