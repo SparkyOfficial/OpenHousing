@@ -109,7 +109,7 @@ public class ItemSelectorGUI implements Listener {
             Material[] popularItems = {
                 Material.DIAMOND, Material.IRON_INGOT, Material.GOLD_INGOT, Material.EMERALD,
                 Material.COAL, Material.REDSTONE, Material.LAPIS_LAZULI, Material.QUARTZ,
-                Material.STONE, Material.DIRT, Material.WOOD, Material.PLANKS,
+                Material.STONE, Material.DIRT, Material.OAK_LOG, Material.OAK_PLANKS,
                 Material.APPLE, Material.BREAD, Material.COOKED_BEEF, Material.TORCH
             };
             
