@@ -72,7 +72,7 @@ public class WorldGuardIntegration {
             
             // Получаем размеры дома
             House.HouseSize size = house.getSize();
-            int sizeValue = size.getSize();
+            int sizeValue = size.getWidth(); // Используем ширину как основной размер
             
             // Создаем регион вокруг спавна дома
             Location spawnLocation = house.getSpawnLocation();
