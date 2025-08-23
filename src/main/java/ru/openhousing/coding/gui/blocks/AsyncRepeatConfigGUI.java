@@ -200,7 +200,7 @@ public class AsyncRepeatConfigGUI extends BaseBlockConfigGUI {
                 "",
                 "§7Кликните для выбора"
             ));
-            typeMeta.setItemMeta(typeMeta);
+            typeItem.setItemMeta(typeMeta);
             selector.setItem(slot, typeItem);
             
             slot++;
