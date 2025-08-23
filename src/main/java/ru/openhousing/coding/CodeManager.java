@@ -317,7 +317,7 @@ public class CodeManager {
         // Очищаем все регистрации событий
         eventManager.cleanup();
         
-        // Перерегистрируем все скрипты через EventManager
+        // Перерегистрируем все скрипты через OptimizedEventManager
         for (Map.Entry<UUID, CodeScript> entry : playerScripts.entrySet()) {
             Player player = plugin.getServer().getPlayer(entry.getKey());
             if (player != null && player.isOnline()) {
@@ -343,9 +343,9 @@ public class CodeManager {
     }
     
     /**
-     * Получение EventManager для внешнего использования
+     * Получение OptimizedEventManager для внешнего использования
      */
-    public EventManager getEventManager() {
+    public OptimizedEventManager getEventManager() {
         return eventManager;
     }
 }
