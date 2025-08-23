@@ -231,10 +231,10 @@ public class ScriptSerializer {
                     }
                 }
                 
-                // Обработка повторений
+                // Обработка повторений (AsyncRepeatBlock)
                 if (blockType == BlockType.REPEAT) {
                     if (key.equals("repeatType")) {
-                        return ru.openhousing.coding.blocks.control.RepeatBlock.RepeatType.valueOf(stringValue);
+                        return ru.openhousing.coding.blocks.control.AsyncRepeatBlock.RepeatType.valueOf(stringValue);
                     }
                 }
                 
@@ -242,6 +242,30 @@ public class ScriptSerializer {
                 if (blockType == BlockType.TARGET) {
                     if (key.equals("targetType")) {
                         return ru.openhousing.coding.blocks.control.TargetBlock.TargetType.valueOf(stringValue);
+                    }
+                }
+                
+                // Обработка функций
+                if (blockType == BlockType.FUNCTION) {
+                    if (key.equals("functionType")) {
+                        // TODO: Добавить FunctionType когда будет создан
+                        return stringValue; // Пока возвращаем как строку
+                    }
+                }
+                
+                // Обработка вызовов функций
+                if (blockType == BlockType.CALL_FUNCTION) {
+                    if (key.equals("callType")) {
+                        // TODO: Добавить CallType когда будет создан
+                        return stringValue; // Пока возвращаем как строку
+                    }
+                }
+                
+                // Обработка контроля кода
+                if (blockType == BlockType.CODE_CONTROL) {
+                    if (key.equals("controlType")) {
+                        // TODO: Добавить ControlType когда будет создан
+                        return stringValue; // Пока возвращаем как строку
                     }
                 }
                 
