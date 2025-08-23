@@ -515,8 +515,8 @@ public class LineSelectorGUI implements Listener {
                     return new ru.openhousing.coding.blocks.functions.CallFunctionBlock();
             
                 // Управление
-                case REPEAT:
-                    return new ru.openhousing.coding.blocks.control.RepeatBlock();
+                            case REPEAT:
+                return new ru.openhousing.coding.blocks.control.AsyncRepeatBlock(); // Асинхронная версия
                 case ELSE:
                     return new ru.openhousing.coding.blocks.control.ElseBlock();
                 case TARGET:

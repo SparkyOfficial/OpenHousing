@@ -199,7 +199,7 @@ public class CodeBlockFactory {
             
             // Управление
             case REPEAT:
-                return new RepeatBlock();
+                return new AsyncRepeatBlock(); // Используем асинхронную версию для предотвращения server lag
             case ELSE:
                 return new ElseBlock();
             case TARGET:
