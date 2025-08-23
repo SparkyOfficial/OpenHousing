@@ -13,7 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.blocks.CodeBlock.ExecutionContext;
-import ru.openhousing.coding.blocks.CodeBlockТы .ExecutionStats;
+import ru.openhousing.coding.blocks.CodeBlock.ExecutionContext.ExecutionStats;
 
 import java.util.*;
 
@@ -204,7 +204,7 @@ public class StatsViewerGUI implements IBlockConfigurationGUI {
             "§7Загрузка CPU: §f" + getCPUUsage() + "%"
         ));
         perfItem.setItemMeta(perfMeta);
-        inventory.setItem(15, systemItem);
+        inventory.setItem(15, perfItem);
         
         // Логирование
         ItemStack logItem = new ItemStack(Material.BOOK);
@@ -253,7 +253,7 @@ public class StatsViewerGUI implements IBlockConfigurationGUI {
     
     private int getTotalExecutedBlocks(ExecutionStats stats) {
         // Примерная оценка на основе времени выполнения
-        return Math.max(1, stats.getExecutionTime() / 10);
+        return Math.max(1, (int)(stats.getExecutionTime() / 10));
     }
     
     private int getSuccessfulBlocks(ExecutionStats stats) {

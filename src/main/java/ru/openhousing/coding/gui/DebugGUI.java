@@ -14,11 +14,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.blocks.CodeBlock.ExecutionContext;
+import ru.openhousing.coding.gui.VariablesViewerGUI;
+import ru.openhousing.coding.gui.ExecutionLogViewerGUI;
+import ru.openhousing.coding.gui.StatsViewerGUI;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 /**
  * GUI для отладки кода и просмотра переменных
@@ -209,32 +209,18 @@ public class DebugGUI implements IBlockConfigurationGUI {
     }
     
     private void openVariablesViewer() {
-        // TODO: Создать VariablesViewerGUI
-        player.sendMessage("§eПросмотр переменных (в разработке)");
-        player.sendMessage("§7Локальные: " + context.getLocalVariables());
-        player.sendMessage("§7Глобальные: " + context.getGlobalVariables());
-        player.sendMessage("§7Системные: " + context.getSystemVariables());
+        close();
+        new VariablesViewerGUI(plugin, player, context).open();
     }
     
     private void openExecutionLogViewer() {
-        // TODO: Создать ExecutionLogViewerGUI
-        player.sendMessage("§eЛог выполнения:");
-        List<String> log = context.getExecutionLog();
-        if (log.isEmpty()) {
-            player.sendMessage("§7Лог пуст");
-        } else {
-            log.forEach(entry -> player.sendMessage("§7" + entry));
-        }
+        close();
+        new ExecutionLogViewerGUI(plugin, player, context).open();
     }
     
     private void openStatsViewer() {
-        // TODO: Создать StatsViewerGUI
-        ExecutionContext.ExecutionStats stats = context.getExecutionStats();
-        player.sendMessage("§eСтатистика выполнения:");
-        player.sendMessage("§7Время: " + stats.getExecutionTime() + "ms");
-        player.sendMessage("§7Глубина: " + stats.getMaxDepth());
-        player.sendMessage("§7Переменные: " + stats.getTotalVarCount());
-        player.sendMessage("§7Записи лога: " + stats.getLogEntries());
+        close();
+        new StatsViewerGUI(plugin, player, context).open();
     }
     
     private void refreshData() {
