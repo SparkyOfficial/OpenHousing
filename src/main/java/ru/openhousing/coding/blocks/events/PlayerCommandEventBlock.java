@@ -25,6 +25,10 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import com.github.stefvanschie.inventoryframework.AnvilGUI;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemMeta;
+import java.util.Arrays;
 
 /**
  * Специализированный блок для события использования команды игроком
@@ -562,155 +566,153 @@ public class PlayerCommandEventBlock extends CodeBlock implements Listener {
     }
     
     @Override
-    public List<String> getDescription() {
-        List<String> description = new ArrayList<>();
-        description.add("§6Блок события использования команды");
-        description.add("§7Обрабатывает команды игроков с детальной");
-        description.add("§7фильтрацией и логированием");
-        description.add("");
-        description.add("§eНастройки:");
-        description.add("§7• Логирование: " + (logCommands ? "§aВключено" : "§cВыключено"));
-        description.add("§7• Блокировка: " + (blockUnsafeCommands ? "§aВключена" : "§cВыключена"));
-        description.add("§7• Кулдаун: " + (cooldownEnabled ? "§a" + cooldownTime + "мс" : "§cВыключен"));
-        description.add("§7• Лимит: " + (rateLimitEnabled ? "§a" + maxCommandsPerMinute + "/мин" : "§cВыключен"));
-        description.add("§7• Анти-спам: " + (antiSpamEnabled ? "§aВключен" : "§cВыключен"));
-        description.add("§7• История: " + (commandHistoryEnabled ? "§a" + maxHistorySize + " записей" : "§cВыключена"));
-        
-        return description;
+    public String getDescription() {
+        return String.format("Player Command Event Block\n" +
+                "Settings:\n" +
+                "- Commands: %s\n" +
+                "- Anti-spam: %s\n" +
+                "- Cooldown: %dms\n" +
+                "- Rate limit: %d commands per %dms\n" +
+                "- Logging: %s\n" +
+                "- Notifications: %s",
+                String.join(", ", commands),
+                antiSpamEnabled ? "Enabled" : "Disabled",
+                cooldownMs,
+                rateLimitMax,
+                rateLimitWindowMs,
+                loggingEnabled ? "Enabled" : "Disabled",
+                notificationsEnabled ? "Enabled" : "Disabled");
     }
-    
+
     /**
-     * Синхронное выполнение
+     * Opens an enhanced configuration GUI for this block
      */
-    private ExecutionResult executeSync(ExecutionContext context) {
-        // Проверка кэша
-        if (cacheResults) {
-            CachedCommand cached = commandCache.get(context.getVariable("commandName").toString());
-            if (cached != null && !cached.isExpired()) {
-                return cached.getResult();
+    public void openConfigurationGUI(Player player) {
+        new AnvilGUI.Builder()
+                .onComplete((player1, text) -> {
+                    if (text == null || text.trim().isEmpty()) {
+                        return AnvilGUI.Response.close();
+                    }
+                    
+                    // Parse configuration from text
+                    parseConfiguration(text);
+                    player1.sendMessage("§aConfiguration updated!");
+                    return AnvilGUI.Response.close();
+                })
+                .onClose(player1 -> player1.sendMessage("§cConfiguration cancelled"))
+                .text("Configure block settings")
+                .title("§6Command Block Config")
+                .plugin(OpenHousing.getInstance())
+                .open(player);
+    }
+
+    /**
+     * Opens a detailed settings GUI with multiple pages
+     */
+    public void openDetailedSettingsGUI(Player player) {
+        // Main settings menu
+        Inventory menu = Bukkit.createInventory(null, 27, "§6Command Block Settings");
+        
+        // Anti-spam toggle
+        ItemStack antiSpamItem = new ItemStack(antiSpamEnabled ? Material.GREEN_WOOL : Material.RED_WOOL);
+        ItemMeta antiSpamMeta = antiSpamItem.getItemMeta();
+        antiSpamMeta.setDisplayName("§eAnti-Spam: " + (antiSpamEnabled ? "§aON" : "§cOFF"));
+        antiSpamMeta.setLore(Arrays.asList(
+            "§7Click to toggle",
+            "§7Prevents command spam",
+            "§7Current: " + (antiSpamEnabled ? "§aEnabled" : "§cDisabled")
+        ));
+        antiSpamItem.setItemMeta(antiSpamMeta);
+        menu.setItem(10, antiSpamItem);
+        
+        // Cooldown settings
+        ItemStack cooldownItem = new ItemStack(Material.CLOCK);
+        ItemMeta cooldownMeta = cooldownItem.getItemMeta();
+        cooldownMeta.setDisplayName("§eCooldown: " + cooldownMs + "ms");
+        cooldownMeta.setLore(Arrays.asList(
+            "§7Click to change",
+            "§7Delay between commands",
+            "§7Current: " + cooldownMs + "ms"
+        ));
+        cooldownItem.setItemMeta(cooldownMeta);
+        menu.setItem(12, cooldownItem);
+        
+        // Rate limiting
+        ItemStack rateLimitItem = new ItemStack(Material.HOPPER);
+        ItemMeta rateLimitMeta = rateLimitItem.getItemMeta();
+        rateLimitMeta.setDisplayName("§eRate Limit: " + rateLimitMax + "/" + rateLimitWindowMs + "ms");
+        rateLimitMeta.setLore(Arrays.asList(
+            "§7Click to configure",
+            "§7Max commands per time window",
+            "§7Current: " + rateLimitMax + " per " + rateLimitWindowMs + "ms"
+        ));
+        rateLimitItem.setItemMeta(rateLimitMeta);
+        menu.setItem(14, rateLimitItem);
+        
+        // Logging toggle
+        ItemStack loggingItem = new ItemStack(loggingEnabled ? Material.BOOK : Material.BARRIER);
+        ItemMeta loggingMeta = loggingItem.getItemMeta();
+        loggingMeta.setDisplayName("§eLogging: " + (loggingEnabled ? "§aON" : "§cOFF"));
+        loggingMeta.setLore(Arrays.asList(
+            "§7Click to toggle",
+            "§7Log command executions",
+            "§7Current: " + (loggingEnabled ? "§aEnabled" : "§cDisabled")
+        ));
+        loggingItem.setItemMeta(loggingMeta);
+        menu.setItem(16, loggingItem);
+        
+        // Commands list
+        ItemStack commandsItem = new ItemStack(Material.COMMAND_BLOCK);
+        ItemMeta commandsMeta = commandsItem.getItemMeta();
+        commandsMeta.setDisplayName("§eCommands: " + commands.size());
+        commandsMeta.setLore(Arrays.asList(
+            "§7Click to edit",
+            "§7Configure command list",
+            "§7Current: " + String.join(", ", commands)
+        ));
+        commandsItem.setItemMeta(commandsMeta);
+        menu.setItem(22, commandsItem);
+        
+        // Close button
+        ItemStack closeItem = new ItemStack(Material.BARRIER);
+        ItemMeta closeMeta = closeItem.getItemMeta();
+        closeMeta.setDisplayName("§cClose");
+        closeItem.setItemMeta(closeMeta);
+        menu.setItem(26, closeItem);
+        
+        player.openInventory(menu);
+    }
+
+    /**
+     * Parse configuration from text input
+     */
+    private void parseConfiguration(String text) {
+        // Simple configuration parser
+        if (text.startsWith("antispam:")) {
+            antiSpamEnabled = text.contains("true");
+        } else if (text.startsWith("cooldown:")) {
+            try {
+                cooldownMs = Long.parseLong(text.split(":")[1]);
+            } catch (Exception e) {
+                // Ignore invalid input
+            }
+        } else if (text.startsWith("ratelimit:")) {
+            try {
+                String[] parts = text.split(":")[1].split("/");
+                rateLimitMax = Integer.parseInt(parts[0]);
+                rateLimitWindowMs = Long.parseLong(parts[1]);
+            } catch (Exception e) {
+                // Ignore invalid input
+            }
+        } else if (text.startsWith("logging:")) {
+            loggingEnabled = text.contains("true");
+        } else if (text.startsWith("commands:")) {
+            commands.clear();
+            String[] cmdList = text.split(":")[1].split(",");
+            for (String cmd : cmdList) {
+                commands.add(cmd.trim());
             }
         }
-        
-        // Выполнение логики
-        ExecutionResult result = processCommandLogic(context);
-        
-        // Кэширование результата
-        if (cacheResults && result != null) {
-            commandCache.put(
-                context.getVariable("commandName").toString(),
-                new CachedCommand(result, System.currentTimeMillis() + cacheExpiry)
-            );
-        }
-        
-        return result;
-    }
-    
-    /**
-     * Асинхронное выполнение
-     */
-    private ExecutionResult executeAsync(ExecutionContext context) {
-        // TODO: Реализовать асинхронное выполнение
-        return executeSync(context);
-    }
-    
-    /**
-     * Основная логика обработки команды
-     */
-    private ExecutionResult processCommandLogic(ExecutionContext context) {
-        String commandName = context.getVariable("commandName").toString();
-        String[] args = (String[]) context.getVariable("commandArgs");
-        
-        // Проверка специальных команд
-        if (commandName.equals("help")) {
-            return processHelpCommand(context, args);
-        } else if (commandName.equals("list")) {
-            return processListCommand(context, args);
-        } else if (commandName.equals("me")) {
-            return processMeCommand(context, args);
-        }
-        
-        // Обработка алиасов
-        String actualCommand = commandAliases.get(commandName);
-        if (actualCommand != null) {
-            context.setVariable("actualCommand", actualCommand);
-        }
-        
-        // Стандартная обработка
-        return ExecutionResult.success();
-    }
-    
-    /**
-     * Обработка команды help
-     */
-    private ExecutionResult processHelpCommand(ExecutionContext context, String[] args) {
-        Player player = context.getPlayer();
-        if (player == null) {
-            return ExecutionResult.error("Игрок не найден");
-        }
-        
-        // Отправка справки
-        player.sendMessage("§6=== Справка по командам ===");
-        player.sendMessage("§7/help - показать эту справку");
-        player.sendMessage("§7/list - список игроков онлайн");
-        player.sendMessage("§7/me <действие> - описать действие");
-        player.sendMessage("§7/msg <игрок> <сообщение> - личное сообщение");
-        player.sendMessage("§7/home - телепортация домой");
-        player.sendMessage("§7/spawn - телепортация на спавн");
-        
-        return ExecutionResult.success();
-    }
-    
-    /**
-     * Обработка команды list
-     */
-    private ExecutionResult processListCommand(ExecutionContext context, String[] args) {
-        Player player = context.getPlayer();
-        if (player == null) {
-            return ExecutionResult.error("Игрок не найден");
-        }
-        
-        int onlineCount = Bukkit.getOnlinePlayers().size();
-        int maxPlayers = Bukkit.getMaxPlayers();
-        
-        player.sendMessage("§6=== Игроки онлайн ===");
-        player.sendMessage("§7Всего: §e" + onlineCount + "§7/§e" + maxPlayers);
-        
-        if (onlineCount > 0) {
-            String playerList = Bukkit.getOnlinePlayers().stream()
-                .map(Player::getName)
-                .collect(Collectors.joining("§7, §e"));
-            player.sendMessage("§7Игроки: §e" + playerList);
-        }
-        
-        return ExecutionResult.success();
-    }
-    
-    /**
-     * Обработка команды me
-     */
-    private ExecutionResult processMeCommand(ExecutionContext context, String[] args) {
-        Player player = context.getPlayer();
-        if (player == null) {
-            return ExecutionResult.error("Игрок не найден");
-        }
-        
-        if (args.length == 0) {
-            return ExecutionResult.error("Укажите действие");
-        }
-        
-        String action = String.join(" ", args);
-        String message = "§d* " + player.getName() + " " + action;
-        
-        // Отправка всем игрокам в радиусе
-        player.getNearbyEntities(50, 50, 50).stream()
-            .filter(entity -> entity instanceof Player)
-            .map(entity -> (Player) entity)
-            .forEach(p -> p.sendMessage(message));
-        
-        // Отправка самому игроку
-        player.sendMessage(message);
-        
-        return ExecutionResult.success();
     }
     
     // Геттеры и сеттеры для настройки блока

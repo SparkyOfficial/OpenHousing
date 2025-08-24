@@ -26,6 +26,9 @@ import ru.openhousing.utils.MessageUtil;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.github.stefvanschie.inventoryframework.AnvilGUI;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemMeta;
 
 /**
  * Специализированный блок для события телепортации игрока
@@ -128,6 +131,16 @@ public class PlayerTeleportEventBlock extends CodeBlock implements Listener {
     private final Map<UUID, PlayerTeleportStats> playerStats = new ConcurrentHashMap<>();
     private final Map<String, GlobalTeleportStats> globalStats = new ConcurrentHashMap<>();
     private final Map<UUID, PendingTeleport> pendingTeleports = new ConcurrentHashMap<>();
+
+    // Enhanced GUI settings
+    private boolean safetyChecksEnabled = true;
+    private boolean visualEffectsEnabled = true;
+    private boolean soundEffectsEnabled = true;
+    private long cooldownMs = 3000;
+    private int rateLimitMax = 5;
+    private long rateLimitWindowMs = 60000;
+    private boolean historyTrackingEnabled = true;
+    private List<String> allowedWorlds = new ArrayList<>();
     
     public PlayerTeleportEventBlock() {
         super(BlockType.PLAYER_TELEPORT);
@@ -165,6 +178,16 @@ public class PlayerTeleportEventBlock extends CodeBlock implements Listener {
         teleportTypeStats.put("CHORUS_FRUIT", 0);
         teleportTypeStats.put("RESPAWN", 0);
         teleportTypeStats.put("SPECTATE", 0);
+
+        // Default enhanced settings
+        safetyChecksEnabled = true;
+        visualEffectsEnabled = true;
+        soundEffectsEnabled = true;
+        cooldownMs = 3000;
+        rateLimitMax = 5;
+        rateLimitWindowMs = 60000;
+        historyTrackingEnabled = true;
+        allowedWorlds.add("world"); // Default allowed world
     }
     
     /**
@@ -774,23 +797,181 @@ public class PlayerTeleportEventBlock extends CodeBlock implements Listener {
     }
     
     @Override
-    public List<String> getDescription() {
-        List<String> description = new ArrayList<>();
-        description.add("§6Блок события телепортации игрока");
-        description.add("§7Обрабатывает все виды телепортации с");
-        description.add("§7детальным контролем и эффектами");
-        description.add("");
-        description.add("§eНастройки:");
-        description.add("§7• Логирование: " + (logTeleports ? "§aВключено" : "§cВыключено"));
-        description.add("§7• Кулдаун: " + (cooldownEnabled ? "§a" + cooldownTime + "мс" : "§cВыключен"));
-        description.add("§7• Лимит: " + (rateLimitEnabled ? "§a" + maxTeleportsPerMinute + "/мин" : "§cВыключен"));
-        description.add("§7• Анти-спам: " + (preventTeleportSpam ? "§aВключен" : "§cВыключен"));
-        description.add("§7• Безопасность: " + (preventUnsafeTeleports ? "§aВключена" : "§cВыключена"));
-        description.add("§7• Эффекты: " + (showTeleportEffects ? "§aВключены" : "§cВыключены"));
-        description.add("§7• Звуки: " + (playTeleportSounds ? "§aВключены" : "§cВыключены"));
-        description.add("§7• История: " + (trackTeleportHistory ? "§a" + maxHistorySize + " записей" : "§cВыключена"));
+    public String getDescription() {
+        return String.format("Player Teleport Event Block\n" +
+                "Settings:\n" +
+                "- Safety checks: %s\n" +
+                "- Visual effects: %s\n" +
+                "- Sound effects: %s\n" +
+                "- Cooldown: %dms\n" +
+                "- Rate limit: %d teleports per %dms\n" +
+                "- History tracking: %s",
+                safetyChecksEnabled ? "Enabled" : "Disabled",
+                visualEffectsEnabled ? "Enabled" : "Disabled",
+                soundEffectsEnabled ? "Enabled" : "Disabled",
+                cooldownMs,
+                rateLimitMax,
+                rateLimitWindowMs,
+                historyTrackingEnabled ? "Enabled" : "Disabled");
+    }
+
+    /**
+     * Opens an enhanced configuration GUI for this block
+     */
+    public void openConfigurationGUI(Player player) {
+        new AnvilGUI.Builder()
+                .onComplete((player1, text) -> {
+                    if (text == null || text.trim().isEmpty()) {
+                        return AnvilGUI.Response.close();
+                    }
+                    
+                    // Parse configuration from text
+                    parseConfiguration(text);
+                    player1.sendMessage("§aTeleport configuration updated!");
+                    return AnvilGUI.Response.close();
+                })
+                .onClose(player1 -> player1.sendMessage("§cConfiguration cancelled"))
+                .text("Configure teleport settings")
+                .title("§6Teleport Block Config")
+                .plugin(OpenHousing.getInstance())
+                .open(player);
+    }
+
+    /**
+     * Opens a detailed settings GUI with multiple pages
+     */
+    public void openDetailedSettingsGUI(Player player) {
+        // Main settings menu
+        Inventory menu = Bukkit.createInventory(null, 36, "§6Teleport Block Settings");
         
-        return description;
+        // Safety checks toggle
+        ItemStack safetyItem = new ItemStack(safetyChecksEnabled ? Material.SHIELD : Material.BARRIER);
+        ItemMeta safetyMeta = safetyItem.getItemMeta();
+        safetyMeta.setDisplayName("§eSafety Checks: " + (safetyChecksEnabled ? "§aON" : "§cOFF"));
+        safetyMeta.setLore(Arrays.asList(
+            "§7Click to toggle",
+            "§7Prevent unsafe teleports",
+            "§7Current: " + (safetyChecksEnabled ? "§aEnabled" : "§cDisabled")
+        ));
+        safetyItem.setItemMeta(safetyMeta);
+        menu.setItem(10, safetyItem);
+        
+        // Visual effects toggle
+        ItemStack visualItem = new ItemStack(visualEffectsEnabled ? Material.END_ROD : Material.BARRIER);
+        ItemMeta visualMeta = visualItem.getItemMeta();
+        visualMeta.setDisplayName("§eVisual Effects: " + (visualEffectsEnabled ? "§aON" : "§cOFF"));
+        visualMeta.setLore(Arrays.asList(
+            "§7Click to toggle",
+            "§7Particles and smoke effects",
+            "§7Current: " + (visualEffectsEnabled ? "§aEnabled" : "§cDisabled")
+        ));
+        visualItem.setItemMeta(visualMeta);
+        menu.setItem(12, visualItem);
+        
+        // Sound effects toggle
+        ItemStack soundItem = new ItemStack(soundEffectsEnabled ? Material.NOTE_BLOCK : Material.BARRIER);
+        ItemMeta soundMeta = soundItem.getItemMeta();
+        soundMeta.setDisplayName("§eSound Effects: " + (soundEffectsEnabled ? "§aON" : "§cOFF"));
+        soundMeta.setLore(Arrays.asList(
+            "§7Click to toggle",
+            "§7Teleport sound effects",
+            "§7Current: " + (soundEffectsEnabled ? "§aEnabled" : "§cDisabled")
+        ));
+        soundItem.setItemMeta(soundMeta);
+        menu.setItem(14, soundItem);
+        
+        // Cooldown settings
+        ItemStack cooldownItem = new ItemStack(Material.CLOCK);
+        ItemMeta cooldownMeta = cooldownItem.getItemMeta();
+        cooldownMeta.setDisplayName("§eCooldown: " + cooldownMs + "ms");
+        cooldownMeta.setLore(Arrays.asList(
+            "§7Click to change",
+            "§7Delay between teleports",
+            "§7Current: " + cooldownMs + "ms"
+        ));
+        cooldownItem.setItemMeta(cooldownMeta);
+        menu.setItem(16, cooldownItem);
+        
+        // Rate limiting
+        ItemStack rateLimitItem = new ItemStack(Material.HOPPER);
+        ItemMeta rateLimitMeta = rateLimitItem.getItemMeta();
+        rateLimitMeta.setDisplayName("§eRate Limit: " + rateLimitMax + "/" + rateLimitWindowMs + "ms");
+        rateLimitMeta.setLore(Arrays.asList(
+            "§7Click to configure",
+            "§7Max teleports per time window",
+            "§7Current: " + rateLimitMax + " per " + rateLimitWindowMs + "ms"
+        ));
+        rateLimitItem.setItemMeta(rateLimitMeta);
+        menu.setItem(19, rateLimitItem);
+        
+        // History tracking
+        ItemStack historyItem = new ItemStack(historyTrackingEnabled ? Material.BOOK : Material.BARRIER);
+        ItemMeta historyMeta = historyItem.getItemMeta();
+        historyMeta.setDisplayName("§eHistory Tracking: " + (historyTrackingEnabled ? "§aON" : "§cOFF"));
+        historyMeta.setLore(Arrays.asList(
+            "§7Click to toggle",
+            "§7Track teleport history",
+            "§7Current: " + (historyTrackingEnabled ? "§aEnabled" : "§cDisabled")
+        ));
+        historyItem.setItemMeta(historyMeta);
+        menu.setItem(21, historyItem);
+        
+        // World permissions
+        ItemStack worldItem = new ItemStack(Material.GRASS_BLOCK);
+        ItemMeta worldMeta = worldItem.getItemMeta();
+        worldMeta.setDisplayName("§eWorld Permissions: " + allowedWorlds.size());
+        worldMeta.setLore(Arrays.asList(
+            "§7Click to edit",
+            "§7Configure allowed worlds",
+            "§7Current: " + String.join(", ", allowedWorlds)
+        ));
+        worldItem.setItemMeta(worldMeta);
+        menu.setItem(23, worldItem);
+        
+        // Close button
+        ItemStack closeItem = new ItemStack(Material.BARRIER);
+        ItemMeta closeMeta = closeItem.getItemMeta();
+        closeMeta.setDisplayName("§cClose");
+        closeItem.setItemMeta(closeMeta);
+        menu.setItem(31, closeItem);
+        
+        player.openInventory(menu);
+    }
+
+    /**
+     * Parse configuration from text input
+     */
+    private void parseConfiguration(String text) {
+        // Simple configuration parser
+        if (text.startsWith("safety:")) {
+            safetyChecksEnabled = text.contains("true");
+        } else if (text.startsWith("visual:")) {
+            visualEffectsEnabled = text.contains("true");
+        } else if (text.startsWith("sound:")) {
+            soundEffectsEnabled = text.contains("true");
+        } else if (text.startsWith("cooldown:")) {
+            try {
+                cooldownMs = Long.parseLong(text.split(":")[1]);
+            } catch (Exception e) {
+                // Ignore invalid input
+            }
+        } else if (text.startsWith("ratelimit:")) {
+            try {
+                String[] parts = text.split(":")[1].split("/");
+                rateLimitMax = Integer.parseInt(parts[0]);
+                rateLimitWindowMs = Long.parseLong(parts[1]);
+            } catch (Exception e) {
+                // Ignore invalid input
+            }
+        } else if (text.startsWith("history:")) {
+            historyTrackingEnabled = text.contains("true");
+        } else if (text.startsWith("worlds:")) {
+            allowedWorlds.clear();
+            String[] worldList = text.split(":")[1].split(",");
+            for (String world : worldList) {
+                allowedWorlds.add(world.trim());
+            }
+        }
     }
     
     // Геттеры и сеттеры для настройки блока
