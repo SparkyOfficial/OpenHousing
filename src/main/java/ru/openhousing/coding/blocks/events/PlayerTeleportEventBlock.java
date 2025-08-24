@@ -834,7 +834,10 @@ public class PlayerTeleportEventBlock extends CodeBlock implements Listener {
                     );
                     return AnvilGUI.Response.close();
                 })
-                .onClose(player1 -> player1.sendMessage("§cConfiguration cancelled"))
+                .onClose(player1 -> {
+                    Bukkit.getScheduler().runTask(OpenHousing.getInstance(), () -> 
+                        player.sendMessage("§cConfiguration cancelled"));
+                })
                 .text("Configure teleport settings")
                 .title("§6Teleport Block Config")
                 .plugin(OpenHousing.getInstance())

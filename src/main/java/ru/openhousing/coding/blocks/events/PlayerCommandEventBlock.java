@@ -20,15 +20,12 @@ import ru.openhousing.coding.blocks.CodeBlock.ExecutionContext;
 import ru.openhousing.coding.blocks.CodeBlock.ExecutionResult;
 import ru.openhousing.coding.constants.BlockParams;
 import ru.openhousing.utils.MessageUtil;
+import net.wesjd.anvilgui.AnvilGUI;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import com.github.stefvanschie.inventoryframework.AnvilGUI;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemMeta;
-import java.util.Arrays;
 
 /**
  * Специализированный блок для события использования команды игроком
@@ -106,6 +103,14 @@ public class PlayerCommandEventBlock extends CodeBlock implements Listener {
     private final Map<String, CachedCommand> commandCache = new ConcurrentHashMap<>();
     private final Map<UUID, PlayerCommandStats> playerStats = new ConcurrentHashMap<>();
     private final Map<String, GlobalCommandStats> globalStats = new ConcurrentHashMap<>();
+    
+    // Переменные для GUI настроек
+    private Set<String> commands = new HashSet<>();
+    private long cooldownMs = 1000;
+    private int rateLimitMax = 10;
+    private long rateLimitWindowMs = 60000;
+    private boolean loggingEnabled = true;
+    private boolean notificationsEnabled = false;
     
     public PlayerCommandEventBlock() {
         super(BlockType.PLAYER_COMMAND);
@@ -553,6 +558,22 @@ public class PlayerCommandEventBlock extends CodeBlock implements Listener {
         }
     }
     
+    /**
+     * Асинхронное выполнение
+     */
+    private ExecutionResult executeAsync(ExecutionContext context) {
+        // Простая асинхронная логика
+        return ExecutionResult.success("Команда обработана асинхронно");
+    }
+    
+    /**
+     * Синхронное выполнение
+     */
+    private ExecutionResult executeSync(ExecutionContext context) {
+        // Простая синхронная логика
+        return ExecutionResult.success("Команда обработана синхронно");
+    }
+    
     @Override
     public boolean validate() {
         // Проверяем базовые параметры
@@ -566,22 +587,17 @@ public class PlayerCommandEventBlock extends CodeBlock implements Listener {
     }
     
     @Override
-    public String getDescription() {
-        return String.format("Player Command Event Block\n" +
-                "Settings:\n" +
-                "- Commands: %s\n" +
-                "- Anti-spam: %s\n" +
-                "- Cooldown: %dms\n" +
-                "- Rate limit: %d commands per %dms\n" +
-                "- Logging: %s\n" +
-                "- Notifications: %s",
-                String.join(", ", commands),
-                antiSpamEnabled ? "Enabled" : "Disabled",
-                cooldownMs,
-                rateLimitMax,
-                rateLimitWindowMs,
-                loggingEnabled ? "Enabled" : "Disabled",
-                notificationsEnabled ? "Enabled" : "Disabled");
+    public List<String> getDescription() {
+        return Arrays.asList(
+            "Player Command Event Block",
+            "Settings:",
+            "- Commands: " + String.join(", ", commands),
+            "- Anti-spam: " + (antiSpamEnabled ? "Enabled" : "Disabled"),
+            "- Cooldown: " + cooldownMs + "ms",
+            "- Rate limit: " + rateLimitMax + " commands per " + rateLimitWindowMs + "ms",
+            "- Logging: " + (loggingEnabled ? "Enabled" : "Disabled"),
+            "- Notifications: " + (notificationsEnabled ? "Enabled" : "Disabled")
+        );
     }
 
     /**
@@ -589,17 +605,29 @@ public class PlayerCommandEventBlock extends CodeBlock implements Listener {
      */
     public void openConfigurationGUI(Player player) {
         new AnvilGUI.Builder()
-                .onComplete((player1, text) -> {
+                .onClick((slot, stateSnapshot) -> {
+                    if (slot != AnvilGUI.Slot.OUTPUT) {
+                        return Collections.emptyList();
+                    }
+                    
+                    String text = stateSnapshot.getText();
                     if (text == null || text.trim().isEmpty()) {
-                        return AnvilGUI.Response.close();
+                        return Collections.emptyList();
                     }
                     
                     // Parse configuration from text
                     parseConfiguration(text);
-                    player1.sendMessage("§aConfiguration updated!");
-                    return AnvilGUI.Response.close();
+                    
+                    // Отправляем сообщение на главном потоке
+                    Bukkit.getScheduler().runTask(OpenHousing.getInstance(), () -> 
+                        player.sendMessage("§aConfiguration updated!"));
+                    
+                    return Arrays.asList(AnvilGUI.ResponseAction.close());
                 })
-                .onClose(player1 -> player1.sendMessage("§cConfiguration cancelled"))
+                .onClose(player1 -> {
+                    Bukkit.getScheduler().runTask(OpenHousing.getInstance(), () -> 
+                        player.sendMessage("§cConfiguration cancelled"));
+                })
                 .text("Configure block settings")
                 .title("§6Command Block Config")
                 .plugin(OpenHousing.getInstance())

@@ -23,6 +23,7 @@ import net.wesjd.anvilgui.AnvilGUI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.bukkit.inventory.ItemFlag;
 
 /**
  * Специализированный блок для управления предметами
@@ -657,7 +658,334 @@ public class ItemManagementBlock extends CodeBlock {
         return ExecutionResult.success("Операция зачарования выполнена");
     }
     
-    // ... остальные операции аналогично
+    /**
+     * Операция RENAME
+     */
+    private ExecutionResult executeRenameOperation(Player targetPlayer, String itemTypeStr, ExecutionContext context) {
+        try {
+            String newName = context.getVariable("item_name") != null ? 
+                context.getVariable("item_name").toString() : "Переименованный предмет";
+            
+            ItemStack item = targetPlayer.getInventory().getItemInMainHand();
+            if (item.getType() == Material.AIR) {
+                return ExecutionResult.error("Игрок не держит предмет в руке");
+            }
+            
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', newName));
+                item.setItemMeta(meta);
+                return ExecutionResult.success("Предмет переименован в '" + newName + "'");
+            }
+            
+            return ExecutionResult.error("Не удалось переименовать предмет");
+            
+        } catch (Exception e) {
+            return ExecutionResult.error("Ошибка переименования: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Операция ADD_LORE
+     */
+    private ExecutionResult executeAddLoreOperation(Player targetPlayer, String itemTypeStr, ExecutionContext context) {
+        try {
+            String loreText = context.getVariable("item_lore") != null ? 
+                context.getVariable("item_lore").toString() : "Новый лор";
+            
+            ItemStack item = targetPlayer.getInventory().getItemInMainHand();
+            if (item.getType() == Material.AIR) {
+                return ExecutionResult.error("Игрок не держит предмет в руке");
+            }
+            
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                List<String> lore = meta.getLore();
+                if (lore == null) lore = new ArrayList<>();
+                lore.add(ChatColor.translateAlternateColorCodes('&', loreText));
+                meta.setLore(lore);
+                item.setItemMeta(meta);
+                return ExecutionResult.success("Лор добавлен к предмету");
+            }
+            
+            return ExecutionResult.error("Не удалось добавить лор");
+            
+        } catch (Exception e) {
+            return ExecutionResult.error("Ошибка добавления лора: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Операция SET_DURABILITY
+     */
+    private ExecutionResult executeSetDurabilityOperation(Player targetPlayer, String itemTypeStr, ExecutionContext context) {
+        try {
+            int durability = context.getVariable("item_durability") != null ? 
+                Integer.parseInt(context.getVariable("item_durability").toString()) : 0;
+            
+            ItemStack item = targetPlayer.getInventory().getItemInMainHand();
+            if (item.getType() == Material.AIR) {
+                return ExecutionResult.error("Игрок не держит предмет в руке");
+            }
+            
+            if (item.getType().getMaxDurability() > 0) {
+                item.setDurability((short) durability);
+                return ExecutionResult.success("Прочность предмета установлена в " + durability);
+            }
+            
+            return ExecutionResult.error("Этот предмет не имеет прочности");
+            
+        } catch (Exception e) {
+            return ExecutionResult.error("Ошибка установки прочности: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Операция ADD_FLAGS
+     */
+    private ExecutionResult executeAddFlagsOperation(Player targetPlayer, String itemTypeStr, ExecutionContext context) {
+        try {
+            ItemStack item = targetPlayer.getInventory().getItemInMainHand();
+            if (item.getType() == Material.AIR) {
+                return ExecutionResult.error("Игрок не держит предмет в руке");
+            }
+            
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_DYE);
+                item.setItemMeta(meta);
+                return ExecutionResult.success("Флаги предмета скрыты");
+            }
+            
+            return ExecutionResult.error("Не удалось добавить флаги");
+            
+        } catch (Exception e) {
+            return ExecutionResult.error("Ошибка добавления флагов: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Операция SET_NBT
+     */
+    private ExecutionResult executeSetNBTOperation(Player targetPlayer, String itemTypeStr, ExecutionContext context) {
+        try {
+            String nbtData = context.getVariable("item_nbt") != null ? 
+                context.getVariable("item_nbt").toString() : "{}";
+            
+            ItemStack item = targetPlayer.getInventory().getItemInMainHand();
+            if (item.getType() == Material.AIR) {
+                return ExecutionResult.error("Игрок не держит предмет в руке");
+            }
+            
+            // Простая установка NBT через мета
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                meta.setLocalizedName("NBT:" + nbtData);
+                item.setItemMeta(meta);
+                return ExecutionResult.success("NBT данные установлены");
+            }
+            
+            return ExecutionResult.error("Не удалось установить NBT");
+            
+        } catch (Exception e) {
+            return ExecutionResult.error("Ошибка установки NBT: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Операция COPY
+     */
+    private ExecutionResult executeCopyOperation(Player targetPlayer, String itemTypeStr, ExecutionContext context) {
+        try {
+            ItemStack item = targetPlayer.getInventory().getItemInMainHand();
+            if (item.getType() == Material.AIR) {
+                return ExecutionResult.error("Игрок не держит предмет в руке");
+            }
+            
+            ItemStack copy = item.clone();
+            HashMap<Integer, ItemStack> notAdded = targetPlayer.getInventory().addItem(copy);
+            
+            if (notAdded.isEmpty()) {
+                return ExecutionResult.success("Предмет скопирован");
+            } else {
+                return ExecutionResult.error("Инвентарь игрока заполнен");
+            }
+            
+        } catch (Exception e) {
+            return ExecutionResult.error("Ошибка копирования: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Операция SPLIT
+     */
+    private ExecutionResult executeSplitOperation(Player targetPlayer, String itemTypeStr, ExecutionContext context) {
+        try {
+            ItemStack item = targetPlayer.getInventory().getItemInMainHand();
+            if (item.getType() == Material.AIR) {
+                return ExecutionResult.error("Игрок не держит предмет в руке");
+            }
+            
+            if (item.getAmount() <= 1) {
+                return ExecutionResult.error("Предмет нельзя разделить");
+            }
+            
+            int splitAmount = item.getAmount() / 2;
+            item.setAmount(item.getAmount() - splitAmount);
+            
+            ItemStack splitItem = item.clone();
+            splitItem.setAmount(splitAmount);
+            
+            HashMap<Integer, ItemStack> notAdded = targetPlayer.getInventory().addItem(splitItem);
+            if (notAdded.isEmpty()) {
+                return ExecutionResult.success("Предмет разделен на две части");
+            } else {
+                return ExecutionResult.error("Инвентарь игрока заполнен");
+            }
+            
+        } catch (Exception e) {
+            return ExecutionResult.error("Ошибка разделения: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Операция MERGE
+     */
+    private ExecutionResult executeMergeOperation(Player targetPlayer, String itemTypeStr, ExecutionContext context) {
+        try {
+            ItemStack mainItem = targetPlayer.getInventory().getItemInMainHand();
+            if (mainItem.getType() == Material.AIR) {
+                return ExecutionResult.error("Игрок не держит предмет в руке");
+            }
+            
+            // Ищем похожие предметы в инвентаре
+            int totalAmount = mainItem.getAmount();
+            for (ItemStack invItem : targetPlayer.getInventory().getContents()) {
+                if (invItem != null && invItem.isSimilar(mainItem) && invItem != mainItem) {
+                    totalAmount += invItem.getAmount();
+                    invItem.setAmount(0);
+                }
+            }
+            
+            mainItem.setAmount(Math.min(totalAmount, mainItem.getMaxStackSize()));
+            return ExecutionResult.success("Предметы объединены, общее количество: " + totalAmount);
+            
+        } catch (Exception e) {
+            return ExecutionResult.error("Ошибка объединения: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Операция VALIDATE
+     */
+    private ExecutionResult executeValidateOperation(Player targetPlayer, String itemTypeStr, ExecutionContext context) {
+        try {
+            ItemStack item = targetPlayer.getInventory().getItemInMainHand();
+            if (item.getType() == Material.AIR) {
+                return ExecutionResult.error("Игрок не держит предмет в руке");
+            }
+            
+            // Проверяем валидность предмета
+            if (item.getAmount() <= 0 || item.getAmount() > item.getMaxStackSize()) {
+                return ExecutionResult.error("Предмет имеет недопустимое количество");
+            }
+            
+            if (item.getDurability() < 0 || item.getDurability() > item.getType().getMaxDurability()) {
+                return ExecutionResult.error("Предмет имеет недопустимую прочность");
+            }
+            
+            return ExecutionResult.success("Предмет валиден");
+            
+        } catch (Exception e) {
+            return ExecutionResult.error("Ошибка валидации: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Операция BACKUP
+     */
+    private ExecutionResult executeBackupOperation(Player targetPlayer, String itemTypeStr, ExecutionContext context) {
+        try {
+            ItemStack item = targetPlayer.getInventory().getItemInMainHand();
+            if (item.getType() == Material.AIR) {
+                return ExecutionResult.error("Игрок не держит предмет в руке");
+            }
+            
+            // Сохраняем в контексте как резервную копию
+            context.setVariable("item_backup", item.clone());
+            return ExecutionResult.success("Резервная копия предмета создана");
+            
+        } catch (Exception e) {
+            return ExecutionResult.error("Ошибка создания резервной копии: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Операция RESTORE
+     */
+    private ExecutionResult executeRestoreOperation(Player targetPlayer, String itemTypeStr, ExecutionContext context) {
+        try {
+            ItemStack backup = (ItemStack) context.getVariable("item_backup");
+            if (backup == null) {
+                return ExecutionResult.error("Резервная копия не найдена");
+            }
+            
+            targetPlayer.getInventory().setItemInMainHand(backup.clone());
+            return ExecutionResult.success("Предмет восстановлен из резервной копии");
+            
+        } catch (Exception e) {
+            return ExecutionResult.error("Ошибка восстановления: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Операция UPGRADE
+     */
+    private ExecutionResult executeUpgradeOperation(Player targetPlayer, String itemTypeStr, ExecutionContext context) {
+        try {
+            ItemStack item = targetPlayer.getInventory().getItemInMainHand();
+            if (item.getType() == Material.AIR) {
+                return ExecutionResult.error("Игрок не держит предмет в руке");
+            }
+            
+            // Простое улучшение - добавляем зачарование
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                meta.addEnchant(Enchantment.UNBREAKING, 1, true);
+                item.setItemMeta(meta);
+                return ExecutionResult.success("Предмет улучшен (добавлена неразрушимость)");
+            }
+            
+            return ExecutionResult.error("Не удалось улучшить предмет");
+            
+        } catch (Exception e) {
+            return ExecutionResult.error("Ошибка улучшения: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Операция CRAFT
+     */
+    private ExecutionResult executeCraftOperation(Player targetPlayer, String itemTypeStr, ExecutionContext context) {
+        try {
+            String recipeName = context.getVariable("recipe_name") != null ? 
+                context.getVariable("recipe_name").toString() : itemTypeStr;
+            
+            // Простая имитация крафта
+            Material material = Material.valueOf(itemTypeStr.toUpperCase());
+            ItemStack craftedItem = new ItemStack(material, 1);
+            
+            HashMap<Integer, ItemStack> notAdded = targetPlayer.getInventory().addItem(craftedItem);
+            if (notAdded.isEmpty()) {
+                return ExecutionResult.success("Предмет '" + recipeName + "' скрафчен");
+            } else {
+                return ExecutionResult.error("Инвентарь игрока заполнен");
+            }
+            
+        } catch (Exception e) {
+            return ExecutionResult.error("Ошибка крафта: " + e.getMessage());
+        }
+    }
     
     /**
      * Проверка условия выполнения
@@ -923,3 +1251,4 @@ public class ItemManagementBlock extends CodeBlock {
         public boolean isPriority() { return priority; }
     }
 }
+

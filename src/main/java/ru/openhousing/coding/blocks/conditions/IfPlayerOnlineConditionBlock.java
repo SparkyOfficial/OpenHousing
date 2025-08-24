@@ -683,7 +683,10 @@ public class IfPlayerOnlineConditionBlock extends CodeBlock {
                     );
                     return AnvilGUI.Response.close();
                 })
-                .onClose(player1 -> player1.sendMessage("§cConfiguration cancelled"))
+                .onClose(player1 -> {
+                    Bukkit.getScheduler().runTask(OpenHousing.getInstance(), () -> 
+                        player.sendMessage("§cConfiguration cancelled"));
+                })
                 .text("Configure online check settings")
                 .title("§6Online Check Config")
                 .plugin(OpenHousing.getInstance())
