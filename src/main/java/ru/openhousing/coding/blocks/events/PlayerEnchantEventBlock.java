@@ -193,7 +193,7 @@ public class PlayerEnchantEventBlock extends CodeBlock {
         // Инициализация разрешенных зачарований
         allowedEnchantments.add(Enchantment.DAMAGE_ALL);
         allowedEnchantments.add(Enchantment.UNBREAKING);
-        allowedEnchantments.add(Enchantment.DIG_SPEED);
+        allowedEnchantments.add(Enchantment.EFFICIENCY);
         allowedEnchantments.add(Enchantment.PROTECTION_ENVIRONMENTAL);
         allowedEnchantments.add(Enchantment.ARROW_DAMAGE);
         allowedEnchantments.add(Enchantment.ARROW_INFINITE);
