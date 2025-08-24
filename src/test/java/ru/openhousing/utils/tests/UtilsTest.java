@@ -145,7 +145,7 @@ class UtilsTest {
         
         // Assert
         assertNotNull(item);
-        assertTrue(item.containsEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY));
+        assertTrue(item.containsEnchantment(org.bukkit.enchantments.Enchantment.LURE));
     }
 
     @Test
