@@ -145,7 +145,7 @@ class GUITest {
     @Test
     void testLineSelectorGUICreation() {
         // Arrange & Act
-        LineSelectorGUI gui = new LineSelectorGUI(plugin, player, script, BlockType.PLAYER_ACTION);
+        LineSelectorGUI gui = new LineSelectorGUI(plugin, player, script, ru.openhousing.coding.blocks.BlockType.PLAYER_ACTION);
         
         // Assert
         assertNotNull(gui);

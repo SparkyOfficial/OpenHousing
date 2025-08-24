@@ -740,7 +740,7 @@ public class CodeEditorGUI implements InventoryHolder, Listener {
     /**
      * Выполнение скрипта
      */
-    private void executeScript() {
+    public void executeScript() {
         try {
             script.execute(new CodeBlock.ExecutionContext(player));
             player.sendMessage("§aКод выполнен успешно!");
@@ -753,7 +753,7 @@ public class CodeEditorGUI implements InventoryHolder, Listener {
     /**
      * Открытие поиска блоков
      */
-    private void openBlockSearch() {
+    public void openBlockSearch() {
         // TODO: Реализовать поиск блоков
         player.sendMessage("§eПоиск блоков (в разработке)");
     }
@@ -761,7 +761,7 @@ public class CodeEditorGUI implements InventoryHolder, Listener {
     /**
      * Открытие настроек кода
      */
-    private void openCodeSettings() {
+    public void openCodeSettings() {
         // TODO: Реализовать настройки кода
         player.sendMessage("§eНастройки кода (в разработке)");
     }
@@ -769,7 +769,7 @@ public class CodeEditorGUI implements InventoryHolder, Listener {
     /**
      * Поделиться кодом
      */
-    private void shareCode() {
+    public void shareCode() {
         // TODO: Реализовать функцию "поделиться кодом"
         player.sendMessage("§eФункция 'Поделиться кодом' (в разработке)");
     }
@@ -786,7 +786,7 @@ public class CodeEditorGUI implements InventoryHolder, Listener {
     /**
      * Открытие справки
      */
-    private void openHelp() {
+    public void openHelp() {
         // TODO: Реализовать справку
         player.sendMessage("§eСправка (в разработке)");
     }
@@ -794,7 +794,7 @@ public class CodeEditorGUI implements InventoryHolder, Listener {
     /**
      * Открытие редактора строки
      */
-    private void openLineEditor(CodeLine line) {
+    public void openLineEditor(CodeLine line) {
         close();
         new LineSelectorGUI(plugin, player, script, null).open();
     }
@@ -802,7 +802,7 @@ public class CodeEditorGUI implements InventoryHolder, Listener {
     /**
      * Открытие конфигурации блока
      */
-    private void openBlockConfig(CodeBlock block) {
+    public void openBlockConfig(CodeBlock block) {
         close();
         new BlockConfigGUI(plugin, player, block, (savedBlock) -> {
             // Callback после сохранения
