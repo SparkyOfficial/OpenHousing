@@ -77,6 +77,7 @@ public enum BlockType {
     
     // Условия переменных (7 условий)
     IF_VARIABLE_EQUALS("Если переменная равна", Material.COMPARATOR, BlockCategory.CONDITION, "Проверяет равенство переменной"),
+    IF_VARIABLE("Если переменная", Material.NAME_TAG, BlockCategory.CONDITION, "Проверяет значение переменной"),
     IF_VARIABLE_GREATER("Если переменная больше", Material.REDSTONE_TORCH, BlockCategory.CONDITION, "Проверяет больше ли переменная"),
     IF_VARIABLE_LESS("Если переменная меньше", Material.LEVER, BlockCategory.CONDITION, "Проверяет меньше ли переменная"),
     IF_VARIABLE_CONTAINS("Если содержит текст", Material.WRITABLE_BOOK, BlockCategory.CONDITION, "Проверяет содержит ли переменная текст"),
