@@ -3,10 +3,13 @@ package ru.openhousing.housing.tests;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.openhousing.OpenHousing;
 import ru.openhousing.housing.House;
@@ -39,21 +42,57 @@ class HousingSystemTest {
     private HousingManager housingManager;
     private UUID playerId;
     private String playerName;
+    private MockedStatic<Bukkit> mockedBukkit;
 
     @BeforeEach
     void setUp() {
         playerId = UUID.randomUUID();
         playerName = "TestPlayer";
         
-        when(player.getUniqueId()).thenReturn(playerId);
-        when(player.getName()).thenReturn(playerName);
-        when(player.getWorld()).thenReturn(world);
-        when(player.getLocation()).thenReturn(location);
-        when(location.getWorld()).thenReturn(world);
-        when(world.getName()).thenReturn("world");
-        when(player.hasPermission(anyString())).thenReturn(true);
+        lenient().when(player.getUniqueId()).thenReturn(playerId);
+        lenient().when(player.getName()).thenReturn(playerName);
+        lenient().when(player.getWorld()).thenReturn(world);
+        lenient().when(player.getLocation()).thenReturn(location);
+        lenient().when(location.getWorld()).thenReturn(world);
+        lenient().when(world.getName()).thenReturn("world");
+        lenient().when(player.hasPermission(anyString())).thenReturn(true);
+        
+        // Мокаем конфигурацию
+        when(plugin.getConfigManager()).thenReturn(mock(ru.openhousing.config.ConfigManager.class));
+        when(plugin.getConfigManager().getHousingConfig()).thenReturn(mock(org.bukkit.configuration.file.FileConfiguration.class));
+        when(plugin.getConfigManager().getHousingConfig().getInt("max-houses-per-player", 1)).thenReturn(1);
+        when(plugin.getConfigManager().getHousingConfig().getInt("default-size.width", 64)).thenReturn(64);
+        when(plugin.getConfigManager().getHousingConfig().getInt("default-size.height", 64)).thenReturn(64);
+        when(plugin.getConfigManager().getHousingConfig().getInt("default-size.length", 64)).thenReturn(64);
+        when(plugin.getConfigManager().getHousingConfig().getInt("min-size.width", 32)).thenReturn(32);
+        when(plugin.getConfigManager().getHousingConfig().getInt("min-size.height", 32)).thenReturn(32);
+        when(plugin.getConfigManager().getHousingConfig().getInt("min-size.length", 32)).thenReturn(32);
+        when(plugin.getConfigManager().getHousingConfig().getInt("max-size.width", 128)).thenReturn(128);
+        when(plugin.getConfigManager().getHousingConfig().getInt("max-size.height", 128)).thenReturn(128);
+        when(plugin.getConfigManager().getHousingConfig().getInt("max-size.length", 128)).thenReturn(128);
+        when(plugin.getConfigManager().getHousingConfig().getDouble("creation-cost", 10000.0)).thenReturn(10000.0);
+        when(plugin.getConfigManager().getHousingConfig().getDouble("expansion-cost-per-block", 100.0)).thenReturn(100.0);
+        when(plugin.getConfigManager().getHousingConfig().getInt("house-spacing", 200)).thenReturn(200);
+        
+        // Мокаем другие зависимости
+        when(plugin.getDatabaseManager()).thenReturn(mock(ru.openhousing.database.DatabaseManager.class));
+        when(plugin.getCodeManager()).thenReturn(mock(ru.openhousing.coding.CodeManager.class));
+        when(plugin.getWorldGuardIntegration()).thenReturn(mock(ru.openhousing.integrations.WorldGuardIntegration.class));
+        when(plugin.getSoundEffects()).thenReturn(mock(ru.openhousing.utils.SoundEffects.class));
+        when(plugin.getLogger()).thenReturn(java.util.logging.Logger.getLogger("TestLogger"));
+        
+        // Мокаем Bukkit для тестов
+        mockedBukkit = mockStatic(Bukkit.class);
         
         housingManager = new HousingManager(plugin);
+        housingManager.initialize(); // Инициализируем менеджер
+    }
+    
+    @AfterEach
+    void tearDown() {
+        if (mockedBukkit != null) {
+            mockedBukkit.close();
+        }
     }
 
     @Test

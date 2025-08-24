@@ -44,17 +44,26 @@ class IntegrationsTest {
 
     @BeforeEach
     void setUp() {
-        when(player.getName()).thenReturn("TestPlayer");
-        when(player.getUniqueId()).thenReturn(UUID.randomUUID());
-        when(player.getWorld()).thenReturn(world);
-        when(player.getLocation()).thenReturn(location);
-        when(location.getWorld()).thenReturn(world);
-        when(world.getName()).thenReturn("world");
+        lenient().when(player.getName()).thenReturn("TestPlayer");
+        lenient().when(player.getUniqueId()).thenReturn(UUID.randomUUID());
+        lenient().when(player.getWorld()).thenReturn(world);
+        lenient().when(player.getLocation()).thenReturn(location);
+        lenient().when(location.getWorld()).thenReturn(world);
+        lenient().when(world.getName()).thenReturn("world");
         
-        when(house.getId()).thenReturn(1);
-        when(house.getName()).thenReturn("Test House");
-        when(house.getOwnerName()).thenReturn("TestPlayer");
-        when(house.getWorldName()).thenReturn("house_testplayer_1");
+        lenient().when(house.getId()).thenReturn(1);
+        lenient().when(house.getName()).thenReturn("Test House");
+        lenient().when(house.getOwnerName()).thenReturn("TestPlayer");
+        lenient().when(house.getWorldName()).thenReturn("house_testplayer_1");
+        
+        // Настраиваем логгер для плагина
+        lenient().when(plugin.getLogger()).thenReturn(java.util.logging.Logger.getLogger("TestLogger"));
+        
+        // Мокаем CodeManager для Placeholders
+        lenient().when(plugin.getCodeManager()).thenReturn(mock(ru.openhousing.coding.CodeManager.class));
+        
+        // Мокаем HousingManager для Placeholders
+        lenient().when(plugin.getHousingManager()).thenReturn(mock(ru.openhousing.housing.HousingManager.class));
         
         worldGuardIntegration = new WorldGuardIntegration(plugin);
         placeholders = new OpenHousingPlaceholders(plugin);
