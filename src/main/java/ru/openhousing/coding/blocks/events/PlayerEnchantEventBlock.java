@@ -215,7 +215,7 @@ public class PlayerEnchantEventBlock extends CodeBlock {
 
     @EventHandler
     public void onPrepareEnchant(PrepareItemEnchantEvent event) {
-        Player player = event.getPlayer();
+        Player player = event.getEnchanter();
         ItemStack item = event.getItem();
         Location location = event.getEnchantBlock().getLocation();
 
@@ -315,7 +315,7 @@ public class PlayerEnchantEventBlock extends CodeBlock {
 
     @EventHandler
     public void onEnchantItem(EnchantItemEvent event) {
-        Player player = event.getPlayer();
+        Player player = event.getEnchanter();
         ItemStack item = event.getItem();
         Location location = event.getEnchantBlock().getLocation();
 
