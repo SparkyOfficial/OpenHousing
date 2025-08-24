@@ -282,7 +282,7 @@ public class CodeEditorGUI implements InventoryHolder, Listener {
             .build());
         
         // Очистить код
-        inventory.setItem(34, new ItemBuilder(Material.BARRIER)
+        inventory.setItem(33, new ItemBuilder(Material.BARRIER)
             .name("§cОчистить код")
             .lore(Arrays.asList(
                 "§7Удалить все блоки из кода",
@@ -290,17 +290,6 @@ public class CodeEditorGUI implements InventoryHolder, Listener {
                 "§c⚠ Это действие нельзя отменить!",
                 "",
                 "§eНажмите, чтобы очистить"
-            ))
-            .build());
-        
-        // Запуск кода
-        inventory.setItem(33, new ItemBuilder(Material.EMERALD_BLOCK)
-            .name("§aЗапустить код")
-            .lore(Arrays.asList(
-                "§7Выполнить созданный код",
-                "§7немедленно",
-                "",
-                "§aНажмите для запуска"
             ))
             .build());
         
@@ -635,10 +624,13 @@ public class CodeEditorGUI implements InventoryHolder, Listener {
             case 30: // Поделиться кодом
                 shareCode();
                 break;
-            case 32: // Отладка
+            case 32: // Импорт кода
                 openDebugger();
                 break;
-            case 34: // Справка
+            case 33: // Очистить код
+                clearScript();
+                break;
+            case 35: // Справка
                 openHelp();
                 break;
         }
@@ -789,6 +781,15 @@ public class CodeEditorGUI implements InventoryHolder, Listener {
     public void openHelp() {
         // TODO: Реализовать справку
         player.sendMessage("§eСправка (в разработке)");
+    }
+    
+    /**
+     * Очистка скрипта
+     */
+    public void clearScript() {
+        script.clear();
+        player.sendMessage("§aКод очищен!");
+        updateInventory();
     }
     
     /**

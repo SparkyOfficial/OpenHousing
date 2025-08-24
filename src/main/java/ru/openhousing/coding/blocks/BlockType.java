@@ -196,7 +196,11 @@ public enum BlockType {
     
     // Действия инвентаря
     INVENTORY_ACTION("Действия инвентаря", Material.CHEST, BlockCategory.ACTION, "Действия с инвентарем"),
-    ITEM_CHECK("Проверка предмета", Material.DIAMOND, BlockCategory.CONDITION, "Проверяет предметы");
+    ITEM_CHECK("Проверка предмета", Material.DIAMOND, BlockCategory.CONDITION, "Проверяет предметы"),
+    
+    // Дополнительные условия
+    IF_ITEM_EXISTS("Если предмет существует", Material.DIAMOND, BlockCategory.CONDITION, "Проверяет существование предмета"),
+    IF_ITEM_COUNT("Если количество предметов", Material.DIAMOND, BlockCategory.CONDITION, "Проверяет количество предметов");
     
     private final String displayName;
     private final Material material;
