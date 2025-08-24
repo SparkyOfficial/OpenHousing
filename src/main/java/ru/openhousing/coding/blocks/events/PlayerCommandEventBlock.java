@@ -607,80 +607,17 @@ public class PlayerCommandEventBlock extends CodeBlock implements Listener {
     }
 
     /**
-     * Opens a detailed settings GUI with multiple pages
+     * Shows current settings in chat
      */
-    public void openDetailedSettingsGUI(Player player) {
-        // Main settings menu
-        Inventory menu = Bukkit.createInventory(null, 27, "§6Command Block Settings");
-        
-        // Anti-spam toggle
-        ItemStack antiSpamItem = new ItemStack(antiSpamEnabled ? Material.GREEN_WOOL : Material.RED_WOOL);
-        ItemMeta antiSpamMeta = antiSpamItem.getItemMeta();
-        antiSpamMeta.setDisplayName("§eAnti-Spam: " + (antiSpamEnabled ? "§aON" : "§cOFF"));
-        antiSpamMeta.setLore(Arrays.asList(
-            "§7Click to toggle",
-            "§7Prevents command spam",
-            "§7Current: " + (antiSpamEnabled ? "§aEnabled" : "§cDisabled")
-        ));
-        antiSpamItem.setItemMeta(antiSpamMeta);
-        menu.setItem(10, antiSpamItem);
-        
-        // Cooldown settings
-        ItemStack cooldownItem = new ItemStack(Material.CLOCK);
-        ItemMeta cooldownMeta = cooldownItem.getItemMeta();
-        cooldownMeta.setDisplayName("§eCooldown: " + cooldownMs + "ms");
-        cooldownMeta.setLore(Arrays.asList(
-            "§7Click to change",
-            "§7Delay between commands",
-            "§7Current: " + cooldownMs + "ms"
-        ));
-        cooldownItem.setItemMeta(cooldownMeta);
-        menu.setItem(12, cooldownItem);
-        
-        // Rate limiting
-        ItemStack rateLimitItem = new ItemStack(Material.HOPPER);
-        ItemMeta rateLimitMeta = rateLimitItem.getItemMeta();
-        rateLimitMeta.setDisplayName("§eRate Limit: " + rateLimitMax + "/" + rateLimitWindowMs + "ms");
-        rateLimitMeta.setLore(Arrays.asList(
-            "§7Click to configure",
-            "§7Max commands per time window",
-            "§7Current: " + rateLimitMax + " per " + rateLimitWindowMs + "ms"
-        ));
-        rateLimitItem.setItemMeta(rateLimitMeta);
-        menu.setItem(14, rateLimitItem);
-        
-        // Logging toggle
-        ItemStack loggingItem = new ItemStack(loggingEnabled ? Material.BOOK : Material.BARRIER);
-        ItemMeta loggingMeta = loggingItem.getItemMeta();
-        loggingMeta.setDisplayName("§eLogging: " + (loggingEnabled ? "§aON" : "§cOFF"));
-        loggingMeta.setLore(Arrays.asList(
-            "§7Click to toggle",
-            "§7Log command executions",
-            "§7Current: " + (loggingEnabled ? "§aEnabled" : "§cDisabled")
-        ));
-        loggingItem.setItemMeta(loggingMeta);
-        menu.setItem(16, loggingItem);
-        
-        // Commands list
-        ItemStack commandsItem = new ItemStack(Material.COMMAND_BLOCK);
-        ItemMeta commandsMeta = commandsItem.getItemMeta();
-        commandsMeta.setDisplayName("§eCommands: " + commands.size());
-        commandsMeta.setLore(Arrays.asList(
-            "§7Click to edit",
-            "§7Configure command list",
-            "§7Current: " + String.join(", ", commands)
-        ));
-        commandsItem.setItemMeta(commandsMeta);
-        menu.setItem(22, commandsItem);
-        
-        // Close button
-        ItemStack closeItem = new ItemStack(Material.BARRIER);
-        ItemMeta closeMeta = closeItem.getItemMeta();
-        closeMeta.setDisplayName("§cClose");
-        closeItem.setItemMeta(closeMeta);
-        menu.setItem(26, closeItem);
-        
-        player.openInventory(menu);
+    public void showSettings(Player player) {
+        player.sendMessage("§6=== Command Block Settings ===");
+        player.sendMessage("§eAnti-Spam: " + (antiSpamEnabled ? "§aON" : "§cOFF"));
+        player.sendMessage("§eCooldown: " + cooldownMs + "ms");
+        player.sendMessage("§eRate Limit: " + rateLimitMax + " per " + rateLimitWindowMs + "ms");
+        player.sendMessage("§eLogging: " + (loggingEnabled ? "§aON" : "§cOFF"));
+        player.sendMessage("§eNotifications: " + (notificationsEnabled ? "§aON" : "§cOFF"));
+        player.sendMessage("§eCommands: " + String.join(", ", commands));
+        player.sendMessage("§7Use /configure to change settings");
     }
 
     /**

@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import net.wesjd.anvilgui.AnvilGUI;
 
 /**
  * Специализированный блок для условия проверки онлайн статуса игрока
@@ -99,6 +100,16 @@ public class IfPlayerOnlineConditionBlock extends CodeBlock {
     private boolean optimizeQueries = true;
     private boolean useIndexing = true;
     
+    // Enhanced GUI settings
+    private String checkType = "SPECIFIC_PLAYERS";
+    private List<String> targetPlayers = new ArrayList<>();
+    private boolean worldFilterEnabled = false;
+    private boolean gamemodeFilterEnabled = false;
+    private boolean permissionFilterEnabled = false;
+    private boolean groupFilterEnabled = false;
+    private boolean cachingEnabled = true;
+    private long cacheExpiryMs = 30000;
+    
     // Внутренние кэши и состояния
     private final Map<String, CachedOnlineStatus> onlineStatusCache = new ConcurrentHashMap<>();
     private final Map<UUID, PlayerOnlineStats> playerStats = new ConcurrentHashMap<>();
@@ -108,6 +119,16 @@ public class IfPlayerOnlineConditionBlock extends CodeBlock {
     public IfPlayerOnlineConditionBlock() {
         super(BlockType.IF_PLAYER_ONLINE);
         initializeDefaultSettings();
+        
+        // Initialize enhanced GUI settings
+        checkType = "SPECIFIC_PLAYERS";
+        targetPlayers = new ArrayList<>();
+        worldFilterEnabled = false;
+        gamemodeFilterEnabled = false;
+        permissionFilterEnabled = false;
+        groupFilterEnabled = false;
+        cachingEnabled = true;
+        cacheExpiryMs = 30000;
     }
     
     /**
@@ -639,6 +660,82 @@ public class IfPlayerOnlineConditionBlock extends CodeBlock {
         description.add("§7• Асинхронность: " + (asyncProcessing ? "§aВключена" : "§cВыключена"));
         
         return description;
+    }
+
+    /**
+     * Opens an enhanced configuration GUI for this block
+     */
+    public void openConfigurationGUI(Player player) {
+        new AnvilGUI.Builder()
+                .onClick((slot, state) -> {
+                    if (slot != AnvilGUI.Slot.OUTPUT) {
+                        return AnvilGUI.Response.text(state.getText());
+                    }
+                    String input = state.getText();
+                    if (input == null || input.trim().isEmpty()) {
+                        return AnvilGUI.Response.text(state.getText());
+                    }
+                    
+                    // Parse configuration from text
+                    parseConfiguration(input);
+                    Bukkit.getScheduler().runTask(OpenHousing.getInstance(), () -> 
+                        player.sendMessage("§aOnline check configuration updated!")
+                    );
+                    return AnvilGUI.Response.close();
+                })
+                .onClose(player1 -> player1.sendMessage("§cConfiguration cancelled"))
+                .text("Configure online check settings")
+                .title("§6Online Check Config")
+                .plugin(OpenHousing.getInstance())
+                .open(player);
+    }
+
+    /**
+     * Shows current settings in chat
+     */
+    public void showSettings(Player player) {
+        player.sendMessage("§6=== Online Check Block Settings ===");
+        player.sendMessage("§eCheck Type: " + checkType);
+        player.sendMessage("§eTarget Players: " + String.join(", ", targetPlayers));
+        player.sendMessage("§eWorld Filter: " + (worldFilterEnabled ? "§aON" : "§cOFF"));
+        player.sendMessage("§eGamemode Filter: " + (gamemodeFilterEnabled ? "§aON" : "§cOFF"));
+        player.sendMessage("§ePermission Filter: " + (permissionFilterEnabled ? "§aON" : "§cOFF"));
+        player.sendMessage("§eGroup Filter: " + (groupFilterEnabled ? "§aON" : "§cOFF"));
+        player.sendMessage("§eCaching: " + (cachingEnabled ? "§aON" : "§cOFF"));
+        player.sendMessage("§eCache Expiry: " + cacheExpiryMs + "ms");
+        player.sendMessage("§7Use /configure to change settings");
+    }
+
+    /**
+     * Parse configuration from text input
+     */
+    private void parseConfiguration(String text) {
+        // Simple configuration parser
+        if (text.startsWith("type:")) {
+            checkType = text.split(":")[1].toUpperCase();
+        } else if (text.startsWith("players:")) {
+            targetPlayers.clear();
+            String[] playerList = text.split(":")[1].split(",");
+            for (String playerName : playerList) {
+                targetPlayers.add(playerName.trim());
+            }
+        } else if (text.startsWith("world:")) {
+            worldFilterEnabled = text.contains("true");
+        } else if (text.startsWith("gamemode:")) {
+            gamemodeFilterEnabled = text.contains("true");
+        } else if (text.startsWith("permission:")) {
+            permissionFilterEnabled = text.contains("true");
+        } else if (text.startsWith("group:")) {
+            groupFilterEnabled = text.contains("true");
+        } else if (text.startsWith("cache:")) {
+            cachingEnabled = text.contains("true");
+        } else if (text.startsWith("expiry:")) {
+            try {
+                cacheExpiryMs = Long.parseLong(text.split(":")[1]);
+            } catch (Exception e) {
+                // Ignore invalid input
+            }
+        }
     }
     
     // Геттеры и сеттеры для настройки блока
