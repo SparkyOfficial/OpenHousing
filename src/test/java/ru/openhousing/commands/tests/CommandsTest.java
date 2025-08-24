@@ -10,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.openhousing.OpenHousing;
 import ru.openhousing.commands.*;
+import ru.openhousing.coding.CodeManager;
+import ru.openhousing.housing.HousingManager;
 
 import java.util.UUID;
 
@@ -33,6 +35,12 @@ class CommandsTest {
     
     @Mock
     private Command command;
+    
+    @Mock
+    private CodeManager codeManager;
+    
+    @Mock
+    private HousingManager housingManager;
 
     private HousingCommand housingCommand;
     private CodeCommand codeCommand;
@@ -42,7 +50,7 @@ class CommandsTest {
     void setUp() {
         when(player.getName()).thenReturn("TestPlayer");
         when(player.getUniqueId()).thenReturn(UUID.randomUUID());
-        when(player.hasPermission(anyString())).thenReturn(true);
+        lenient().when(player.hasPermission(anyString())).thenReturn(true);
         
         housingCommand = new HousingCommand(plugin);
         codeCommand = new CodeCommand(plugin);

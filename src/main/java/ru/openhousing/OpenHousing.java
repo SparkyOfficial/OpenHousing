@@ -93,6 +93,9 @@ public class OpenHousing extends JavaPlugin {
     public void onEnable() {
         long startTime = System.currentTimeMillis();
         
+        // Инициализация MessageUtil
+        MessageUtil.initialize(this);
+        
         // Проверка зависимостей
         if (!checkDependencies()) {
             getLogger().severe("Missing required dependencies! Disabling plugin...");

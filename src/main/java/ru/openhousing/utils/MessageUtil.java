@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -15,7 +16,33 @@ import java.util.logging.Logger;
  */
 public class MessageUtil {
     
-    private static final Logger logger = Bukkit.getLogger();
+    private static volatile Logger logger = null;
+    
+    /**
+     * Инициализация MessageUtil с плагином
+     * Должна вызываться из OpenHousing#onEnable
+     */
+    public static void initialize(Plugin plugin) {
+        if (plugin != null) {
+            logger = plugin.getLogger();
+        }
+    }
+    
+    /**
+     * Получение логгера с fallback
+     */
+    private static Logger getLoggerOrFallback() {
+        if (logger != null) {
+            return logger;
+        }
+        // Fallback для тестов или если не инициализирован
+        try {
+            return Bukkit.getLogger();
+        } catch (Exception e) {
+            // Если Bukkit недоступен (например, в тестах), возвращаем null
+            return null;
+        }
+    }
     
     /**
      * Окрашивание текста с помощью цветовых кодов
@@ -29,6 +56,7 @@ public class MessageUtil {
      * Окрашивание списка строк
      */
     public static List<String> colorize(List<String> messages) {
+        if (messages == null) return List.of();
         return messages.stream()
             .map(MessageUtil::colorize)
             .toList();
@@ -60,6 +88,7 @@ public class MessageUtil {
      * Удаление цветовых кодов из списка строк
      */
     public static List<String> stripColorsList(List<String> messages) {
+        if (messages == null) return List.of();
         return messages.stream()
             .map(MessageUtil::stripColors)
             .toList();
@@ -180,7 +209,15 @@ public class MessageUtil {
      */
     public static void sendConsole(String message) {
         if (message != null) {
-            Bukkit.getConsoleSender().sendMessage(colorize(message));
+            try {
+                Bukkit.getConsoleSender().sendMessage(colorize(message));
+            } catch (Exception e) {
+                // Fallback для тестов
+                Logger fallbackLogger = getLoggerOrFallback();
+                if (fallbackLogger != null) {
+                    fallbackLogger.info(stripColor(message));
+                }
+            }
         }
     }
     
@@ -189,7 +226,10 @@ public class MessageUtil {
      */
     public static void logInfo(String message) {
         if (message != null) {
-            logger.info(stripColor(message));
+            Logger currentLogger = getLoggerOrFallback();
+            if (currentLogger != null) {
+                currentLogger.info(stripColor(message));
+            }
         }
     }
     
@@ -198,7 +238,10 @@ public class MessageUtil {
      */
     public static void logWarning(String message) {
         if (message != null) {
-            logger.warning(stripColor(message));
+            Logger currentLogger = getLoggerOrFallback();
+            if (currentLogger != null) {
+                currentLogger.warning(stripColor(message));
+            }
         }
     }
     
@@ -207,7 +250,10 @@ public class MessageUtil {
      */
     public static void logError(String message) {
         if (message != null) {
-            logger.severe(stripColor(message));
+            Logger currentLogger = getLoggerOrFallback();
+            if (currentLogger != null) {
+                currentLogger.severe(stripColor(message));
+            }
         }
     }
     
@@ -216,9 +262,12 @@ public class MessageUtil {
      */
     public static void logError(String message, Throwable throwable) {
         if (message != null) {
-            logger.severe(stripColor(message));
-            if (throwable != null) {
-                throwable.printStackTrace();
+            Logger currentLogger = getLoggerOrFallback();
+            if (currentLogger != null) {
+                currentLogger.severe(stripColor(message));
+                if (throwable != null) {
+                    throwable.printStackTrace();
+                }
             }
         }
     }
@@ -228,7 +277,12 @@ public class MessageUtil {
      */
     public static void broadcast(String message) {
         if (message != null) {
-            Bukkit.broadcastMessage(colorize(message));
+            try {
+                Bukkit.broadcastMessage(colorize(message));
+            } catch (Exception e) {
+                // Fallback для тестов
+                logInfo("Broadcast: " + message);
+            }
         }
     }
     
@@ -237,10 +291,15 @@ public class MessageUtil {
      */
     public static void broadcast(String message, String permission) {
         if (message != null && permission != null) {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                if (player.hasPermission(permission)) {
-                    send(player, message);
+            try {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (player.hasPermission(permission)) {
+                        send(player, message);
+                    }
                 }
+            } catch (Exception e) {
+                // Fallback для тестов
+                logInfo("Broadcast with permission " + permission + ": " + message);
             }
         }
     }

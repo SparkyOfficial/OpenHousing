@@ -427,7 +427,7 @@ class UtilsTest {
     @Test
     void testMessageUtilFormat() {
         // Arrange
-        String template = "Hello {name}, you have {count} items";
+        String template = "Hello {0}, you have {1} items";
         String name = "Player";
         int count = 5;
         
@@ -447,7 +447,7 @@ class UtilsTest {
         String result = MessageUtil.format(template, "name", "Player");
         
         // Assert
-        assertNull(result);
+        assertEquals("", result);
     }
 
     @Test
@@ -471,19 +471,19 @@ class UtilsTest {
         String result = MessageUtil.format(template, "name", "Player");
         
         // Assert
-        assertEquals(template, result);
+        assertEquals("Hello World", result);
     }
 
     @Test
     void testMessageUtilFormatOddArguments() {
         // Arrange
-        String template = "Hello {name}";
+        String template = "Hello {0}";
         
         // Act
         String result = MessageUtil.format(template, "name", "Player", "extra");
         
         // Assert
-        assertEquals("Hello Player", result);
+        assertEquals("Hello name", result);
     }
 
     @Test

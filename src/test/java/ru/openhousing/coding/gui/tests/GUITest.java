@@ -44,9 +44,10 @@ class GUITest {
 
     @BeforeEach
     void setUp() {
+        UUID playerId = UUID.randomUUID();
         when(player.getName()).thenReturn("TestPlayer");
-        when(player.getUniqueId()).thenReturn(UUID.randomUUID());
-        when(script.getPlayerId()).thenReturn(player.getUniqueId());
+        when(player.getUniqueId()).thenReturn(playerId);
+        when(script.getPlayerId()).thenReturn(playerId);
         when(script.getLines()).thenReturn(java.util.List.of());
         when(codeBlock.getType()).thenReturn(ru.openhousing.coding.blocks.BlockType.PLAYER_ACTION);
         when(codeLine.getName()).thenReturn("Test Line");
