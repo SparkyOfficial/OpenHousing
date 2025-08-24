@@ -30,12 +30,17 @@ public class CodeBlockFactory {
         switch (blockType) {
             // События игрока
             case PLAYER_JOIN:
-            case PLAYER_QUIT:
+                return new PlayerJoinEventBlock();
+            case PLAYER_DEATH:
+                return new PlayerDeathEventBlock();
             case PLAYER_CHAT:
+                return new PlayerChatEventBlock();
+            case PLAYER_BLOCK_BREAK:
+                return new PlayerBlockBreakEventBlock();
+            case PLAYER_QUIT:
             case PLAYER_COMMAND:
             case PLAYER_MOVE:
             case PLAYER_TELEPORT:
-            case PLAYER_DEATH:
             case PLAYER_RESPAWN:
             case PLAYER_DAMAGE:
             case PLAYER_HEAL:
@@ -47,7 +52,6 @@ public class CodeBlockFactory {
             case PLAYER_ITEM_PICKUP:
             case PLAYER_ITEM_CONSUME:
             case PLAYER_ITEM_BREAK:
-            case PLAYER_BLOCK_BREAK:
             case PLAYER_BLOCK_PLACE:
             case PLAYER_INTERACT:
             case PLAYER_INTERACT_ENTITY:
@@ -107,6 +111,8 @@ public class CodeBlockFactory {
                 return new IfEntityBlock();
                 
             // Условия переменных
+            case IF_VARIABLE:
+                return new IfVariableConditionBlock();
             case IF_VARIABLE_EQUALS:
             case IF_VARIABLE_GREATER:
             case IF_VARIABLE_LESS:

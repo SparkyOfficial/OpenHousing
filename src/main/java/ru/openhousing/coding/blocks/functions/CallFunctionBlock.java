@@ -50,7 +50,13 @@ public class CallFunctionBlock extends CodeBlock {
         
         // Вызываем функцию
         try {
-            return function.executeFunction(context, args);
+            // Устанавливаем аргументы в контекст
+            String[] paramNames = function.getFunctionParameters();
+            for (int i = 0; i < Math.min(paramNames.length, args.length); i++) {
+                context.setVariable(paramNames[i], args[i]);
+            }
+            
+            return function.execute(context);
         } catch (Exception e) {
             return ExecutionResult.error("Ошибка выполнения функции " + functionName + ": " + e.getMessage());
         }

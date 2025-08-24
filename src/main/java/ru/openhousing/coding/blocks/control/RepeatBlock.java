@@ -1,5 +1,6 @@
 package ru.openhousing.coding.blocks.control;
 
+import org.bukkit.entity.Player;
 import ru.openhousing.coding.blocks.BlockType;
 import ru.openhousing.coding.blocks.CodeBlock;
 
@@ -7,353 +8,425 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Блок повторения (цикла)
+ * Блок цикла REPEAT для повторения кода
  */
 public class RepeatBlock extends CodeBlock {
     
     public enum RepeatType {
-        TIMES("Количество раз", "Повторяет указанное количество раз"),
-        WHILE("Пока условие истинно", "Повторяет пока условие выполняется"),
-        FOR_EACH("Для каждого", "Повторяет для каждого элемента в списке"),
-        FOREVER("Бесконечно", "Повторяет бесконечно (опасно!)"),
-        UNTIL("До тех пор пока", "Повторяет до выполнения условия");
+        TIMES("Количество раз", "times"),
+        WHILE("Пока условие", "while"),
+        UNTIL("До условия", "until"),
+        FOREVER("Бесконечно", "forever"),
+        FOR_EACH("Для каждого", "foreach");
         
         private final String displayName;
-        private final String description;
+        private final String symbol;
         
-        RepeatType(String displayName, String description) {
+        RepeatType(String displayName, String symbol) {
             this.displayName = displayName;
-            this.description = description;
+            this.symbol = symbol;
         }
         
         public String getDisplayName() {
             return displayName;
         }
         
-        public String getDescription() {
-            return description;
+        public String getSymbol() {
+            return symbol;
         }
     }
     
     public RepeatBlock() {
         super(BlockType.REPEAT);
-        setParameter(ru.openhousing.coding.constants.BlockParams.REPEAT_TYPE, RepeatType.TIMES);
-        setParameter(ru.openhousing.coding.constants.BlockParams.VALUE, "5"); // Количество повторений или условие
-        setParameter(ru.openhousing.coding.constants.BlockParams.MAX_ITERATIONS, "1000"); // Максимальное количество итераций для безопасности
+        setParameter("repeatType", RepeatType.TIMES);
+        setParameter("repeatCount", 10);
+        setParameter("condition", "");
+        setParameter("delayBetween", 0);
+        setParameter("maxIterations", 1000);
+        setParameter("breakOnError", true);
+        setParameter("continueOnError", false);
+        setParameter("logIterations", false);
+        setParameter("showProgress", false);
+        setParameter("progressMessage", "Повторение %current% из %total%");
+        setParameter("saveIterationCount", false);
+        setParameter("iterationVariable", "current_iteration");
+        setParameter("totalIterationsVariable", "total_iterations");
+        setParameter("remainingIterationsVariable", "remaining_iterations");
+        setParameter("executionTimeVariable", "execution_time");
+        setParameter("addEffects", false);
+        setParameter("effects", "SPEED:30:1");
+        setParameter("spawnParticles", false);
+        setParameter("particleType", "FIREWORK");
+        setParameter("particleCount", 5);
+        setParameter("playSound", false);
+        setParameter("soundType", "ENTITY_EXPERIENCE_ORB_PICKUP");
+        setParameter("broadcastProgress", false);
+        setParameter("broadcastMessage", "§e%player_name% выполняет цикл: %current%/%total%");
     }
     
     @Override
     public ExecutionResult execute(ExecutionContext context) {
-        RepeatType repeatType = (RepeatType) getParameter(ru.openhousing.coding.constants.BlockParams.REPEAT_TYPE);
-        String value = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE), context);
-        int maxIterations = getMaxIterations();
-        
-        if (repeatType == null) {
-            return ExecutionResult.error("Не указан тип повторения");
+        Player player = context.getPlayer();
+        if (player == null) {
+            return ExecutionResult.error("Игрок не найден");
         }
         
         try {
-            return executeRepeat(context, repeatType, value, maxIterations);
+            RepeatType repeatType = (RepeatType) getParameter("repeatType");
+            Integer repeatCount = (Integer) getParameter("repeatCount");
+            String condition = (String) getParameter("condition");
+            Integer delayBetween = (Integer) getParameter("delayBetween");
+            Integer maxIterations = (Integer) getParameter("maxIterations");
+            boolean breakOnError = (Boolean) getParameter("breakOnError");
+            boolean continueOnError = (Boolean) getParameter("continueOnError");
+            boolean logIterations = (Boolean) getParameter("logIterations");
+            boolean showProgress = (Boolean) getParameter("showProgress");
+            String progressMessage = (String) getParameter("progressMessage");
+            boolean saveIterationCount = (Boolean) getParameter("saveIterationCount");
+            String iterationVariable = (String) getParameter("iterationVariable");
+            String totalIterationsVariable = (String) getParameter("totalIterationsVariable");
+            String remainingIterationsVariable = (String) getParameter("remainingIterationsVariable");
+            String executionTimeVariable = (String) getParameter("executionTimeVariable");
+            boolean addEffects = (Boolean) getParameter("addEffects");
+            String effects = (String) getParameter("effects");
+            boolean spawnParticles = (Boolean) getParameter("spawnParticles");
+            String particleType = (String) getParameter("particleType");
+            Integer particleCount = (Integer) getParameter("particleCount");
+            boolean playSound = (Boolean) getParameter("playSound");
+            String soundType = (String) getParameter("soundType");
+            boolean broadcastProgress = (Boolean) getParameter("broadcastProgress");
+            String broadcastMessage = (String) getParameter("broadcastMessage");
+            
+            long startTime = System.currentTimeMillis();
+            int currentIteration = 0;
+            int totalIterations = 0;
+            
+            // Определяем общее количество итераций
+            switch (repeatType) {
+                case TIMES:
+                    totalIterations = repeatCount != null ? repeatCount : 1;
+                    break;
+                case WHILE:
+                case UNTIL:
+                case FOREVER:
+                    totalIterations = maxIterations != null ? maxIterations : 1000;
+                    break;
+                case FOR_EACH:
+                    totalIterations = repeatCount != null ? repeatCount : 1;
+                    break;
+            }
+            
+            // Сохраняем общее количество итераций
+            if (saveIterationCount && totalIterationsVariable != null) {
+                context.setVariable(totalIterationsVariable, totalIterations);
+            }
+            
+            // Основной цикл
+            while (shouldContinue(repeatType, currentIteration, repeatCount, condition, context)) {
+                currentIteration++;
+                
+                // Проверяем максимальное количество итераций
+                if (maxIterations != null && currentIteration > maxIterations) {
+                    if (logIterations) {
+                        System.out.println("[REPEAT] Достигнуто максимальное количество итераций: " + maxIterations);
+                    }
+                    break;
+                }
+                
+                // Сохраняем текущую итерацию
+                if (saveIterationCount && iterationVariable != null) {
+                    context.setVariable(iterationVariable, currentIteration);
+                }
+                
+                if (saveIterationCount && remainingIterationsVariable != null) {
+                    context.setVariable(remainingIterationsVariable, totalIterations - currentIteration);
+                }
+                
+                // Показываем прогресс
+                if (showProgress && progressMessage != null) {
+                    String message = replaceVariables(progressMessage, context);
+                    message = message.replace("%current%", String.valueOf(currentIteration));
+                    message = message.replace("%total%", String.valueOf(totalIterations));
+                    message = message.replace("%remaining%", String.valueOf(totalIterations - currentIteration));
+                    player.sendMessage(message);
+                }
+                
+                // Трансляция прогресса
+                if (broadcastProgress && broadcastMessage != null) {
+                    String message = replaceVariables(broadcastMessage, context);
+                    message = message.replace("%current%", String.valueOf(currentIteration));
+                    message = message.replace("%total%", String.valueOf(totalIterations));
+                    player.getServer().broadcastMessage(message);
+                }
+                
+                // Логирование итераций
+                if (logIterations) {
+                    System.out.println("[REPEAT] Итерация " + currentIteration + " из " + totalIterations);
+                }
+                
+                // Выполняем дочерние блоки
+                ExecutionResult childResult = executeChildren(context);
+                
+                // Обрабатываем результат выполнения
+                switch (childResult.getType()) {
+                    case BREAK:
+                        if (logIterations) {
+                            System.out.println("[REPEAT] Цикл прерван командой break");
+                        }
+                        return ExecutionResult.success();
+                        
+                    case RETURN:
+                        if (logIterations) {
+                            System.out.println("[REPEAT] Цикл прерван командой return");
+                        }
+                        return childResult;
+                        
+                    case ERROR:
+                        if (breakOnError) {
+                            if (logIterations) {
+                                System.out.println("[REPEAT] Цикл прерван из-за ошибки: " + childResult.getMessage());
+                            }
+                            return childResult;
+                        } else if (!continueOnError) {
+                            if (logIterations) {
+                                System.out.println("[REPEAT] Пропускаем итерацию из-за ошибки: " + childResult.getMessage());
+                            }
+                            continue;
+                        }
+                        break;
+                        
+                    case SUCCESS:
+                    default:
+                        break;
+                }
+                
+                // Добавляем эффекты
+                if (addEffects && effects != null) {
+                    addRepeatEffects(player, effects);
+                }
+                
+                // Создаем частицы
+                if (spawnParticles && particleType != null && particleCount != null) {
+                    spawnRepeatParticles(player, particleType, particleCount);
+                }
+                
+                // Воспроизводим звук
+                if (playSound && soundType != null) {
+                    playRepeatSound(player, soundType);
+                }
+                
+                // Задержка между итерациями
+                if (delayBetween != null && delayBetween > 0) {
+                    try {
+                        Thread.sleep(delayBetween);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return ExecutionResult.error("Цикл прерван");
+                    }
+                }
+            }
+            
+            // Сохраняем время выполнения
+            if (saveIterationCount && executionTimeVariable != null) {
+                long executionTime = System.currentTimeMillis() - startTime;
+                context.setVariable(executionTimeVariable, executionTime);
+            }
+            
+            if (logIterations) {
+                System.out.println("[REPEAT] Цикл завершен. Выполнено итераций: " + currentIteration);
+            }
+            
+            return ExecutionResult.success();
+            
         } catch (Exception e) {
             return ExecutionResult.error("Ошибка выполнения цикла: " + e.getMessage());
         }
     }
     
-    private ExecutionResult executeRepeat(ExecutionContext context, RepeatType repeatType, 
-                                        String value, int maxIterations) {
-        
-        int iterations = 0;
-        
+    /**
+     * Определяет, нужно ли продолжать цикл
+     */
+    private boolean shouldContinue(RepeatType repeatType, int currentIteration, Integer repeatCount, String condition, ExecutionContext context) {
         switch (repeatType) {
             case TIMES:
-                return executeTimesRepeat(context, value, maxIterations);
+                return repeatCount != null && currentIteration < repeatCount;
                 
             case WHILE:
-                return executeWhileRepeat(context, value, maxIterations);
-                
-            case FOR_EACH:
-                return executeForEachRepeat(context, value, maxIterations);
-                
-            case FOREVER:
-                return executeForeverRepeat(context, maxIterations);
+                if (condition != null && !condition.trim().isEmpty()) {
+                    return evaluateCondition(condition, context);
+                }
+                return true;
                 
             case UNTIL:
-                return executeUntilRepeat(context, value, maxIterations);
+                if (condition != null && !condition.trim().isEmpty()) {
+                    return !evaluateCondition(condition, context);
+                }
+                return true;
+                
+            case FOREVER:
+                return true;
+                
+            case FOR_EACH:
+                return repeatCount != null && currentIteration < repeatCount;
                 
             default:
-                return ExecutionResult.error("Неизвестный тип повторения");
+                return false;
         }
     }
     
     /**
-     * Повторение указанное количество раз
+     * Вычисляет условие
      */
-    private ExecutionResult executeTimesRepeat(ExecutionContext context, String value, int maxIterations) {
+    private boolean evaluateCondition(String condition, ExecutionContext context) {
         try {
-            int times = Integer.parseInt(value);
-            times = Math.min(times, maxIterations); // Ограничиваем количество итераций
-            
-            for (int i = 0; i < times; i++) {
-                // Устанавливаем переменную счетчика
-                context.setVariable("_loop_index", i);
-                context.setVariable("_loop_count", i + 1);
-                
-                ExecutionResult result = executeChildren(context);
-                
-                // Обработка управляющих команд
-                switch (result.getType()) {
-                    case BREAK:
-                        return ExecutionResult.success();
-                    case CONTINUE:
-                        continue;
-                    case RETURN:
-                    case ERROR:
-                        return result;
+            // Простая проверка на равенство переменной
+            if (condition.contains("==")) {
+                String[] parts = condition.split("==");
+                if (parts.length == 2) {
+                    String varName = parts[0].trim();
+                    String expectedValue = parts[1].trim();
+                    Object actualValue = context.getVariable(varName);
+                    return String.valueOf(actualValue).equals(expectedValue);
                 }
             }
             
-            return ExecutionResult.success();
-            
-        } catch (NumberFormatException e) {
-            return ExecutionResult.error("Неверное число повторений: " + value);
-        }
-    }
-    
-    /**
-     * Повторение пока условие истинно
-     */
-    private ExecutionResult executeWhileRepeat(ExecutionContext context, String value, int maxIterations) {
-        int iterations = 0;
-        long startNs = System.nanoTime();
-        final long budgetNs = 5_000_000L; // ~5 ms бюджет на цикл
-        
-        while (iterations < maxIterations) {
-            if (System.nanoTime() - startNs > budgetNs) {
-                return ExecutionResult.error("Превышено время выполнения цикла (WHILE)");
-            }
-            // Проверяем условие
-            if (!evaluateCondition(value, context)) {
-                break;
+            // Проверка на неравенство
+            if (condition.contains("!=")) {
+                String[] parts = condition.split("!=");
+                if (parts.length == 2) {
+                    String varName = parts[0].trim();
+                    String expectedValue = parts[1].trim();
+                    Object actualValue = context.getVariable(varName);
+                    return !String.valueOf(actualValue).equals(expectedValue);
+                }
             }
             
-            context.setVariable("_loop_index", iterations);
-            context.setVariable("_loop_count", iterations + 1);
-            
-            ExecutionResult result = executeChildren(context);
-            
-            switch (result.getType()) {
-                case BREAK:
-                    return ExecutionResult.success();
-                case CONTINUE:
-                    iterations++;
-                    continue;
-                case RETURN:
-                case ERROR:
-                    return result;
-            }
-            
-            iterations++;
-        }
-        
-        if (iterations >= maxIterations) {
-            return ExecutionResult.error("Превышено максимальное количество итераций: " + maxIterations);
-        }
-        
-        return ExecutionResult.success();
-    }
-    
-    /**
-     * Повторение для каждого элемента
-     */
-    private ExecutionResult executeForEachRepeat(ExecutionContext context, String value, int maxIterations) {
-        // Получаем список элементов (из переменной или строки через запятую)
-        Object listObj = context.getVariable(value);
-        String[] items;
-        
-        if (listObj != null) {
-            if (listObj instanceof String[]) {
-                items = (String[]) listObj;
-            } else {
-                // Преобразуем в строку и разделяем по запятым
-                items = listObj.toString().split(",");
-            }
-        } else {
-            // Если переменная не найдена, пытаемся разделить value по запятым
-            items = value.split(",");
-        }
-        
-        int iterations = Math.min(items.length, maxIterations);
-        
-        for (int i = 0; i < iterations; i++) {
-            context.setVariable("_loop_item", items[i].trim());
-            context.setVariable("_loop_index", i);
-            context.setVariable("_loop_count", i + 1);
-            
-            ExecutionResult result = executeChildren(context);
-            
-            switch (result.getType()) {
-                case BREAK:
-                    return ExecutionResult.success();
-                case CONTINUE:
-                    continue;
-                case RETURN:
-                case ERROR:
-                    return result;
-            }
-        }
-        
-        return ExecutionResult.success();
-    }
-    
-    /**
-     * Бесконечное повторение (с ограничением)
-     */
-    private ExecutionResult executeForeverRepeat(ExecutionContext context, int maxIterations) {
-        long startNs = System.nanoTime();
-        final long budgetNs = 5_000_000L; // ~5 ms бюджет на цикл
-        for (int i = 0; i < maxIterations; i++) {
-            if (System.nanoTime() - startNs > budgetNs) {
-                return ExecutionResult.error("Превышено время выполнения цикла (FOREVER)");
-            }
-            context.setVariable("_loop_index", i);
-            context.setVariable("_loop_count", i + 1);
-            
-            ExecutionResult result = executeChildren(context);
-            
-            switch (result.getType()) {
-                case BREAK:
-                    return ExecutionResult.success();
-                case CONTINUE:
-                    continue;
-                case RETURN:
-                case ERROR:
-                    return result;
-            }
-        }
-        
-        return ExecutionResult.error("Превышено максимальное количество итераций для бесконечного цикла: " + maxIterations);
-    }
-    
-    /**
-     * Повторение до выполнения условия
-     */
-    private ExecutionResult executeUntilRepeat(ExecutionContext context, String value, int maxIterations) {
-        int iterations = 0;
-        long startNs = System.nanoTime();
-        final long budgetNs = 5_000_000L; // ~5 ms бюджет на цикл
-        
-        while (iterations < maxIterations) {
-            if (System.nanoTime() - startNs > budgetNs) {
-                return ExecutionResult.error("Превышено время выполнения цикла (UNTIL)");
-            }
-            context.setVariable("_loop_index", iterations);
-            context.setVariable("_loop_count", iterations + 1);
-            
-            ExecutionResult result = executeChildren(context);
-            
-            switch (result.getType()) {
-                case BREAK:
-                    return ExecutionResult.success();
-                case CONTINUE:
-                    // Проверяем условие после continue
-                    if (evaluateCondition(value, context)) {
-                        return ExecutionResult.success();
+            // Проверка на больше/меньше
+            if (condition.contains(">") || condition.contains("<")) {
+                String[] parts = condition.split("[><]");
+                if (parts.length == 2) {
+                    String varName = parts[0].trim();
+                    String expectedValue = parts[1].trim();
+                    Object actualValue = context.getVariable(varName);
+                    
+                    try {
+                        double actual = Double.parseDouble(String.valueOf(actualValue));
+                        double expected = Double.parseDouble(expectedValue);
+                        
+                        if (condition.contains(">")) {
+                            return actual > expected;
+                        } else {
+                            return actual < expected;
+                        }
+                    } catch (NumberFormatException e) {
+                        return false;
                     }
-                    iterations++;
-                    continue;
-                case RETURN:
-                case ERROR:
-                    return result;
+                }
             }
             
-            // Проверяем условие после выполнения тела цикла
-            if (evaluateCondition(value, context)) {
-                return ExecutionResult.success();
+            // Проверка на true/false
+            if ("true".equalsIgnoreCase(condition.trim())) {
+                return true;
+            }
+            if ("false".equalsIgnoreCase(condition.trim())) {
+                return false;
             }
             
-            iterations++;
+            // Проверка существования переменной
+            Object value = context.getVariable(condition.trim());
+            return value != null && !String.valueOf(value).isEmpty();
+            
+        } catch (Exception e) {
+            return false;
         }
-        
-        return ExecutionResult.error("Превышено максимальное количество итераций: " + maxIterations);
     }
     
     /**
-     * Простая оценка условия
+     * Добавить эффекты цикла
      */
-    private boolean evaluateCondition(String condition, ExecutionContext context) {
-        if (condition == null || condition.isEmpty()) {
-            return false;
+    private void addRepeatEffects(Player player, String effectsStr) {
+        String[] effects = effectsStr.split(",");
+        for (String effect : effects) {
+            String[] parts = effect.trim().split(":");
+            if (parts.length >= 2) {
+                try {
+                    org.bukkit.potion.PotionEffectType type = org.bukkit.potion.PotionEffectType.getByName(parts[0].toUpperCase());
+                    int duration = Integer.parseInt(parts[1]) * 20; // Конвертируем в тики
+                    int amplifier = parts.length > 2 ? Integer.parseInt(parts[2]) - 1 : 0;
+                    
+                    if (type != null) {
+                        player.addPotionEffect(new org.bukkit.potion.PotionEffect(type, duration, amplifier));
+                    }
+                } catch (NumberFormatException e) {
+                    // Игнорируем некорректные значения
+                }
+            }
         }
-        
-        // Замена переменных
-        String evaluatedCondition = replaceVariables(condition, context);
-        
-        // Простые условия
-        if (evaluatedCondition.equalsIgnoreCase("true")) {
-            return true;
-        } else if (evaluatedCondition.equalsIgnoreCase("false")) {
-            return false;
-        }
-        
-        // Попытка оценить как число (не равно 0)
-        try {
-            double value = Double.parseDouble(evaluatedCondition);
-            return value != 0;
-        } catch (NumberFormatException e) {
-            // Игнорируем ошибку
-        }
-        
-        // Если строка не пустая, считаем условие истинным
-        return !evaluatedCondition.trim().isEmpty();
     }
     
     /**
-     * Получение максимального количества итераций
+     * Создать частицы цикла
      */
-    private int getMaxIterations() {
-        String maxIterStr = (String) getParameter(ru.openhousing.coding.constants.BlockParams.MAX_ITERATIONS);
+    private void spawnRepeatParticles(Player player, String particleType, Integer particleCount) {
         try {
-            return Integer.parseInt(maxIterStr);
-        } catch (NumberFormatException e) {
-            return 1000; // По умолчанию
+            org.bukkit.Particle particle = org.bukkit.Particle.valueOf(particleType);
+            player.getWorld().spawnParticle(particle, player.getLocation().add(0, 1, 0), particleCount);
+        } catch (IllegalArgumentException e) {
+            // Тип частиц не найден, игнорируем
         }
     }
     
-    // Используем метод из базового класса CodeBlock
+    /**
+     * Воспроизвести звук цикла
+     */
+    private void playRepeatSound(Player player, String soundType) {
+        try {
+            org.bukkit.Sound sound = org.bukkit.Sound.valueOf(soundType);
+            player.playSound(player.getLocation(), sound, 0.5f, 1.0f);
+        } catch (IllegalArgumentException e) {
+            // Звук не найден, игнорируем
+        }
+    }
     
     @Override
     public boolean validate() {
-        String value = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE);
-        RepeatType repeatType = (RepeatType) getParameter(ru.openhousing.coding.constants.BlockParams.REPEAT_TYPE);
-        
-        if (repeatType == null) {
-            return false;
-        }
-        
-        if (repeatType == RepeatType.TIMES && value != null) {
-            try {
-                int times = Integer.parseInt(value);
-                return times > 0 && times <= 10000; // Разумные ограничения
-            } catch (NumberFormatException e) {
-                return false;
-            }
-        }
-        
-        return true;
+        return getParameter("repeatType") != null;
     }
     
     @Override
     public List<String> getDescription() {
-        RepeatType repeatType = (RepeatType) getParameter(ru.openhousing.coding.constants.BlockParams.REPEAT_TYPE);
-        String value = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE);
-        
         return Arrays.asList(
-            "§6Повторение",
-            "§7Тип: §f" + (repeatType != null ? repeatType.getDisplayName() : "Не выбран"),
-            "§7Значение: §f" + (value != null && !value.isEmpty() ? value : "Не указано"),
+            "§7Повторяет выполнение кода",
             "",
-            "§8Дочерних блоков: " + childBlocks.size(),
-            "§8" + (repeatType != null ? repeatType.getDescription() : "")
+            "§eТипы циклов:",
+            "§7• Количество раз - фиксированное число",
+            "§7• Пока условие - пока условие истинно",
+            "§7• До условия - до выполнения условия",
+            "§7• Бесконечно - бесконечный цикл",
+            "§7• Для каждого - для каждого элемента",
+            "",
+            "§eПараметры:",
+            "§7• Количество повторений",
+            "§7• Условие цикла",
+            "§7• Задержка между итерациями",
+            "§7• Максимальное количество итераций",
+            "§7• Обработка ошибок",
+            "§7• Логирование",
+            "§7• Показ прогресса",
+            "§7• Сохранение переменных",
+            "§7• Эффекты и частицы",
+            "§7• Звуки",
+            "§7• Трансляция прогресса"
         );
+    }
+    
+    @Override
+    public boolean matchesEvent(Object event) {
+        return false; // Циклы не привязаны к событиям
+    }
+    
+    @Override
+    public ExecutionContext createContextFromEvent(Object event) {
+        return null; // Циклы не создают контекст из событий
     }
 }
