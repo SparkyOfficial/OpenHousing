@@ -186,7 +186,7 @@ class CommandsTest {
         // Если subCommand не распознан, вызывается showHelp
         verify(player, atLeastOnce()).sendMessage(MessageUtil.colorize(contains("§6§l=== OpenHousing - Справка ===")));
     }
-    
+
     @Test
     void testCommandSenderNotPlayer() {
         String[] args = {"help"};
