@@ -116,6 +116,7 @@ public class CodeBlockFactory {
             
             // Условия игрока
             case IF_PLAYER_ONLINE:
+                return new IfPlayerOnlineConditionBlock();
             case IF_PLAYER_PERMISSION:
             case IF_PLAYER_GAMEMODE:
             case IF_PLAYER_WORLD:
@@ -125,7 +126,7 @@ public class CodeBlockFactory {
             case IF_PLAYER_ITEM:
             case IF_PLAYER_HEALTH:
             case IF_PLAYER_FOOD:
-                return new IfPlayerBlock();
+                return new IfPlayerBlock(); // TODO: Создать специализированные блоки
                 
             // Условия существ
             case IF_ENTITY_EXISTS:

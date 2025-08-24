@@ -559,7 +559,7 @@ public class PlayerTeleportEventBlock extends CodeBlock implements Listener {
         }
         
         if (spawnDepartureSmoke) {
-            from.getWorld().spawnParticle(Particle.SMOKE, from, 20, 0.5, 0.5, 0.5, 0.1);
+155            from.getWorld().spawnParticle(Particle.SMOKE, from, 20, 0.5, 0.5, 0.5, 0.1);
         }
         
         if (spawnDepartureFireworks) {
