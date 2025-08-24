@@ -42,7 +42,7 @@ public class CodeBlockFactory {
             case PLAYER_INTERACT:
                 return new PlayerInteractEventBlock();
             case PLAYER_QUIT:
-                return new PlayerEventBlock(); // TODO: Создать PlayerQuitEventBlock
+                return new PlayerQuitEventBlock();
             case PLAYER_COMMAND:
                 return new PlayerCommandEventBlock();
             case PLAYER_TELEPORT:
