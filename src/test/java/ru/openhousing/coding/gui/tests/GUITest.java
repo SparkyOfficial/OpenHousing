@@ -145,12 +145,12 @@ class GUITest {
     @Test
     void testLineSelectorGUICreation() {
         // Arrange & Act
-        LineSelectorGUI gui = new LineSelectorGUI(plugin, player, script, codeLine);
+        LineSelectorGUI gui = new LineSelectorGUI(plugin, player, script, BlockType.PLAYER_ACTION);
         
         // Assert
         assertNotNull(gui);
         assertEquals(script, gui.getScript());
-        assertEquals(codeLine, gui.getSelectedLine());
+        assertNotNull(gui.getSelectedLine());
         assertNotNull(gui.getInventory());
     }
 
