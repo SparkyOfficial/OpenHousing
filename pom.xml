@@ -19,6 +19,12 @@
     </properties>
 
     <repositories>
+        <!-- Maven Central -->
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        
         <!-- PaperMC -->
         <repository>
             <id>papermc-repo</id>
@@ -180,6 +186,14 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>5.8.0</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <!-- Mockito inline for mocking static methods -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>5.2.0</version>
             <scope>test</scope>
         </dependency>
 

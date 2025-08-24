@@ -8,6 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -15,35 +16,45 @@ import java.util.logging.Logger;
  * Утилита для работы с сообщениями
  */
 public class MessageUtil {
-    
+
     private static volatile Logger logger = null;
-    
+    private static volatile Plugin pluginInstance = null; // Для сохранения ссылки на плагин
+
     /**
      * Инициализация MessageUtil с плагином
-     * Должна вызываться из OpenHousing#onEnable
+     * Должна вызываться из OpenHousing#onEnable.
      */
     public static void initialize(Plugin plugin) {
-        if (plugin != null) {
+        if (pluginInstance == null) { // Инициализируем только один раз
+            pluginInstance = plugin;
             logger = plugin.getLogger();
+            // Optional: for development, log a message here when initialized
+            if (logger != null) {
+                logger.info("MessageUtil initialized with plugin: " + plugin.getName());
+            }
         }
     }
-    
+
     /**
-     * Получение логгера с fallback
+     * Получение логгера с fallback для использования в тестовой среде.
      */
     private static Logger getLoggerOrFallback() {
         if (logger != null) {
             return logger;
         }
-        // Fallback для тестов или если не инициализирован
+        // Этот блок выполняется, если плагин не инициализирован (в юнит-тестах или до onEnable)
         try {
-            return Bukkit.getLogger();
-        } catch (Exception e) {
-            // Если Bukkit недоступен (например, в тестах), возвращаем null
-            return null;
+            // Если Bukkit.getServer() доступен, значит есть какое-то окружение Bukkit (хотя бы mock)
+            if (Bukkit.getServer() != null) {
+                return Bukkit.getLogger();
+            }
+        } catch (NoClassDefFoundError | Exception ignored) {
+            // Игнорируем ошибки при доступе к Bukkit API вне его среды
         }
+        // Используем стандартный Java-логгер как окончательный фоллбэк
+        return Logger.getLogger("OpenHousingFallbackLogger");
     }
-    
+
     /**
      * Окрашивание текста с помощью цветовых кодов
      */
@@ -51,17 +62,17 @@ public class MessageUtil {
         if (message == null) return "";
         return ChatColor.translateAlternateColorCodes('&', message);
     }
-    
+
     /**
      * Окрашивание списка строк
      */
     public static List<String> colorize(List<String> messages) {
-        if (messages == null) return List.of();
+        if (messages == null) return new ArrayList<>(); // Возвращаем пустой список, а не null
         return messages.stream()
             .map(MessageUtil::colorize)
             .toList();
     }
-    
+
     /**
      * Удаление цветовых кодов
      */
@@ -69,31 +80,31 @@ public class MessageUtil {
         if (message == null) return "";
         return ChatColor.stripColor(colorize(message));
     }
-    
+
     /**
      * Удаление цветовых кодов (alias для stripColor)
      */
     public static String stripColors(String message) {
         return stripColor(message);
     }
-    
+
     /**
      * Окрашивание списка строк (alias для colorize)
      */
     public static List<String> colorizeList(List<String> messages) {
         return colorize(messages);
     }
-    
+
     /**
      * Удаление цветовых кодов из списка строк
      */
     public static List<String> stripColorsList(List<String> messages) {
-        if (messages == null) return List.of();
+        if (messages == null) return new ArrayList<>(); // Возвращаем пустой список, а не null
         return messages.stream()
             .map(MessageUtil::stripColors)
             .toList();
     }
-    
+
     /**
      * Форматирование сообщения с параметрами
      */
@@ -106,34 +117,24 @@ public class MessageUtil {
         return colorize(result);
     }
     
-    /**
-     * Форматирование сообщения с именем и значением
-     */
+    // Остальные перегрузки format() теперь будут автоматически использовать основной format(String, String...)
+    // Их можно упростить до одного вызова.
     public static String format(String name, String value) {
-        return format("§e{0}: §f{1}", name, value);
+        return format("&e{0}: &f{1}", name, value);
     }
-    
-    /**
-     * Форматирование сообщения с именем, значением и дополнительной информацией
-     */
+
     public static String format(String name, String value, String info) {
-        return format("§e{0}: §f{1} §7({2})", name, value, info);
+        return format("&e{0}: &f{1} &7({2})", name, value, info);
     }
-    
-    /**
-     * Форматирование сообщения с именем, значением, информацией и числом
-     */
+
     public static String format(String name, String value, String info, int number) {
-        return format("§e{0}: §f{1} §7({2}) §6[{3}]", name, value, info, String.valueOf(number));
+        return format("&e{0}: &f{1} &7({2}) &6[{3}]", name, value, info, String.valueOf(number));
     }
-    
-    /**
-     * Форматирование сообщения с именем, значением и дополнительной информацией (4 параметра)
-     */
+
     public static String format(String name, String value, String info, String extra) {
-        return format("§e{0}: §f{1} §7({2}) §a{3}", name, value, info, extra);
+        return format("&e{0}: &f{1} &7({2}) &a{3}", name, value, info, extra);
     }
-    
+
     /**
      * Отправка сообщения отправителю команды
      */
@@ -142,7 +143,7 @@ public class MessageUtil {
             sender.sendMessage(colorize(message));
         }
     }
-    
+
     /**
      * Отправка сообщения игроку
      */
@@ -151,7 +152,7 @@ public class MessageUtil {
             player.sendMessage(colorize(message));
         }
     }
-    
+
     /**
      * Отправка нескольких сообщений
      */
@@ -162,7 +163,7 @@ public class MessageUtil {
             }
         }
     }
-    
+
     /**
      * Отправка списка сообщений
      */
@@ -173,54 +174,72 @@ public class MessageUtil {
             }
         }
     }
-    
+
     /**
      * Отправка заголовка игроку
      */
     public static void sendTitle(Player player, String title, String subtitle) {
         sendTitle(player, title, subtitle, 10, 70, 20);
     }
-    
+
     /**
      * Отправка заголовка игроку с настройкой времени
      */
     public static void sendTitle(Player player, String title, String subtitle, int fadeIn, int stay, int fadeOut) {
         if (player != null) {
-            player.sendTitle(
-                colorize(title != null ? title : ""),
-                colorize(subtitle != null ? subtitle : ""),
-                fadeIn, stay, fadeOut
-            );
+            try {
+                // Если Bukkit.getServer() доступен, значит есть какое-то окружение Bukkit (хотя бы mock)
+                if (Bukkit.getServer() != null) {
+                    player.sendTitle(
+                        colorize(title != null ? title : ""),
+                        colorize(subtitle != null ? subtitle : ""),
+                        fadeIn, stay, fadeOut
+                    );
+                } else {
+                    // Fallback для тестов
+                    getLoggerOrFallback().info("[TITLE] " + player.getName() + ": " + stripColor(title) + " | " + stripColor(subtitle));
+                }
+            } catch (NoClassDefFoundError | Exception e) {
+                getLoggerOrFallback().warning("Failed to send title to " + player.getName() + " (error in test or missing API): " + e.getMessage());
+            }
         }
     }
-    
+
     /**
      * Отправка сообщения на панель действий
      */
     public static void sendActionBar(Player player, String message) {
         if (player != null && message != null) {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, 
-                TextComponent.fromLegacyText(colorize(message)));
+            try {
+                if (Bukkit.getServer() != null) {
+                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                        TextComponent.fromLegacyText(colorize(message)));
+                } else {
+                    getLoggerOrFallback().info("[ACTION BAR] " + player.getName() + ": " + stripColor(message));
+                }
+            } catch (NoClassDefFoundError | Exception e) {
+                getLoggerOrFallback().warning("Failed to send action bar to " + player.getName() + " (error in test or missing API): " + e.getMessage());
+            }
         }
     }
-    
+
     /**
      * Отправка сообщения в консоль
      */
     public static void sendConsole(String message) {
         if (message != null) {
             try {
-                Bukkit.getConsoleSender().sendMessage(colorize(message));
-            } catch (Exception e) {
-                // Fallback для тестов
-                Logger fallbackLogger = getLoggerOrFallback();
-                if (fallbackLogger != null) {
-                    fallbackLogger.info(stripColor(message));
+                if (Bukkit.getServer() != null && Bukkit.getConsoleSender() != null) {
+                    Bukkit.getConsoleSender().sendMessage(colorize(message));
+                } else {
+                    getLoggerOrFallback().info("[CONSOLE] " + stripColor(message));
                 }
+            } catch (NoClassDefFoundError | Exception e) {
+                getLoggerOrFallback().info("[CONSOLE] " + stripColor(message));
             }
         }
     }
-    
+
     /**
      * Логирование информации
      */
@@ -232,7 +251,7 @@ public class MessageUtil {
             }
         }
     }
-    
+
     /**
      * Логирование предупреждения
      */
@@ -244,7 +263,7 @@ public class MessageUtil {
             }
         }
     }
-    
+
     /**
      * Логирование ошибки
      */
@@ -256,7 +275,7 @@ public class MessageUtil {
             }
         }
     }
-    
+
     /**
      * Логирование ошибки с исключением
      */
@@ -271,35 +290,41 @@ public class MessageUtil {
             }
         }
     }
-    
+
     /**
      * Отправка сообщения всем игрокам
      */
     public static void broadcast(String message) {
         if (message != null) {
             try {
-                Bukkit.broadcastMessage(colorize(message));
-            } catch (Exception e) {
-                // Fallback для тестов
-                logInfo("Broadcast: " + message);
+                if (Bukkit.getServer() != null) {
+                    Bukkit.broadcastMessage(colorize(message));
+                } else {
+                    getLoggerOrFallback().info("[BROADCAST] " + stripColor(message));
+                }
+            } catch (NoClassDefFoundError | Exception e) {
+                getLoggerOrFallback().info("[BROADCAST] " + stripColor(message));
             }
         }
     }
-    
+
     /**
      * Отправка сообщения игрокам с определенным разрешением
      */
     public static void broadcast(String message, String permission) {
         if (message != null && permission != null) {
             try {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (player.hasPermission(permission)) {
-                        send(player, message);
+                if (Bukkit.getServer() != null) {
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        if (player.hasPermission(permission)) {
+                            send(player, message);
+                        }
                     }
+                } else {
+                    getLoggerOrFallback().info("[BROADCAST w/PERMISSION] " + stripColor(message) + " (Perm: " + permission + ")");
                 }
-            } catch (Exception e) {
-                // Fallback для тестов
-                logInfo("Broadcast with permission " + permission + ": " + message);
+            } catch (NoClassDefFoundError | Exception e) {
+                getLoggerOrFallback().info("[BROADCAST w/PERMISSION] " + stripColor(message) + " (Perm: " + permission + ")");
             }
         }
     }
