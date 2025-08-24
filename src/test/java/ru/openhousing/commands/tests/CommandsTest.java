@@ -52,6 +52,10 @@ class CommandsTest {
         when(player.getUniqueId()).thenReturn(UUID.randomUUID());
         lenient().when(player.hasPermission(anyString())).thenReturn(true);
         
+        // Mock manager getters
+        when(plugin.getCodeManager()).thenReturn(codeManager);
+        when(plugin.getHousingManager()).thenReturn(housingManager);
+        
         housingCommand = new HousingCommand(plugin);
         codeCommand = new CodeCommand(plugin);
         houseModeCommand = new HouseModeCommand(plugin);
