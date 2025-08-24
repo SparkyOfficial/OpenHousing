@@ -80,7 +80,7 @@ public class CodeBlockFactory {
             case PLAYER_FISH:
                 return new PlayerFishEventBlock();
             case PLAYER_ENCHANT:
-                return new PlayerEventBlock(); // TODO: Создать PlayerEnchantEventBlock
+                return new PlayerEnchantEventBlock();
             case PLAYER_CRAFT:
                 return new PlayerEventBlock(); // TODO: Создать PlayerCraftEventBlock
             case PLAYER_SMELT:
