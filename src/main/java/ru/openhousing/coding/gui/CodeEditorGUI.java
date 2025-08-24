@@ -4,6 +4,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -23,7 +28,7 @@ import java.util.List;
 /**
  * GUI редактора кода
  */
-public class CodeEditorGUI implements InventoryHolder {
+public class CodeEditorGUI implements InventoryHolder, Listener {
     
     private final OpenHousing plugin;
     private final Player player;
@@ -62,12 +67,14 @@ public class CodeEditorGUI implements InventoryHolder {
     public void open() {
         player.openInventory(inventory);
         plugin.getSoundEffects().playOpenGUI(player);
+        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
     
     /**
      * Закрытие GUI
      */
     public void close() {
+        HandlerList.unregisterAll(this);
         player.closeInventory();
         plugin.getSoundEffects().playCloseGUI(player);
     }
@@ -77,6 +84,23 @@ public class CodeEditorGUI implements InventoryHolder {
      */
     public CodeScript getScript() {
         return script;
+    }
+    
+    /**
+     * Получение текущей целевой строки
+     */
+    public CodeLine getCurrentTargetLine() {
+        return currentTargetLine;
+    }
+    
+    /**
+     * Установка целевой строки
+     */
+    public void setCurrentTargetLine(CodeLine line) {
+        this.currentTargetLine = line;
+        if (mode == EditorMode.SCRIPT) {
+            updateInventory();
+        }
     }
     
     /**
@@ -123,6 +147,47 @@ public class CodeEditorGUI implements InventoryHolder {
         } catch (Exception e) {
             plugin.getLogger().severe("Error updating inventory: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Обработчик кликов в инвентаре
+     */
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!event.getInventory().equals(inventory)) return;
+        if (!event.getWhoClicked().equals(player)) return;
+        
+        event.setCancelled(true);
+        
+        int slot = event.getRawSlot();
+        
+        switch (mode) {
+            case MAIN:
+                handleMainMenuClick(slot);
+                break;
+            case CATEGORIES:
+                handleCategoriesClick(slot);
+                break;
+            case BLOCKS:
+                handleBlocksClick(slot);
+                break;
+            case SCRIPT:
+                handleScriptClick(slot);
+                break;
+            case BLOCK_EDIT:
+                handleBlockEditClick(slot);
+                break;
+        }
+    }
+    
+    /**
+     * Обработчик закрытия инвентаря
+     */
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (event.getInventory().equals(inventory) && event.getPlayer().equals(player)) {
+            close();
         }
     }
     
@@ -546,140 +611,203 @@ public class CodeEditorGUI implements InventoryHolder {
     }
     
     /**
-     * Обработка клика по слоту
+     * Обработка кликов в главном меню
      */
-    public void handleClick(int slot, boolean isRightClick, boolean isShiftClick) {
-        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
-        
-        if (debugMode) plugin.getLogger().info("[DEBUG] CodeEditorGUI handleClick - slot: " + slot + ", mode: " + mode + ", rightClick: " + isRightClick);
-        
-        ItemStack item = inventory.getItem(slot);
-        if (item == null || item.getType() == Material.AIR) {
-            if (debugMode) plugin.getLogger().info("[DEBUG] Click on empty slot: " + slot);
-            return;
-        }
-        
-        plugin.getLogger().info("Handling click in CodeEditorGUI: slot=" + slot + ", mode=" + mode + ", item=" + item.getType());
-        
-        switch (mode) {
-            case MAIN:
-                if (debugMode) plugin.getLogger().info("[DEBUG] Handling main menu click");
-                handleMainMenuClick(slot);
-                break;
-            case CATEGORIES:
-                if (debugMode) plugin.getLogger().info("[DEBUG] Handling categories click");
-                handleCategoriesClick(slot);
-                break;
-            case BLOCKS:
-                if (debugMode) plugin.getLogger().info("[DEBUG] Handling blocks click");
-                handleBlocksClick(slot, isRightClick);
-                break;
-            case SCRIPT:
-                if (debugMode) plugin.getLogger().info("[DEBUG] Handling script click");
-                handleScriptClick(slot, isRightClick, isShiftClick);
-                break;
-            case BLOCK_EDIT:
-                if (debugMode) plugin.getLogger().info("[DEBUG] Handling block edit click");
-                handleBlockEditClick(slot);
-                break;
-        }
-        
-        // Общие навигационные элементы
-        handleNavigationClick(slot);
-    }
-    
     private void handleMainMenuClick(int slot) {
-        boolean debugMode = plugin.getConfigManager().getMainConfig().getBoolean("general.debug", false);
-        if (debugMode) plugin.getLogger().info("[DEBUG] Main menu click: slot=" + slot);
-        
         switch (slot) {
-            case 10: // Просмотр кода
-                if (debugMode) plugin.getLogger().info("[DEBUG] Switching to SCRIPT mode");
+            case 10: // Мой код
                 mode = EditorMode.SCRIPT;
-                page = 0;
                 updateInventory();
                 break;
             case 12: // Добавить блок
-                if (debugMode) plugin.getLogger().info("[DEBUG] Switching to CATEGORIES mode");
                 mode = EditorMode.CATEGORIES;
                 updateInventory();
                 break;
             case 14: // Выполнить код
-                player.sendMessage("§eЗапуск кода из редактора отключен. Используйте события и команду §6/play§e в доме.");
+                executeScript();
                 break;
             case 16: // Поиск блоков
                 openBlockSearch();
                 break;
-            case 28: // Настройки
-                openScriptSettings();
+            case 28: // Настройки кода
+                openCodeSettings();
                 break;
             case 30: // Поделиться кодом
-                player.sendMessage("§eФункция 'Поделиться кодом' в разработке");
+                shareCode();
                 break;
-            case 32: // Импорт кода
-                player.sendMessage("§eФункция 'Импорт кода' в разработке");
+            case 32: // Отладка
+                openDebugger();
                 break;
-            case 34: // Очистить код
-                plugin.getLogger().info("Clearing script");
-                script.clear();
-                player.sendMessage("§cКод очищен!");
-                updateInventory();
-                break;
-            case 33: // Запустить код
-                player.sendMessage("§eЗапуск кода доступен только в режиме игры. Используйте §6/play§e.");
-                break;
-            case 35: // Справка
-                showHelp();
-                break;
-            default:
-                plugin.getLogger().info("Unhandled main menu slot: " + slot);
+            case 34: // Справка
+                openHelp();
                 break;
         }
     }
     
+    /**
+     * Обработка кликов в меню категорий
+     */
     private void handleCategoriesClick(int slot) {
-        // Определяем, какая категория была выбрана
-        BlockType.BlockCategory[] categories = BlockType.BlockCategory.values();
-        int categoryIndex = getCategoryIndexFromSlot(slot);
-        
-        if (categoryIndex >= 0 && categoryIndex < categories.length) {
-            selectedCategory = categories[categoryIndex];
-            mode = EditorMode.BLOCKS;
-            page = 0;
-            updateInventory();
+        if (slot >= 9 && slot < 45) {
+            int categoryIndex = slot - 9 + (page * 36);
+            BlockType.BlockCategory[] categories = BlockType.BlockCategory.values();
+            
+            if (categoryIndex < categories.length) {
+                selectedCategory = categories[categoryIndex];
+                mode = EditorMode.BLOCKS;
+                page = 0;
+                updateInventory();
+            }
+        } else if (slot == 45) { // Предыдущая страница
+            if (page > 0) {
+                page--;
+                updateInventory();
+            }
+        } else if (slot == 53) { // Следующая страница
+            BlockType.BlockCategory[] categories = BlockType.BlockCategory.values();
+            int maxPages = (categories.length - 1) / 36;
+            if (page < maxPages) {
+                page++;
+                updateInventory();
+            }
         }
     }
     
-    private void handleBlocksClick(int slot, boolean isRightClick) {
-        try {
-            int blockIndex = getBlockIndexFromSlot(slot);
-            if (blockIndex >= 0 && selectedCategory != null) {
-                List<BlockType> blocksInCategory = new ArrayList<>();
-                for (BlockType blockType : BlockType.values()) {
-                    if (blockType.getCategory() == selectedCategory) {
-                        blocksInCategory.add(blockType);
-                    }
-                }
-                
-                int actualIndex = page * 28 + blockIndex;
-                if (actualIndex < blocksInCategory.size()) {
-                    BlockType blockType = blocksInCategory.get(actualIndex);
-                    
-                    if (isRightClick) {
-                        // Предварительный просмотр
-                        player.sendMessage("§eПредварительный просмотр: §f" + blockType.getDisplayName());
-                        player.sendMessage("§7" + blockType.getDescription());
-                    } else {
-                        // Добавить блок в скрипт
-                        addBlockToScript(blockType);
-                    }
-                }
+    /**
+     * Обработка кликов в меню блоков
+     */
+    private void handleBlocksClick(int slot) {
+        if (slot >= 9 && slot < 45) {
+            int blockIndex = slot - 9 + (page * 36);
+            List<BlockType> blocksInCategory = getBlocksInCategory(selectedCategory);
+            
+            if (blockIndex < blocksInCategory.size()) {
+                BlockType blockType = blocksInCategory.get(blockIndex);
+                addBlockToScript(blockType);
             }
-        } catch (Exception e) {
-            plugin.getLogger().severe("Error in handleBlocksClick: " + e.getMessage());
-            e.printStackTrace();
-            player.sendMessage("§cОшибка при добавлении блока!");
+        } else if (slot == 45) { // Предыдущая страница
+            if (page > 0) {
+                page--;
+                updateInventory();
+            }
+        } else if (slot == 53) { // Следующая страница
+            List<BlockType> blocksInCategory = getBlocksInCategory(selectedCategory);
+            int maxPages = (blocksInCategory.size() - 1) / 36;
+            if (page < maxPages) {
+                page++;
+                updateInventory();
+            }
         }
+    }
+    
+    /**
+     * Обработка кликов в меню скрипта
+     */
+    private void handleScriptClick(int slot) {
+        if (slot >= 9 && slot < 45) {
+            int lineIndex = slot - 9 + (page * 36);
+            List<CodeLine> lines = script.getLines();
+            
+            if (lineIndex < lines.size()) {
+                CodeLine line = lines.get(lineIndex);
+                openLineEditor(line);
+            }
+        } else if (slot == 45) { // Предыдущая страница
+            if (page > 0) {
+                page--;
+                updateInventory();
+            }
+        } else if (slot == 53) { // Следующая страница
+            List<CodeLine> lines = script.getLines();
+            int maxPages = (lines.size() - 1) / 36;
+            if (page < maxPages) {
+                page++;
+                updateInventory();
+            }
+        }
+    }
+    
+    /**
+     * Обработка кликов в редакторе блоков
+     */
+    private void handleBlockEditClick(int slot) {
+        // Обработка редактирования блока
+        if (selectedBlock != null) {
+            openBlockConfig(selectedBlock);
+        }
+    }
+    
+    /**
+     * Выполнение скрипта
+     */
+    private void executeScript() {
+        try {
+            script.execute(new CodeBlock.ExecutionContext(player));
+            player.sendMessage("§aКод выполнен успешно!");
+        } catch (Exception e) {
+            player.sendMessage("§cОшибка выполнения кода: " + e.getMessage());
+            plugin.getLogger().warning("Error executing script for " + player.getName() + ": " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Открытие поиска блоков
+     */
+    private void openBlockSearch() {
+        // TODO: Реализовать поиск блоков
+        player.sendMessage("§eПоиск блоков (в разработке)");
+    }
+    
+    /**
+     * Открытие настроек кода
+     */
+    private void openCodeSettings() {
+        // TODO: Реализовать настройки кода
+        player.sendMessage("§eНастройки кода (в разработке)");
+    }
+    
+    /**
+     * Поделиться кодом
+     */
+    private void shareCode() {
+        // TODO: Реализовать функцию "поделиться кодом"
+        player.sendMessage("§eФункция 'Поделиться кодом' (в разработке)");
+    }
+    
+    /**
+     * Открытие отладчика
+     */
+    private void openDebugger() {
+        close();
+        CodeBlock.ExecutionContext context = new CodeBlock.ExecutionContext(player);
+        new DebugGUI(plugin, player, context).open();
+    }
+    
+    /**
+     * Открытие справки
+     */
+    private void openHelp() {
+        // TODO: Реализовать справку
+        player.sendMessage("§eСправка (в разработке)");
+    }
+    
+    /**
+     * Открытие редактора строки
+     */
+    private void openLineEditor(CodeLine line) {
+        close();
+        new LineSelectorGUI(plugin, player, script, null).open();
+    }
+    
+    /**
+     * Открытие конфигурации блока
+     */
+    private void openBlockConfig(CodeBlock block) {
+        close();
+        new BlockConfigGUI(plugin, player, block, (savedBlock) -> {
+            // Callback после сохранения
+            updateInventory();
+        }).open();
     }
     
     /**
@@ -687,317 +815,44 @@ public class CodeEditorGUI implements InventoryHolder {
      */
     private void addBlockToScript(BlockType blockType) {
         try {
-            // Если нет строк, создаем первую
-            if (script.getLines().isEmpty()) {
-                script.createLine("Строка 1");
-            }
+            CodeBlock newBlock = ru.openhousing.coding.blocks.CodeBlockFactory.createBlock(blockType);
             
-            // Если выбрана конкретная строка, добавляем блок сразу
             if (currentTargetLine != null) {
-                CodeBlock block = createBlockInstance(blockType);
-                if (block == null) {
-                    player.sendMessage("§cНе удалось создать блок типа: " + blockType.getDisplayName());
-                    return;
-                }
-                
-                script.addBlockToLine(currentTargetLine.getLineNumber(), block);
-                player.sendMessage("§aБлок добавлен в строку " + currentTargetLine.getLineNumber() + ": §f" + blockType.getDisplayName());
-                
-                // Возвращаемся к просмотру скрипта
-                mode = EditorMode.SCRIPT;
-                page = 0;
-                updateInventory();
+                // Добавляем в выбранную строку
+                currentTargetLine.addBlock(newBlock);
+                player.sendMessage("§aБлок '" + blockType.getDisplayName() + "' добавлен в строку '" + currentTargetLine.getName() + "'");
             } else {
-                // Если строка не выбрана, открываем селектор строк
-                player.closeInventory();
-                LineSelectorGUI selectorGUI = new LineSelectorGUI(plugin, player, script, blockType);
-                selectorGUI.open();
+                // Создаем новую строку
+                CodeLine newLine = new CodeLine(script.getLines().size() + 1, "Новая строка " + (script.getLines().size() + 1));
+                newLine.addBlock(newBlock);
+                script.addLine(newLine);
+                player.sendMessage("§aСоздана новая строка с блоком '" + blockType.getDisplayName() + "'");
             }
             
-        } catch (Exception e) {
-            plugin.getLogger().severe("Error adding block to script: " + e.getMessage());
-            e.printStackTrace();
-            player.sendMessage("§cОшибка при добавлении блока в скрипт!");
-        }
-    }
-    
-    private void handleScriptClick(int slot, boolean isRightClick, boolean isShiftClick) {
-        // Обработка кликов по строкам
-        if (slot == 1) { // Добавить новую строку
-            String lineName = "Строка " + (script.getLines().size() + 1);
-            script.createLine(lineName);
-            player.sendMessage("§aСоздана новая строка: " + lineName);
+            // Сохраняем скрипт
+            plugin.getDatabaseManager().saveCodeScriptAsync(script, () -> {});
+            
+            // Возвращаемся к просмотру скрипта
+            mode = EditorMode.SCRIPT;
             updateInventory();
-            return;
-        }
-        
-        if (slot == 3) { // Выбор целевой строки
-            if (currentTargetLine != null) {
-                // Сброс выбранной строки
-                currentTargetLine = null;
-                player.sendMessage("§7Целевая строка сброшена");
-            } else {
-                // Открыть селектор строк
-                player.closeInventory();
-                LineSelectorGUI selectorGUI = new LineSelectorGUI(plugin, player, script, null);
-                selectorGUI.open();
-            }
-            updateInventory();
-            return;
-        }
-        
-        // Проверяем клик по строке (слоты 18-44)
-        if (slot >= 18 && slot <= 44) {
-            int lineIndex = -1;
             
-            // Вычисляем индекс строки из слота
-            if (slot >= 18 && slot <= 25) {
-                lineIndex = slot - 18;
-            } else if (slot >= 27 && slot <= 34) {
-                lineIndex = 8 + (slot - 27);
-            } else if (slot >= 36 && slot <= 43) {
-                lineIndex = 16 + (slot - 36);
-            }
-            
-            if (lineIndex >= 0) {
-                int actualIndex = page * 21 + lineIndex; // 21 строк на страницу
-                List<CodeLine> lines = script.getLines();
-            
-                if (actualIndex < lines.size()) {
-                    CodeLine selectedLine = lines.get(actualIndex);
-                    
-                    if (isShiftClick) {
-                        // Выбрать как целевую строку
-                        this.currentTargetLine = selectedLine;
-                        player.sendMessage("§aВыбрана целевая строка: §e" + selectedLine.getName() + " §7(#" + selectedLine.getLineNumber() + ")");
-                        updateInventory();
-                    } else if (isRightClick) {
-                        // Открыть настройки строки
-                        player.closeInventory();
-                        LineSettingsGUI settingsGUI = new LineSettingsGUI(plugin, player, script, selectedLine);
-                        settingsGUI.open();
-                    } else {
-                        // Просмотр блоков в строке
-                        player.closeInventory();
-                        LineBlocksGUI lineBlocksGUI = new LineBlocksGUI(plugin, player, script, selectedLine);
-                        lineBlocksGUI.open();
-                    }
-                }
-            }
-        }
-    }
-    
-    private void handleBlockEditClick(int slot) {
-        switch (slot) {
-            case 40: // Сохранить
-                plugin.getCodeManager().saveScript(player, script);
-                player.sendMessage("§aИзменения сохранены!");
-                mode = EditorMode.SCRIPT;
-                break;
-            case 42: // Удалить
-                if (selectedBlock != null) {
-                    // Удалить блок - найти его строку и удалить
-                    boolean removed = false;
-                    for (CodeLine line : script.getLines()) {
-                        if (script.removeBlockFromLine(line.getLineNumber(), selectedBlock)) {
-                            removed = true;
-                            break;
-                        }
-                    }
-                    if (removed) {
-                        player.sendMessage("§cБлок удален!");
-                    } else {
-                        player.sendMessage("§cНе удалось найти блок для удаления!");
-                    }
-                    mode = EditorMode.SCRIPT;
-                    updateInventory();
-                }
-                break;
+        } catch (Exception e) {
+            player.sendMessage("§cОшибка создания блока: " + e.getMessage());
+            plugin.getLogger().warning("Error creating block " + blockType + " for " + player.getName() + ": " + e.getMessage());
         }
     }
     
     /**
-     * Открытие селектора переменных
+     * Получение блоков в категории
      */
-    private void openVariableSelector() {
-        try {
-            // Закрываем текущий GUI перед открытием нового
-            player.closeInventory();
-            
-            // Небольшая задержка для корректного закрытия
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                try {
-                    VariableSelectorGUI variableSelector = new VariableSelectorGUI(
-                        plugin,
-                        player,
-                        (variableValue) -> {
-                            // Добавляем в недавние и сообщаем игроку
-                            String varName = variableValue.getVariableName();
-                            VariableSelectorGUI.addRecentVariable(plugin, player, varName);
-                            player.sendMessage("§aВыбрана переменная: §f" + varName);
-                            // Возвращаемся в редактор
-                            Bukkit.getScheduler().runTaskLater(plugin, this::open, 1L);
-                        },
-                        false
-                    );
-                    variableSelector.open();
-                } catch (Exception e) {
-                    plugin.getLogger().severe("Error opening variable selector: " + e.getMessage());
-                    e.printStackTrace();
-                    player.sendMessage("§cОшибка открытия выбора переменных!");
-                    // Возвращаемся к редактору кода
-                    Bukkit.getScheduler().runTaskLater(plugin, this::open, 1L);
-                }
-            }, 1L);
-        } catch (Exception e) {
-            plugin.getLogger().severe("Error in openVariableSelector: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-    
-    private void handleNavigationClick(int slot) {
-        try {
-            switch (slot) {
-                case 0: // Назад
-                    switch (mode) {
-                        case CATEGORIES:
-                            mode = EditorMode.MAIN;
-                            break;
-                        case BLOCKS:
-                            mode = EditorMode.CATEGORIES;
-                            break;
-                        case SCRIPT:
-                            mode = EditorMode.MAIN;
-                            break;
-                        case BLOCK_EDIT:
-                            mode = EditorMode.SCRIPT;
-                            break;
-                        default:
-                            return;
-                    }
-                    page = 0;
-                    updateInventory();
-                    break;
-                case 17: // Закрыть
-                    player.closeInventory();
-                    break;
-                case 8: // Переменные
-                    openVariableSelector();
-                    break;
-                case 45: // Предыдущая страница
-                    if (page > 0) {
-                        page--;
-                        updateInventory();
-                    }
-                    break;
-                case 53: // Следующая страница
-                    page++;
-                    updateInventory();
-                    break;
-                case 46: // Категории
-                    mode = EditorMode.CATEGORIES;
-                    page = 0;
-                    updateInventory();
-                    break;
-                case 47: // Скрипт
-                    mode = EditorMode.SCRIPT;
-                    page = 0;
-                    updateInventory();
-                    break;
-                case 48: // Редактирование блока
-                    mode = EditorMode.MAIN;
-                    page = 0;
-                    updateInventory();
-                    break;
+    private List<BlockType> getBlocksInCategory(BlockType.BlockCategory category) {
+        List<BlockType> blocks = new ArrayList<>();
+        for (BlockType type : BlockType.values()) {
+            if (type.getCategory() == category) {
+                blocks.add(type);
             }
-        } catch (Exception e) {
-            plugin.getLogger().severe("Error in navigation click: " + e.getMessage());
-            e.printStackTrace();
         }
-    }
-    
-    /**
-     * Открытие селектора строк для добавления блока
-     */
-    private void openLineSelectorForBlock(BlockType blockType) {
-        try {
-            // Закрываем текущий GUI перед открытием нового
-            player.closeInventory();
-            
-            // Небольшая задержка для корректного закрытия
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                try {
-                    LineSelectorGUI lineSelector = new LineSelectorGUI(plugin, player, script, blockType);
-                    lineSelector.open();
-                } catch (Exception e) {
-                    plugin.getLogger().severe("Error opening line selector: " + e.getMessage());
-                    e.printStackTrace();
-                    player.sendMessage("§cОшибка открытия выбора строки!");
-                    // Возвращаемся к редактору кода
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                        plugin.getCodeManager().openCodeEditor(player);
-                    }, 1L);
-                }
-            }, 1L);
-        } catch (Exception e) {
-            plugin.getLogger().severe("Error in openLineSelectorForBlock: " + e.getMessage());
-            e.printStackTrace();
-            player.sendMessage("§cОшибка открытия выбора строки!");
-        }
-    }
-    
-    private CodeBlock createBlockInstance(BlockType blockType) {
-        try {
-            plugin.getLogger().info("Creating block instance for: " + blockType.name());
-            
-            return ru.openhousing.coding.blocks.CodeBlockFactory.createBlock(blockType);
-        } catch (Exception e) {
-            plugin.getLogger().severe("Error creating block instance: " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
-    }
-    
-    private int getCategoryIndexFromSlot(int slot) {
-        if (slot >= 10 && slot <= 16) return (slot - 10) / 2;
-        if (slot >= 19 && slot <= 25) return (slot - 19) / 2 + 4;
-        return -1;
-    }
-    
-    private int getBlockIndexFromSlot(int slot) {
-        if (slot >= 10 && slot <= 16) return slot - 10;
-        if (slot >= 19 && slot <= 25) return slot - 19 + 7;
-        if (slot >= 28 && slot <= 34) return slot - 28 + 14;
-        if (slot >= 37 && slot <= 43) return slot - 37 + 21;
-        return -1;
-    }
-    
-    /**
-     * Открыть поиск блоков
-     */
-    private void openBlockSearch() {
-        player.closeInventory();
-        AnvilGUIHelper.openTextInput(plugin, player, "Поиск блоков", "", (searchTerm) -> {
-            // Создаем список найденных блоков
-            List<BlockType> foundBlocks = new ArrayList<>();
-            
-            for (BlockType blockType : BlockType.values()) {
-                if (blockType.getDisplayName().toLowerCase().contains(searchTerm.toLowerCase()) ||
-                    blockType.name().toLowerCase().contains(searchTerm.toLowerCase()) ||
-                    blockType.getDescription().toLowerCase().contains(searchTerm.toLowerCase())) {
-                    foundBlocks.add(blockType);
-                }
-            }
-            
-            if (foundBlocks.isEmpty()) {
-                player.sendMessage("§cПо запросу '" + searchTerm + "' ничего не найдено");
-                this.open();
-                return;
-            }
-            
-            // Показываем результаты поиска в GUI
-            showSearchResults(foundBlocks, searchTerm);
-        });
+        return blocks;
     }
     
     /**
@@ -1064,39 +919,6 @@ public class CodeEditorGUI implements InventoryHolder {
             .build());
             
         player.openInventory(searchInventory);
-    }
-    
-    /**
-     * Открыть настройки кода
-     */
-    private void openScriptSettings() {
-        player.sendMessage("§6=== Настройки кода ===");
-        player.sendMessage("§7Статус: " + (script.isEnabled() ? "§aВключен" : "§cОтключен"));
-        
-        CodeScript.ScriptStats stats = script.getStats();
-        player.sendMessage("§7Блоков: §f" + stats.getTotalBlocks());
-        player.sendMessage("§7Строк: §f" + script.getLines().size());
-        player.sendMessage("§7Состояние: " + (stats.hasErrors() ? "§cЕсть ошибки" : "§aВсе в порядке"));
-        
-        this.open();
-    }
-    
-    /**
-     * Показать справку
-     */
-    private void showHelp() {
-        player.sendMessage("§6=== Справка по редактору кода ===");
-        player.sendMessage("§7• §eЛКМ§7 - основное действие");
-        player.sendMessage("§7• §eПКМ§7 - дополнительное действие");
-        player.sendMessage("§7• §eShift+Клик§7 - выбор целевой строки");
-        player.sendMessage("");
-        player.sendMessage("§6Основные функции:");
-        player.sendMessage("§7• §aДобавить блок§7 - выбор и добавление блоков");
-        player.sendMessage("§7• §aМой код§7 - просмотр созданного кода");
-        player.sendMessage("§7• §aПеременные§7 - управление переменными");
-        player.sendMessage("§7• §aПоиск§7 - быстрый поиск блоков");
-        
-        this.open();
     }
     
     @Override
