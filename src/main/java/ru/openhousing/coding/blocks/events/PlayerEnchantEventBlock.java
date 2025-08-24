@@ -68,12 +68,13 @@ public class PlayerEnchantEventBlock extends CodeBlock {
 
         // Разрешенные зачарования
         allowedEnchantments = new ArrayList<>();
-        allowedEnchantments.add(Enchantment.DAMAGE_ALL);
-        allowedEnchantments.add(Enchantment.UNBREAKING);
-        allowedEnchantments.add(Enchantment.EFFICIENCY);
-        allowedEnchantments.add(Enchantment.PROTECTION_ENVIRONMENTAL);
-        allowedEnchantments.add(Enchantment.ARROW_DAMAGE);
-        allowedEnchantments.add(Enchantment.ARROW_INFINITE);
+        // Используем современные константы зачарований
+        allowedEnchantments.add(Enchantment.getByName("SHARPNESS"));
+        allowedEnchantments.add(Enchantment.getByName("DURABILITY"));
+        allowedEnchantments.add(Enchantment.getByName("DIG_SPEED"));
+        allowedEnchantments.add(Enchantment.getByName("PROTECTION_ENVIRONMENTAL"));
+        allowedEnchantments.add(Enchantment.getByName("ARROW_DAMAGE"));
+        allowedEnchantments.add(Enchantment.getByName("ARROW_INFINITE"));
 
         // Ограничения
         maxEnchantmentLevel = 5;

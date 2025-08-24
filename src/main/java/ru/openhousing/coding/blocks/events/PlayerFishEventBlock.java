@@ -11,6 +11,7 @@ import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.BlockType;
 import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.blocks.CodeBlock.ExecutionContext;
+import ru.openhousing.coding.blocks.CodeBlock.ExecutionResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -225,12 +226,13 @@ public class PlayerFishEventBlock extends CodeBlock {
     }
     
     @Override
-    public void execute(ExecutionContext context) {
+    public ExecutionResult execute(ExecutionContext context) {
         // Основная логика выполняется через событие
         // Этот метод вызывается при создании блока
         if (debugModeEnabled) {
             context.getPlayer().sendMessage("§7[DEBUG] PlayerFishEventBlock создан");
         }
+        return ExecutionResult.success();
     }
     
     @EventHandler
@@ -942,40 +944,33 @@ public class PlayerFishEventBlock extends CodeBlock {
     }
     
     @Override
-    public boolean validate(ExecutionContext context) {
+    public boolean validate() {
         // Валидация настроек
         if (cooldownMs < 0) {
-            context.getPlayer().sendMessage("§cОшибка: Кулдаун не может быть отрицательным!");
             return false;
         }
         
         if (maxFishingRadius < 0) {
-            context.getPlayer().sendMessage("§cОшибка: Радиус не может быть отрицательным!");
             return false;
         }
         
         if (minWaterDepth < 1 || maxWaterDepth > 64) {
-            context.getPlayer().sendMessage("§cОшибка: Глубина воды должна быть в пределах 1-64!");
             return false;
         }
         
         if (maxFishPerPlayer < 1) {
-            context.getPlayer().sendMessage("§cОшибка: Лимит рыбы должен быть больше 0!");
             return false;
         }
         
         if (maxFishingPerSecond < 1) {
-            context.getPlayer().sendMessage("§cОшибка: Максимум рыбалки в секунду должен быть больше 0!");
             return false;
         }
         
         if (experienceReward < 0) {
-            context.getPlayer().sendMessage("§cОшибка: Опыт не может быть отрицательным!");
             return false;
         }
         
         if (minFishingTime < 0 || maxFishingTime < minFishingTime) {
-            context.getPlayer().sendMessage("§cОшибка: Время рыбалки должно быть корректным!");
             return false;
         }
         

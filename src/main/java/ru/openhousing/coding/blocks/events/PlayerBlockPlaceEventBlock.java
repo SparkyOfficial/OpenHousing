@@ -13,6 +13,7 @@ import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.BlockType;
 import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.blocks.CodeBlock.ExecutionContext;
+import ru.openhousing.coding.blocks.CodeBlock.ExecutionResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -228,12 +229,24 @@ public class PlayerBlockPlaceEventBlock extends CodeBlock {
     }
     
     @Override
-    public void execute(ExecutionContext context) {
+    public ExecutionResult execute(ExecutionContext context) {
         // Основная логика выполняется через событие
         // Этот метод вызывается при создании блока
         if (debugModeEnabled) {
             context.getPlayer().sendMessage("§7[DEBUG] PlayerBlockPlaceEventBlock создан");
         }
+        return ExecutionResult.success();
+    }
+
+    // Добавляем методы для работы с переменными
+    private Object getVariable(String name) {
+        // Этот метод должен быть доступен в контексте выполнения
+        return null; // Заглушка, так как переменные должны обрабатываться через context
+    }
+
+    private void setVariable(String name, Object value) {
+        // Этот метод должен быть доступен в контексте выполнения
+        // Заглушка, так как переменные должны обрабатываться через context
     }
     
     @EventHandler
@@ -788,7 +801,7 @@ public class PlayerBlockPlaceEventBlock extends CodeBlock {
         if (particlesEnabled) {
             // Создание частиц
             block.getWorld().spawnParticle(
-                org.bukkit.Particle.BLOCK_CRACK,
+                org.bukkit.Particle.BLOCK,
                 location.add(0.5, 0.5, 0.5),
                 10,
                 0.2, 0.2, 0.2,
@@ -1057,40 +1070,33 @@ public class PlayerBlockPlaceEventBlock extends CodeBlock {
     }
     
     @Override
-    public boolean validate(ExecutionContext context) {
+    public boolean validate() {
         // Валидация настроек
         if (cooldownMs < 0) {
-            context.getPlayer().sendMessage("§cОшибка: Кулдаун не может быть отрицательным!");
             return false;
         }
         
         if (maxPlaceRadius < 0) {
-            context.getPlayer().sendMessage("§cОшибка: Радиус не может быть отрицательным!");
             return false;
         }
         
         if (minHeight < 0 || maxHeight > 256) {
-            context.getPlayer().sendMessage("§cОшибка: Высота должна быть в пределах 0-256!");
             return false;
         }
         
         if (maxLavaDistance < 0) {
-            context.getPlayer().sendMessage("§cОшибка: Расстояние до лавы не может быть отрицательным!");
             return false;
         }
         
         if (removalDelayTicks < 0) {
-            context.getPlayer().sendMessage("§cОшибка: Задержка удаления не может быть отрицательной!");
             return false;
         }
         
         if (maxPlacesPerSecond < 1) {
-            context.getPlayer().sendMessage("§cОшибка: Максимум установок в секунду должен быть больше 0!");
             return false;
         }
         
         if (maxBlocksPerPlayer < 1) {
-            context.getPlayer().sendMessage("§cОшибка: Лимит блоков должен быть больше 0!");
             return false;
         }
         

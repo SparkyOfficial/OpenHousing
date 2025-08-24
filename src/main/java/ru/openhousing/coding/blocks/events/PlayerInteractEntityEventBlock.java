@@ -13,6 +13,7 @@ import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.BlockType;
 import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.blocks.CodeBlock.ExecutionContext;
+import ru.openhousing.coding.blocks.CodeBlock.ExecutionResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -210,12 +211,13 @@ public class PlayerInteractEntityEventBlock extends CodeBlock {
     }
     
     @Override
-    public void execute(ExecutionContext context) {
+    public ExecutionResult execute(ExecutionContext context) {
         // Основная логика выполняется через событие
         // Этот метод вызывается при создании блока
         if (debugModeEnabled) {
             context.getPlayer().sendMessage("§7[DEBUG] PlayerInteractEntityEventBlock создан");
         }
+        return ExecutionResult.success();
     }
     
     @EventHandler
@@ -1019,35 +1021,29 @@ public class PlayerInteractEntityEventBlock extends CodeBlock {
     }
     
     @Override
-    public boolean validate(ExecutionContext context) {
+    public boolean validate() {
         // Валидация настроек
         if (cooldownMs < 0) {
-            context.getPlayer().sendMessage("§cОшибка: Кулдаун не может быть отрицательным!");
             return false;
         }
         
         if (maxInteractionRadius < 0) {
-            context.getPlayer().sendMessage("§cОшибка: Радиус не может быть отрицательным!");
             return false;
         }
         
         if (minEntityHealth < 0 || maxEntityHealth > 1000) {
-            context.getPlayer().sendMessage("§cОшибка: Здоровье должно быть в пределах 0-1000!");
             return false;
         }
         
         if (maxInteractionsPerEntity < 1) {
-            context.getPlayer().sendMessage("§cОшибка: Лимит взаимодействий должен быть больше 0!");
             return false;
         }
         
         if (maxInteractionsPerSecond < 1) {
-            context.getPlayer().sendMessage("§cОшибка: Максимум взаимодействий в секунду должен быть больше 0!");
             return false;
         }
         
         if (experienceReward < 0) {
-            context.getPlayer().sendMessage("§cОшибка: Опыт не может быть отрицательным!");
             return false;
         }
         

@@ -12,6 +12,7 @@ import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.BlockType;
 import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.blocks.CodeBlock.ExecutionContext;
+import ru.openhousing.coding.blocks.CodeBlock.ExecutionResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ public class PlayerCraftEventBlock extends CodeBlock {
     }
 
     @Override
-    public boolean validate(ExecutionContext context) {
+    public boolean validate() {
         return true;
     }
 }
