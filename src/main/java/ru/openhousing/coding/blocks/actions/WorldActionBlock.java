@@ -25,7 +25,7 @@ import java.util.Arrays;
  * Выполняет различные действия с миром: изменение блоков, создание взрывов, спавн существ
  */
 public class WorldActionBlock extends CodeBlock {
-
+    
     /**
      * Типы действий с миром
      */
@@ -84,24 +84,24 @@ public class WorldActionBlock extends CodeBlock {
         TAKE_EXPERIENCE("Забрать опыт", "Забирает опыт у игрока"),
         WAIT("Ожидание", "Ожидает указанное время"),
         SEND_TO_SERVER("Отправить на сервер", "Отправляет игрока на другой сервер");
-
+        
         private final String displayName;
         private final String description;
-
+        
         WorldActionType(String displayName, String description) {
             this.displayName = displayName;
             this.description = description;
         }
-
+        
         public String getDisplayName() {
             return displayName;
         }
-
+        
         public String getDescription() {
             return description;
         }
     }
-
+    
     public WorldActionBlock() {
         super(BlockType.GAME_SET_BLOCK);
         initializeDefaultParameters();
@@ -247,68 +247,68 @@ public class WorldActionBlock extends CodeBlock {
                 case "SET_BLOCK":
                     if ((Boolean) getParameter("setBlock")) {
                         executeSetBlock(context);
-                    }
-                    break;
+                }
+                break;
                 case "BREAK_BLOCK":
                     if ((Boolean) getParameter("breakBlock")) {
                         executeBreakBlock(context);
-                    }
-                    break;
+                }
+                break;
                 case "SPAWN_ENTITY":
                     if ((Boolean) getParameter("spawnEntity")) {
                         executeSpawnEntity(context);
-                    }
-                    break;
+                }
+                break;
                 case "REMOVE_ENTITY":
                     if ((Boolean) getParameter("removeEntity")) {
                         executeRemoveEntity(context);
-                    }
-                    break;
+                }
+                break;
                 case "CREATE_EXPLOSION":
                     if ((Boolean) getParameter("createExplosion")) {
                         executeCreateExplosion(context);
-                    }
-                    break;
+                }
+                break;
                 case "SPAWN_PARTICLES":
                     if ((Boolean) getParameter("spawnParticles")) {
                         executeSpawnParticles(context);
-                    }
-                    break;
+                }
+                break;
                 case "PLAY_SOUND":
                     if ((Boolean) getParameter("playSound")) {
                         executePlaySound(context);
-                    }
-                    break;
+                }
+                break;
                 case "SET_WEATHER":
                     if ((Boolean) getParameter("setWeather")) {
                         executeSetWeather(context);
-                    }
-                    break;
+                }
+                break;
                 case "SET_TIME":
                     if ((Boolean) getParameter("setTime")) {
                         executeSetTime(context);
-                    }
-                    break;
+                }
+                break;
                 case "STRIKE_LIGHTNING":
                     if ((Boolean) getParameter("strikeLightning")) {
                         executeStrikeLightning(context);
-                    }
-                    break;
+                }
+                break;
                 case "TELEPORT_ENTITY":
                     if ((Boolean) getParameter("teleportEntity")) {
                         executeTeleportEntity(context);
-                    }
-                    break;
+                }
+                break;
                 case "ADD_EFFECT":
                     if ((Boolean) getParameter("addEffectToNearby")) {
                         executeAddEffectToNearby(context);
-                    }
-                    break;
+                }
+                break;
                 case "BROADCAST":
                     if ((Boolean) getParameter("broadcastMessage")) {
                         executeBroadcastMessage(context);
-                    }
-                    break;
+                }
+                break;
             }
 
             // Логируем действие
@@ -510,8 +510,8 @@ public class WorldActionBlock extends CodeBlock {
                 Location location = new Location(world, x, y, z);
                 Sound sound = Sound.valueOf(soundType);
                 world.playSound(location, sound, volume, pitch);
-            }
-        } catch (Exception e) {
+                        }
+                    } catch (Exception e) {
             // Игнорируем ошибки воспроизведения звука
         }
     }
@@ -560,7 +560,7 @@ public class WorldActionBlock extends CodeBlock {
                 long time;
                 if (timeType.equals("TICKS")) {
                     time = Long.parseLong(timeValue);
-                } else {
+            } else {
                     // Предполагаем, что это время дня (0-24000)
                     time = Long.parseLong(timeValue);
                 }
@@ -584,7 +584,7 @@ public class WorldActionBlock extends CodeBlock {
                 Location location = new Location(world, x, y, z);
                 if (noFire) {
                     world.strikeLightningEffect(location);
-                } else {
+            } else {
                     world.strikeLightning(location);
                 }
             }
@@ -622,7 +622,7 @@ public class WorldActionBlock extends CodeBlock {
                     }
                 } else {
                     // Телепортируем всех игроков в мире
-                    for (Player player : world.getPlayers()) {
+                for (Player player : world.getPlayers()) {
                         player.teleport(destination);
                     }
                 }
@@ -681,7 +681,7 @@ public class WorldActionBlock extends CodeBlock {
                 String worldName = (String) getParameter("entityWorld");
                 World world = context.getPlayer().getServer().getWorld(worldName);
                 if (world != null) {
-                    for (Player player : world.getPlayers()) {
+            for (Player player : world.getPlayers()) {
                         player.sendMessage(message);
                     }
                 }
@@ -825,12 +825,12 @@ public class WorldActionBlock extends CodeBlock {
         params.put("logFormat", getParameter("logFormat"));
         return params;
     }
-
+    
     @Override
     public boolean validate() {
         return true; // Базовая валидация
     }
-
+    
     @Override
     public List<String> getDescription() {
         List<String> description = new ArrayList<>();
