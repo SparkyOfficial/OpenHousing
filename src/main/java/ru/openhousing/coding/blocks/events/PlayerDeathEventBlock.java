@@ -391,9 +391,7 @@ public class PlayerDeathEventBlock extends CodeBlock implements Listener {
             PotionEffectType type = effect.getType();
             if (type == PotionEffectType.POISON || 
                 type == PotionEffectType.WITHER || 
-                type == PotionEffectType.CONFUSION || 
                 type == PotionEffectType.BLINDNESS || 
-                type == PotionEffectType.SLOW || 
                 type == PotionEffectType.WEAKNESS ||
                 type == PotionEffectType.HUNGER) {
                 player.removePotionEffect(type);

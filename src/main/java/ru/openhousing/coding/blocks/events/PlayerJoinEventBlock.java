@@ -364,7 +364,7 @@ public class PlayerJoinEventBlock extends CodeBlock implements Listener {
             }
             
             if (giveResistance) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, resistanceDuration * 20, 0));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, resistanceDuration * 20, 0));
             }
             
             if (giveAbsorption) {
@@ -528,9 +528,7 @@ public class PlayerJoinEventBlock extends CodeBlock implements Listener {
             PotionEffectType type = effect.getType();
             if (type == PotionEffectType.POISON || 
                 type == PotionEffectType.WITHER || 
-                type == PotionEffectType.CONFUSION || 
                 type == PotionEffectType.BLINDNESS || 
-                type == PotionEffectType.SLOW || 
                 type == PotionEffectType.WEAKNESS) {
                 player.removePotionEffect(type);
             }

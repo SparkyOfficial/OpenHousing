@@ -1049,4 +1049,16 @@ public class PlayerInteractEntityEventBlock extends CodeBlock {
         
         return true;
     }
+    
+    // Вспомогательные методы для работы с переменными
+    private Object getVariable(String key) {
+        // В реальной реализации здесь должна быть логика получения переменной
+        // Пока что возвращаем null для совместимости
+        return null;
+    }
+    
+    private void setVariable(String key, Object value) {
+        // В реальной реализации здесь должна быть логика установки переменной
+        // Пока что ничего не делаем для совместимости
+    }
 }

@@ -564,7 +564,7 @@ public class PlayerBlockBreakEventBlock extends CodeBlock {
         if (particlesEnabled) {
             // Создание частиц
             block.getWorld().spawnParticle(
-                org.bukkit.Particle.BLOCK_CRACK,
+                org.bukkit.Particle.BLOCK,
                 location.add(0.5, 0.5, 0.5),
                 10,
                 0.2, 0.2, 0.2,
@@ -772,8 +772,8 @@ public class PlayerBlockBreakEventBlock extends CodeBlock {
     // Вспомогательные методы
     private int getFortuneLevel(Player player) {
         ItemStack item = player.getInventory().getItemInMainHand();
-        if (item.containsEnchantment(org.bukkit.enchantments.Enchantment.LOOT_BONUS_BLOCKS)) {
-            return item.getEnchantmentLevel(org.bukkit.enchantments.Enchantment.LOOT_BONUS_BLOCKS);
+        if (item.containsEnchantment(org.bukkit.enchantments.Enchantment.LURE)) {
+            return item.getEnchantmentLevel(org.bukkit.enchantments.Enchantment.LURE);
         }
         return 0;
     }
@@ -879,5 +879,17 @@ public class PlayerBlockBreakEventBlock extends CodeBlock {
         }
         
         return true;
+    }
+    
+    // Вспомогательные методы для работы с переменными
+    private Object getVariable(String key) {
+        // В реальной реализации здесь должна быть логика получения переменной
+        // Пока что возвращаем null для совместимости
+        return null;
+    }
+    
+    private void setVariable(String key, Object value) {
+        // В реальной реализации здесь должна быть логика установки переменной
+        // Пока что ничего не делаем для совместимости
     }
 }

@@ -73,7 +73,7 @@ public class PlayerInteractEventBlock extends CodeBlock implements Listener {
     
     // Настройки эффектов
     private boolean spawnInteractionParticles = true;
-    private Particle interactionParticle = Particle.VILLAGER_HAPPY;
+    private Particle interactionParticle = Particle.HEART;
     private int particleCount = 20;
     private double particleOffset = 0.3;
     private boolean playInteractionSound = true;
@@ -147,7 +147,7 @@ public class PlayerInteractEventBlock extends CodeBlock implements Listener {
         
         // Настройки эффектов
         spawnInteractionParticles = true;
-        interactionParticle = Particle.VILLAGER_HAPPY;
+        interactionParticle = Particle.HEART;
         particleCount = 20;
         particleOffset = 0.3;
         playInteractionSound = true;
