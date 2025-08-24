@@ -82,7 +82,7 @@ public class CodeBlockFactory {
             case PLAYER_ENCHANT:
                 return new PlayerEnchantEventBlock();
             case PLAYER_CRAFT:
-                return new PlayerEventBlock(); // TODO: Создать PlayerCraftEventBlock
+                return new PlayerCraftEventBlock();
             case PLAYER_SMELT:
                 return new PlayerEventBlock(); // TODO: Создать PlayerSmeltEventBlock
             case PLAYER_TRADE:

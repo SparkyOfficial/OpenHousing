@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.BlockType;
 import ru.openhousing.coding.blocks.CodeBlock;
-import ru.openhousing.coding.blocks.ExecutionContext;
+import ru.openhousing.coding.blocks.CodeBlock.ExecutionContext;
 
 import java.util.ArrayList;
 import java.util.List;
