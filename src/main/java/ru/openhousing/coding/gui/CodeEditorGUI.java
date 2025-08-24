@@ -925,5 +925,34 @@ public class CodeEditorGUI implements InventoryHolder, Listener {
     public Inventory getInventory() {
         return inventory;
     }
+    
+    // Геттеры для тестирования
+    public Player getPlayer() {
+        return player;
+    }
+    
+    public EditorMode getMode() {
+        return mode;
+    }
+    
+    public void setMode(EditorMode mode) {
+        this.mode = mode;
+    }
+    
+    public int getPage() {
+        return page;
+    }
+    
+    public void setPage(int page) {
+        this.page = page;
+    }
+    
+    public BlockType.BlockCategory getSelectedCategory() {
+        return selectedCategory;
+    }
+    
+    public void setSelectedCategory(BlockType.BlockCategory category) {
+        this.selectedCategory = category;
+    }
 }
 
