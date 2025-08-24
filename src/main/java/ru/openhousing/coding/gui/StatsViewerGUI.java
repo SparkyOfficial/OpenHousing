@@ -355,4 +355,11 @@ public class StatsViewerGUI implements IBlockConfigurationGUI {
             close();
         }
     }
+    
+    /**
+     * Получить инвентарь
+     */
+    public Inventory getInventory() {
+        return inventory;
+    }
 }

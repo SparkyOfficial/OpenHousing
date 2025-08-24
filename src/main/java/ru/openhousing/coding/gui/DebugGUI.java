@@ -229,5 +229,22 @@ public class DebugGUI implements IBlockConfigurationGUI {
         player.sendMessage("§aДанные обновлены");
     }
     
+    /**
+     * Получить инвентарь GUI
+     */
+    public Inventory getInventory() {
+        return inventory;
+    }
+    
+    /**
+     * Обновить инвентарь
+     */
+    public void updateInventory() {
+        setupInventory();
+        if (player.getOpenInventory().getTopInventory().equals(inventory)) {
+            player.updateInventory();
+        }
+    }
+    
 
 }

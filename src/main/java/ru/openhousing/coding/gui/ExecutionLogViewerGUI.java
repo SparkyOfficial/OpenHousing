@@ -299,4 +299,11 @@ public class ExecutionLogViewerGUI implements IBlockConfigurationGUI {
             close();
         }
     }
+    
+    /**
+     * Получить инвентарь
+     */
+    public Inventory getInventory() {
+        return inventory;
+    }
 }

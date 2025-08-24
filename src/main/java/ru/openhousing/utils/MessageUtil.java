@@ -43,6 +43,69 @@ public class MessageUtil {
     }
     
     /**
+     * Удаление цветовых кодов (alias для stripColor)
+     */
+    public static String stripColors(String message) {
+        return stripColor(message);
+    }
+    
+    /**
+     * Окрашивание списка строк (alias для colorize)
+     */
+    public static List<String> colorizeList(List<String> messages) {
+        return colorize(messages);
+    }
+    
+    /**
+     * Удаление цветовых кодов из списка строк
+     */
+    public static List<String> stripColorsList(List<String> messages) {
+        return messages.stream()
+            .map(MessageUtil::stripColors)
+            .toList();
+    }
+    
+    /**
+     * Форматирование сообщения с параметрами
+     */
+    public static String format(String template, String... params) {
+        if (template == null) return "";
+        String result = template;
+        for (int i = 0; i < params.length; i++) {
+            result = result.replace("{" + i + "}", params[i] != null ? params[i] : "");
+        }
+        return colorize(result);
+    }
+    
+    /**
+     * Форматирование сообщения с именем и значением
+     */
+    public static String format(String name, String value) {
+        return format("§e{0}: §f{1}", name, value);
+    }
+    
+    /**
+     * Форматирование сообщения с именем, значением и дополнительной информацией
+     */
+    public static String format(String name, String value, String info) {
+        return format("§e{0}: §f{1} §7({2})", name, value, info);
+    }
+    
+    /**
+     * Форматирование сообщения с именем, значением, информацией и числом
+     */
+    public static String format(String name, String value, String info, int number) {
+        return format("§e{0}: §f{1} §7({2}) §6[{3}]", name, value, info, String.valueOf(number));
+    }
+    
+    /**
+     * Форматирование сообщения с именем, значением и дополнительной информацией (4 параметра)
+     */
+    public static String format(String name, String value, String info, String extra) {
+        return format("§e{0}: §f{1} §7({2}) §a{3}", name, value, info, extra);
+    }
+    
+    /**
      * Отправка сообщения отправителю команды
      */
     public static void send(CommandSender sender, String message) {

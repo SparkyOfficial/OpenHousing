@@ -93,6 +93,22 @@ public class ItemBuilder {
     }
     
     /**
+     * Установка прочности предмета
+     */
+    public ItemBuilder durability(short durability) {
+        itemStack.setDurability(durability);
+        return this;
+    }
+    
+    /**
+     * Установка прочности предмета (int версия)
+     */
+    public ItemBuilder durability(int durability) {
+        itemStack.setDurability((short) durability);
+        return this;
+    }
+    
+    /**
      * Добавление чар
      */
     public ItemBuilder enchant(Enchantment enchantment, int level) {

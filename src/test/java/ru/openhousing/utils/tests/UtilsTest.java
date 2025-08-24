@@ -125,13 +125,13 @@ class UtilsTest {
         ItemBuilder builder = new ItemBuilder(Material.DIAMOND_SWORD);
         
         // Act
-        ItemBuilder result = builder.enchant(org.bukkit.enchantments.Enchantment.DAMAGE_ALL, 1);
+        ItemBuilder result = builder.enchant(org.bukkit.enchantments.Enchantment.LURE, 1);
         ItemStack item = result.build();
         
         // Assert
         assertNotNull(item);
-        assertTrue(item.containsEnchantment(org.bukkit.enchantments.Enchantment.DAMAGE_ALL));
-        assertEquals(1, item.getEnchantmentLevel(org.bukkit.enchantments.Enchantment.DAMAGE_ALL));
+        assertTrue(item.containsEnchantment(org.bukkit.enchantments.Enchantment.LURE));
+        assertEquals(1, item.getEnchantmentLevel(org.bukkit.enchantments.Enchantment.LURE));
     }
 
     @Test

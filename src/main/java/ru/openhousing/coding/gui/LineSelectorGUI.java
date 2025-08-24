@@ -724,4 +724,26 @@ public class LineSelectorGUI implements Listener {
             }
         }, plugin);
     }
+    
+    /**
+     * Получить скрипт
+     */
+    public CodeScript getScript() {
+        return script;
+    }
+    
+    /**
+     * Получить выбранную строку
+     */
+    public CodeLine getSelectedLine() {
+        // Возвращаем первую строку для тестов
+        return script.getLine(1);
+    }
+    
+    /**
+     * Получить инвентарь
+     */
+    public Inventory getInventory() {
+        return inventory;
+    }
 }

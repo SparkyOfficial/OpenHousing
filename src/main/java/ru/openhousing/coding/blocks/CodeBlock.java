@@ -434,6 +434,18 @@ public abstract class CodeBlock {
         }
         
         /**
+         * Добавление записи в лог выполнения
+         */
+        public void addExecutionLog(String message) {
+            if (debugMode) {
+                String timestamp = String.format("[%dms]", System.currentTimeMillis() - startTime);
+                String depth = "  ".repeat(executionDepth);
+                String logEntry = String.format("%s%s %s", depth, timestamp, message);
+                executionLog.add(logEntry);
+            }
+        }
+        
+        /**
          * Получение статистики выполнения
          */
         public ExecutionStats getExecutionStats() {

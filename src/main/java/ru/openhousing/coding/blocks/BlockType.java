@@ -97,6 +97,7 @@ public enum BlockType {
     IF_ENTITY_HEALTH("Если здоровье существа", Material.BONE, BlockCategory.CONDITION, "Проверяет здоровье существа"),
     
     // Действия игрока (25 действий)
+    PLAYER_ACTION("Действие игрока", Material.PLAYER_HEAD, BlockCategory.ACTION, "Общее действие игрока"),
     PLAYER_SEND_MESSAGE("Отправить сообщение", Material.WRITABLE_BOOK, BlockCategory.ACTION, "Отправляет сообщение игроку"),
     PLAYER_SEND_TITLE("Отправить титул", Material.PAINTING, BlockCategory.ACTION, "Показывает титул игроку"),
     PLAYER_SEND_ACTIONBAR("Отправить экшн-бар", Material.ITEM_FRAME, BlockCategory.ACTION, "Показывает сообщение в экшн-баре"),

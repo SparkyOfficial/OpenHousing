@@ -1290,4 +1290,18 @@ public class BlockConfigGUI implements Listener {
             this.open();
         }).open();
     }
+    
+    /**
+     * Получить блок
+     */
+    public CodeBlock getBlock() {
+        return block;
+    }
+    
+    /**
+     * Получить инвентарь
+     */
+    public Inventory getInventory() {
+        return inventory;
+    }
 }

@@ -345,4 +345,11 @@ public class VariablesViewerGUI implements IBlockConfigurationGUI {
             this.scope = scope;
         }
     }
+    
+    /**
+     * Получить инвентарь
+     */
+    public Inventory getInventory() {
+        return inventory;
+    }
 }
