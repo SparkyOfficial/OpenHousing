@@ -201,7 +201,7 @@ public class PlayerBlockPlaceEventBlock extends CodeBlock {
         allowedBlocks.add(Material.STONE);
         allowedBlocks.add(Material.DIRT);
         allowedBlocks.add(Material.GRASS_BLOCK);
-        allowedBlocks.add(Material.WOODEN_PLANKS);
+        allowedBlocks.add(Material.OAK_PLANKS);
         allowedBlocks.add(Material.COBBLESTONE);
         
         // Инициализация разрешенных инструментов

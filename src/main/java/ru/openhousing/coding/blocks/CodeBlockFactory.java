@@ -74,7 +74,7 @@ public class CodeBlockFactory {
             case PLAYER_ITEM_BREAK:
                 return new PlayerEventBlock(); // TODO: Создать PlayerItemBreakEventBlock
             case PLAYER_BLOCK_PLACE:
-                return new PlayerEventBlock(); // TODO: Создать PlayerBlockPlaceEventBlock
+                return new PlayerBlockPlaceEventBlock();
             case PLAYER_INTERACT_ENTITY:
                 return new PlayerEventBlock(); // TODO: Создать PlayerInteractEntityEventBlock
             case PLAYER_FISH:
