@@ -813,7 +813,7 @@ public class CodeEditorGUI implements InventoryHolder, Listener {
     /**
      * Добавление блока в скрипт
      */
-    private void addBlockToScript(BlockType blockType) {
+    public void addBlockToScript(BlockType blockType) {
         try {
             CodeBlock newBlock = ru.openhousing.coding.blocks.CodeBlockFactory.createBlock(blockType);
             
@@ -888,7 +888,7 @@ public class CodeEditorGUI implements InventoryHolder, Listener {
     /**
      * Показать результаты поиска блоков
      */
-    private void showSearchResults(List<BlockType> foundBlocks, String searchTerm) {
+    public void showSearchResults(List<BlockType> foundBlocks, String searchTerm) {
         Inventory searchInventory = Bukkit.createInventory(null, 54, "§6Результаты поиска: " + searchTerm);
         
         int slot = 10;
