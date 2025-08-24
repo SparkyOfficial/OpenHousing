@@ -42,28 +42,49 @@ public class CodeBlockFactory {
             case PLAYER_INTERACT:
                 return new PlayerInteractEventBlock();
             case PLAYER_QUIT:
+                return new PlayerEventBlock(); // TODO: Создать PlayerQuitEventBlock
             case PLAYER_COMMAND:
+                return new PlayerCommandEventBlock();
             case PLAYER_TELEPORT:
+                return new PlayerTeleportEventBlock();
             case PLAYER_RESPAWN:
+                return new PlayerEventBlock(); // TODO: Создать PlayerRespawnEventBlock
             case PLAYER_DAMAGE:
+                return new PlayerEventBlock(); // TODO: Создать PlayerDamageEventBlock
             case PLAYER_HEAL:
+                return new PlayerEventBlock(); // TODO: Создать PlayerHealEventBlock
             case PLAYER_FOOD_CHANGE:
+                return new PlayerEventBlock(); // TODO: Создать PlayerFoodChangeEventBlock
             case PLAYER_EXP_CHANGE:
+                return new PlayerEventBlock(); // TODO: Создать PlayerExpChangeEventBlock
             case PLAYER_LEVEL_UP:
+                return new PlayerEventBlock(); // TODO: Создать PlayerLevelUpEventBlock
             case PLAYER_INVENTORY_CLICK:
+                return new PlayerEventBlock(); // TODO: Создать PlayerInventoryClickEventBlock
             case PLAYER_ITEM_DROP:
+                return new PlayerEventBlock(); // TODO: Создать PlayerItemDropEventBlock
             case PLAYER_ITEM_PICKUP:
+                return new PlayerEventBlock(); // TODO: Создать PlayerItemPickupEventBlock
             case PLAYER_ITEM_CONSUME:
+                return new PlayerEventBlock(); // TODO: Создать PlayerItemConsumeEventBlock
             case PLAYER_ITEM_BREAK:
+                return new PlayerEventBlock(); // TODO: Создать PlayerItemBreakEventBlock
             case PLAYER_BLOCK_PLACE:
+                return new PlayerEventBlock(); // TODO: Создать PlayerBlockPlaceEventBlock
             case PLAYER_INTERACT_ENTITY:
+                return new PlayerEventBlock(); // TODO: Создать PlayerInteractEntityEventBlock
             case PLAYER_FISH:
+                return new PlayerEventBlock(); // TODO: Создать PlayerFishEventBlock
             case PLAYER_ENCHANT:
+                return new PlayerEventBlock(); // TODO: Создать PlayerEnchantEventBlock
             case PLAYER_CRAFT:
+                return new PlayerEventBlock(); // TODO: Создать PlayerCraftEventBlock
             case PLAYER_SMELT:
+                return new PlayerEventBlock(); // TODO: Создать PlayerSmeltEventBlock
             case PLAYER_TRADE:
+                return new PlayerEventBlock(); // TODO: Создать PlayerTradeEventBlock
             case PLAYER_SNEAK:
-                return new PlayerEventBlock();
+                return new PlayerEventBlock(); // TODO: Создать PlayerSneakEventBlock
                 
             // События мира
             case WORLD_WEATHER_CHANGE:
