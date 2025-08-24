@@ -13,6 +13,7 @@ import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.BlockType;
 import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.blocks.CodeBlock.ExecutionContext;
+import ru.openhousing.coding.blocks.CodeBlock.ExecutionResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -174,12 +175,13 @@ public class PlayerBlockBreakEventBlock extends CodeBlock {
     }
     
     @Override
-    public void execute(ExecutionContext context) {
+    public ExecutionResult execute(ExecutionContext context) {
         // Основная логика выполняется через событие
         // Этот метод вызывается при создании блока
         if (debugModeEnabled) {
             context.getPlayer().sendMessage("§7[DEBUG] PlayerBlockBreakEventBlock создан");
         }
+        return ExecutionResult.success();
     }
     
     @EventHandler
@@ -854,30 +856,25 @@ public class PlayerBlockBreakEventBlock extends CodeBlock {
     }
     
     @Override
-    public boolean validate(ExecutionContext context) {
+    public boolean validate() {
         // Валидация настроек
         if (cooldownMs < 0) {
-            context.getPlayer().sendMessage("§cОшибка: Кулдаун не может быть отрицательным!");
             return false;
         }
         
         if (maxBreakRadius < 0) {
-            context.getPlayer().sendMessage("§cОшибка: Радиус не может быть отрицательным!");
             return false;
         }
         
         if (experienceMultiplier < 0) {
-            context.getPlayer().sendMessage("§cОшибка: Множитель опыта не может быть отрицательным!");
             return false;
         }
         
         if (restoreDelayTicks < 0) {
-            context.getPlayer().sendMessage("§cОшибка: Задержка восстановления не может быть отрицательной!");
             return false;
         }
         
         if (maxBreaksPerSecond < 1) {
-            context.getPlayer().sendMessage("§cОшибка: Максимум разрушений в секунду должен быть больше 0!");
             return false;
         }
         

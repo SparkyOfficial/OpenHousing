@@ -732,7 +732,7 @@ public class PlayerInteractEntityEventBlock extends CodeBlock {
         // Обработка автоматического кормления
         if (entity instanceof org.bukkit.entity.Animals) {
             org.bukkit.entity.Animals animal = (org.bukkit.entity.Animals) entity;
-            if (animal.getBreed() && !animal.canBreed()) {
+            if (animal.canBreed()) {
                 animal.setBreed(false);
                 player.sendMessage("§aСущество накормлено!");
             }
