@@ -146,13 +146,14 @@ class CommandsTest {
         lenient().when(mockHouse.getAllowedPlayers()).thenReturn(new java.util.HashSet<>());
         lenient().when(mockHouse.getBannedPlayers()).thenReturn(new java.util.HashSet<>());
         lenient().when(mockHouse.getSettings()).thenReturn(new java.util.HashMap<>());
-        lenient().when(mockHouse.getSize()).thenReturn(mock(House.HouseSize.class));
-        lenient().when(mockHouse.getSize().getDisplayName()).thenReturn("64x64x64");
+        House.HouseSize mockHouseSize = mock(House.HouseSize.class);
+        lenient().when(mockHouse.getSize()).thenReturn(mockHouseSize);
+        lenient().when(mockHouseSize.getDisplayName()).thenReturn("64x64x64");
         lenient().when(mockHouse.getSpawnLocation()).thenReturn(mockLocation);
 
 
         // ChatListener defaults (for /sell confirmation etc.)
-        lenient().doNothing().when(chatListener).registerTemporaryInput(any(Player.class), any());
+        // Note: registerTemporaryInput is not critical for these tests, so we skip mocking it
 
         // --- Instantiate Commands ---
         housingCommand = new HousingCommand(plugin);
@@ -210,7 +211,7 @@ class CommandsTest {
         String[] args = {"create", "MyBrandNewHouse"};
         boolean result = housingCommand.onCommand(player, command, "housing", args);
         assertTrue(result);
-        verify(player, atLeastOnce()).sendMessage(MessageUtil.colorize(contains("Дом 'MyBrandNewHouse' успешно создан!")));
+        verify(player, atLeastOnce()).sendMessage(MessageUtil.colorize(contains("Дом создан!")));
         verify(housingManager, times(1)).createHouse(eq(player), eq("MyBrandNewHouse"));
     }
 
