@@ -2,8 +2,11 @@ package ru.openhousing.coding.blocks.events;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -18,14 +21,15 @@ import ru.openhousing.coding.blocks.CodeBlock;
 import ru.openhousing.coding.blocks.CodeBlock.ExecutionContext;
 import ru.openhousing.coding.blocks.CodeBlock.ExecutionResult;
 import ru.openhousing.coding.blocks.BlockVariable;
+import net.wesjd.anvilgui.AnvilGUI;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Специализированный блок для события входа игрока на сервер
- * Обрабатывает вход с детальным логированием, уведомлениями, эффектами и статистикой
+ * Специализированный блок для события входа игрока
+ * Обрабатывает вход с детальным контролем, эффектами и настройками
  * 
  * @author OpenHousing Team
  * @version 1.0.0
@@ -33,61 +37,106 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class PlayerJoinEventBlock extends CodeBlock implements Listener {
     
     // Статические поля для глобального управления
-    private static final Map<UUID, JoinRecord> joinHistory = new ConcurrentHashMap<>();
-    private static final Map<String, Integer> joinReasonStats = new ConcurrentHashMap<>();
-    private static final Map<String, Integer> worldJoinStats = new ConcurrentHashMap<>();
+    private static final Map<UUID, PlayerJoinRecord> joinHistory = new ConcurrentHashMap<>();
+    private static final Map<String, Integer> joinStats = new ConcurrentHashMap<>();
+    private static final Set<UUID> recentlyJoinedPlayers = ConcurrentHashMap.newKeySet();
     private static final AtomicInteger totalJoins = new AtomicInteger(0);
-    private static final AtomicInteger totalOnlineTime = new AtomicInteger(0);
-    private static final Map<UUID, Long> playerJoinTimes = new ConcurrentHashMap<>();
+    private static final AtomicInteger successfulJoins = new AtomicInteger(0);
     
-    // Переменные блока (настраиваются через drag-n-drop)
-    private BlockVariable welcomeMessageVar;
-    private BlockVariable showWelcomeTitleVar;
-    private BlockVariable playJoinSoundVar;
-    private BlockVariable spawnParticlesVar;
-    private BlockVariable giveWelcomeItemsVar;
-    private BlockVariable setWelcomeEffectsVar;
-    private BlockVariable teleportToSpawnVar;
-    private BlockVariable logJoinEventVar;
-    private BlockVariable trackStatisticsVar;
-    private BlockVariable notifyOnlinePlayersVar;
-    private BlockVariable showOnlineCountVar;
-    private BlockVariable autoSaveEnabledVar;
-    private BlockVariable welcomeDelayVar;
-    private BlockVariable firstTimeBonusVar;
-    private BlockVariable joinCommandsVar;
-    private BlockVariable welcomeInventoryVar;
-    private BlockVariable joinPermissionsVar;
-    private BlockVariable antiBotProtectionVar;
-    private BlockVariable sessionTrackingVar;
-    private BlockVariable performanceModeVar;
+    // Настройки блока
+    private boolean welcomeMessageEnabled = true;
+    private String welcomeMessage = "§aДобро пожаловать на сервер, {player}!";
+    private boolean broadcastJoin = true;
+    private String broadcastFormat = "§e{player} §7присоединился к серверу";
+    private boolean privateJoin = false;
+    private String privateMessage = "§7Вы тихо присоединились к серверу";
+    
+    // Настройки телепортации
+    private boolean teleportToSpawn = true;
+    private Location customSpawnLocation = null;
+    private boolean useWorldSpawn = true;
+    private boolean randomSpawn = false;
+    private double spawnRadius = 100.0;
+    
+    // Настройки эффектов
+    private boolean spawnJoinParticles = true;
+    private Particle joinParticle = Particle.PORTAL;
+    private int particleCount = 100;
+    private double particleOffset = 1.0;
+    private boolean playJoinSound = true;
+    private Sound joinSound = Sound.ENTITY_PLAYER_LEVELUP;
+    private float soundVolume = 1.0f;
+    private float soundPitch = 1.0f;
+    
+    // Настройки предметов
+    private boolean giveStarterItems = false;
+    private List<ItemStack> starterItems = new ArrayList<>();
+    private boolean clearInventory = false;
+    private boolean restoreInventory = false;
+    private boolean backupInventory = true;
+    
+    // Настройки эффектов зелий
+    private boolean giveJoinEffects = false;
+    private List<PotionEffect> joinEffects = new ArrayList<>();
+    private boolean removeNegativeEffects = true;
+    private boolean giveResistance = false;
+    private int resistanceDuration = 300; // 15 секунд
+    
+    // Настройки здоровья и голода
+    private boolean setFullHealth = true;
+    private boolean setFullFood = true;
+    private boolean setMaxExperience = false;
+    private boolean giveAbsorption = false;
+    private int absorptionAmount = 4;
+    
+    // Настройки разрешений
+    private boolean requirePermission = false;
+    private String requiredPermission = "openhousing.join";
+    private boolean checkWhitelist = false;
+    private boolean checkBan = true;
+    private boolean checkMaintenance = false;
+    
+    // Настройки уведомлений
+    private boolean notifyAdmins = false;
+    private String adminNotificationFormat = "&c[Join] &f{player} &7joined from &e{ip}";
+    private boolean notifyStaff = false;
+    private String staffNotificationFormat = "&a[Join] &f{player} &7joined the server";
+    private boolean showJoinInfo = false;
+    
+    // Настройки логирования
+    private boolean logJoins = true;
+    private boolean logToConsole = true;
+    private boolean logToFile = false;
+    private String logFormat = "[{timestamp}] {player} joined from {ip}";
+    private boolean logLocation = true;
+    private boolean logWorld = true;
+    
+    // Настройки статистики
+    private boolean collectStats = true;
+    private boolean trackPlayerStats = true;
+    private boolean trackGlobalStats = true;
+    private boolean exportStats = false;
+    private String statsExportPath = "plugins/OpenHousing/join_stats/";
+    
+    // Настройки производительности
+    private boolean asyncProcessing = true;
+    private boolean cacheResults = true;
+    private int cacheSize = 1000;
+    private long cacheExpiry = 300000; // 5 минут
+    
+    // Enhanced GUI settings
+    private boolean welcomeEnabled = true;
+    private boolean effectsEnabled = false;
+    private boolean itemsEnabled = false;
+    private boolean teleportEnabled = true;
+    private boolean notificationsEnabled = true;
+    private boolean loggingEnabled = true;
     
     // Внутренние кэши и состояния
+    private final Map<String, CachedJoinResult> joinCache = new ConcurrentHashMap<>();
     private final Map<UUID, PlayerJoinStats> playerStats = new ConcurrentHashMap<>();
     private final Map<String, GlobalJoinStats> globalStats = new ConcurrentHashMap<>();
-    private final Queue<JoinEventRequest> pendingJoins = new LinkedList<>();
-    private final Map<UUID, List<String>> playerCommands = new ConcurrentHashMap<>();
-    
-    public enum JoinReason {
-        NORMAL("Обычный вход", "Игрок вошел обычным способом"),
-        FIRST_TIME("Первый раз", "Игрок впервые на сервере"),
-        RETURNING("Возвращение", "Игрок вернулся после долгого отсутствия"),
-        VIP("VIP вход", "VIP игрок с особыми привилегиями"),
-        STAFF("Персонал", "Вход сотрудника сервера"),
-        BOT("Бот", "Подозрительный вход (анти-бот защита)"),
-        UNKNOWN("Неизвестно", "Причина входа не определена");
-        
-        private final String displayName;
-        private final String description;
-        
-        JoinReason(String displayName, String description) {
-            this.displayName = displayName;
-            this.description = description;
-        }
-        
-        public String getDisplayName() { return displayName; }
-        public String getDescription() { return description; }
-    }
+    private final Queue<JoinRequest> pendingJoins = new LinkedList<>();
     
     public PlayerJoinEventBlock() {
         super(BlockType.PLAYER_JOIN);
@@ -99,52 +148,37 @@ public class PlayerJoinEventBlock extends CodeBlock implements Listener {
      * Инициализация настроек по умолчанию
      */
     private void initializeDefaultSettings() {
-        // Создаем переменные с значениями по умолчанию
-        welcomeMessageVar = new BlockVariable("welcomeMessage", "Приветственное сообщение", 
-            BlockVariable.VariableType.STRING, "§aДобро пожаловать на сервер, %player%!");
-        showWelcomeTitleVar = new BlockVariable("showWelcomeTitle", "Показывать приветственный заголовок", 
-            BlockVariable.VariableType.BOOLEAN, true);
-        playJoinSoundVar = new BlockVariable("playJoinSound", "Воспроизводить звук входа", 
-            BlockVariable.VariableType.BOOLEAN, true);
-        spawnParticlesVar = new BlockVariable("spawnParticles", "Создавать частицы при входе", 
-            BlockVariable.VariableType.BOOLEAN, false);
-        giveWelcomeItemsVar = new BlockVariable("giveWelcomeItems", "Выдавать приветственные предметы", 
-            BlockVariable.VariableType.BOOLEAN, true);
-        setWelcomeEffectsVar = new BlockVariable("setWelcomeEffects", "Устанавливать приветственные эффекты", 
-            BlockVariable.VariableType.BOOLEAN, false);
-        teleportToSpawnVar = new BlockVariable("teleportToSpawn", "Телепортировать на спавн", 
-            BlockVariable.VariableType.BOOLEAN, true);
-        logJoinEventVar = new BlockVariable("logJoinEvent", "Логировать событие входа", 
-            BlockVariable.VariableType.BOOLEAN, true);
-        trackStatisticsVar = new BlockVariable("trackStatistics", "Отслеживать статистику", 
-            BlockVariable.VariableType.BOOLEAN, true);
-        notifyOnlinePlayersVar = new BlockVariable("notifyOnlinePlayers", "Уведомлять игроков онлайн", 
-            BlockVariable.VariableType.BOOLEAN, true);
-        showOnlineCountVar = new BlockVariable("showOnlineCount", "Показывать количество игроков", 
-            BlockVariable.VariableType.BOOLEAN, true);
-        autoSaveEnabledVar = new BlockVariable("autoSaveEnabled", "Автосохранение при входе", 
-            BlockVariable.VariableType.BOOLEAN, true);
-        welcomeDelayVar = new BlockVariable("welcomeDelay", "Задержка приветствия (мс)", 
-            BlockVariable.VariableType.INTEGER, 1000);
-        firstTimeBonusVar = new BlockVariable("firstTimeBonus", "Бонус для новичков", 
-            BlockVariable.VariableType.BOOLEAN, true);
-        joinCommandsVar = new BlockVariable("joinCommands", "Команды при входе", 
-            BlockVariable.VariableType.LIST, Arrays.asList("spawn", "kit starter"));
-        welcomeInventoryVar = new BlockVariable("welcomeInventory", "Приветственный инвентарь", 
-            BlockVariable.VariableType.LIST, Arrays.asList("STONE_PICKAXE", "BREAD:16"));
-        joinPermissionsVar = new BlockVariable("joinPermissions", "Разрешения при входе", 
-            BlockVariable.VariableType.LIST, Arrays.asList("essentials.home", "essentials.kit"));
-        antiBotProtectionVar = new BlockVariable("antiBotProtection", "Анти-бот защита", 
-            BlockVariable.VariableType.BOOLEAN, true);
-        sessionTrackingVar = new BlockVariable("sessionTracking", "Отслеживание сессий", 
-            BlockVariable.VariableType.BOOLEAN, true);
-        performanceModeVar = new BlockVariable("performanceMode", "Режим производительности", 
-            BlockVariable.VariableType.BOOLEAN, false);
+        // Базовые настройки
+        welcomeMessageEnabled = true;
+        broadcastJoin = true;
+        teleportToSpawn = true;
+        useWorldSpawn = true;
+        
+        // Настройки эффектов
+        spawnJoinParticles = true;
+        joinParticle = Particle.PORTAL;
+        particleCount = 100;
+        particleOffset = 1.0;
+        playJoinSound = true;
+        joinSound = Sound.ENTITY_PLAYER_LEVELUP;
+        
+        // Настройки здоровья
+        setFullHealth = true;
+        setFullFood = true;
+        removeNegativeEffects = true;
         
         // Инициализация статистики
-        for (JoinReason reason : JoinReason.values()) {
-            joinReasonStats.put(reason.name(), 0);
-        }
+        joinStats.put("TOTAL", 0);
+        joinStats.put("SUCCESS", 0);
+        joinStats.put("FAILED", 0);
+        
+        // Enhanced GUI settings
+        welcomeEnabled = true;
+        effectsEnabled = false;
+        itemsEnabled = false;
+        teleportEnabled = true;
+        notificationsEnabled = true;
+        loggingEnabled = true;
     }
     
     /**
@@ -172,18 +206,20 @@ public class PlayerJoinEventBlock extends CodeBlock implements Listener {
             return;
         }
         
+        // Проверка базовых условий
+        if (!shouldProcessJoin(player)) {
+            return;
+        }
+        
         // Создание контекста выполнения
         ExecutionContext context = new ExecutionContext(player);
+        context.setVariable("timestamp", System.currentTimeMillis());
         context.setVariable("playerName", player.getName());
         context.setVariable("playerUUID", player.getUniqueId().toString());
+        context.setVariable("ip", player.getAddress() != null ? player.getAddress().getAddress().getHostAddress() : "unknown");
         context.setVariable("world", player.getWorld().getName());
         context.setVariable("location", formatLocation(player.getLocation()));
-        context.setVariable("timestamp", System.currentTimeMillis());
-        context.setVariable("joinReason", detectJoinReason(player));
-        context.setVariable("onlinePlayers", Bukkit.getOnlinePlayers().size());
-        context.setVariable("maxPlayers", Bukkit.getMaxPlayers());
-        context.setVariable("isFirstTime", isFirstTimePlayer(player));
-        context.setVariable("lastJoinTime", getLastJoinTime(player));
+        context.setVariable("joinTime", System.currentTimeMillis());
         
         // Выполнение блока
         ExecutionResult result = execute(context);
@@ -192,106 +228,321 @@ public class PlayerJoinEventBlock extends CodeBlock implements Listener {
         handleExecutionResult(event, result, context);
         
         // Обновление статистики
-        updateStatistics(player, context);
+        updateStatistics(player, result);
         
         // Логирование
-        logJoinEvent(player, context);
+        logPlayerJoin(player, result, context);
         
         // Уведомления
-        sendNotifications(player, context);
+        sendNotifications(player, result, context);
         
-        // Сохранение данных
-        savePlayerData(player, context);
-        
-        // Запуск отложенных действий
-        scheduleDelayedActions(player, context);
+        // Эффекты
+        if (result != null && result.isSuccess()) {
+            spawnJoinEffects(player);
+        }
     }
     
     /**
-     * Определение причины входа
+     * Проверка, следует ли обрабатывать вход
      */
-    private JoinReason detectJoinReason(Player player) {
-        if (isFirstTimePlayer(player)) {
-            return JoinReason.FIRST_TIME;
+    private boolean shouldProcessJoin(Player player) {
+        // Проверка разрешений
+        if (requirePermission && !player.hasPermission(requiredPermission)) {
+            return false;
         }
         
-        long lastJoin = getLastJoinTime(player);
-        long currentTime = System.currentTimeMillis();
-        long timeDiff = currentTime - lastJoin;
-        
-        // Если прошло больше 24 часов
-        if (timeDiff > 24 * 60 * 60 * 1000) {
-            return JoinReason.RETURNING;
+        // Проверка whitelist
+        if (checkWhitelist && !player.isWhitelisted()) {
+            return false;
         }
         
-        // Проверка VIP статуса
-        if (player.hasPermission("openhousing.vip")) {
-            return JoinReason.VIP;
+        // Проверка бана
+        if (checkBan && player.isBanned()) {
+            return false;
         }
         
-        // Проверка персонала
-        if (player.hasPermission("openhousing.staff")) {
-            return JoinReason.STAFF;
+        // Проверка maintenance
+        if (checkMaintenance && !player.hasPermission("openhousing.maintenance.bypass")) {
+            return false;
         }
         
-        // Анти-бот защита
-        if (getBooleanValue(antiBotProtectionVar) && isSuspiciousJoin(player)) {
-            return JoinReason.BOT;
+        return true;
+    }
+    
+    @Override
+    public ExecutionResult execute(ExecutionContext context) {
+        try {
+            totalJoins.incrementAndGet();
+            
+            // Асинхронная обработка
+            if (asyncProcessing) {
+                return executeAsync(context);
+            } else {
+                return executeSync(context);
+            }
+        } catch (Exception e) {
+            return ExecutionResult.error("Ошибка выполнения блока входа: " + e.getMessage());
         }
-        
-        return JoinReason.NORMAL;
     }
     
     /**
-     * Проверка подозрительного входа (анти-бот)
+     * Синхронное выполнение
      */
-    private boolean isSuspiciousJoin(Player player) {
-        // Простая проверка: если игрок зашел слишком быстро после регистрации
-        long joinTime = System.currentTimeMillis();
-        long registrationTime = getPlayerRegistrationTime(player);
-        
-        if (registrationTime > 0) {
-            long timeDiff = joinTime - registrationTime;
-            // Если прошло меньше 5 секунд - подозрительно
-            return timeDiff < 5000;
+    private ExecutionResult executeSync(ExecutionContext context) {
+        Player player = context.getPlayer();
+        if (player == null) {
+            return ExecutionResult.error("Игрок не найден в контексте");
         }
         
-        return false;
-    }
-    
-    /**
-     * Получение времени регистрации игрока
-     */
-    private long getPlayerRegistrationTime(Player player) {
-        // TODO: Реализовать получение времени регистрации из базы данных
-        return 0;
-    }
-    
-    /**
-     * Проверка, является ли игрок новичком
-     */
-    private boolean isFirstTimePlayer(Player player) {
-        return !joinHistory.containsKey(player.getUniqueId());
-    }
-    
-    /**
-     * Получение времени последнего входа
-     */
-    private long getLastJoinTime(Player player) {
-        JoinRecord record = joinHistory.get(player.getUniqueId());
-        return record != null ? record.getTimestamp() : 0;
-    }
-    
-    /**
-     * Форматирование локации
-     */
-    private String formatLocation(org.bukkit.Location location) {
-        if (location == null) {
-            return "null";
+        // Проверка кэша
+        if (cacheResults) {
+            CachedJoinResult cached = joinCache.get(player.getUniqueId().toString());
+            if (cached != null && !cached.isExpired()) {
+                return cached.getResult();
+            }
         }
         
-        return String.format("%.1f, %.1f, %.1f", 
-            location.getX(), location.getY(), location.getZ());
+        // Выполнение логики входа
+        ExecutionResult result = processJoinLogic(context);
+        
+        // Кэширование результата
+        if (cacheResults && result != null) {
+            String cacheKey = player.getUniqueId().toString();
+            joinCache.put(cacheKey, new CachedJoinResult(result, System.currentTimeMillis() + cacheExpiry));
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Асинхронное выполнение
+     */
+    private ExecutionResult executeAsync(ExecutionContext context) {
+        // TODO: Реализовать асинхронное выполнение
+        return executeSync(context);
+    }
+    
+    /**
+     * Основная логика обработки входа
+     */
+    private ExecutionResult processJoinLogic(ExecutionContext context) {
+        Player player = context.getPlayer();
+        
+        try {
+            // Приветственное сообщение
+            if (welcomeMessageEnabled) {
+                sendWelcomeMessage(player);
+            }
+            
+            // Телепортация на спавн
+            if (teleportToSpawn) {
+                teleportToSpawn(player);
+            }
+            
+            // Предметы для новичков
+            if (giveStarterItems) {
+                giveStarterItems(player);
+            }
+            
+            // Эффекты зелий
+            if (giveJoinEffects) {
+                applyJoinEffects(player);
+            }
+        
+            // Здоровье и голод
+            if (setFullHealth) {
+                player.setHealth(player.getMaxHealth());
+            }
+            
+            if (setFullFood) {
+                player.setFoodLevel(20);
+                player.setSaturation(20.0f);
+            }
+            
+            if (removeNegativeEffects) {
+                removeNegativeEffects(player);
+            }
+            
+            if (giveResistance) {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, resistanceDuration * 20, 0));
+            }
+            
+            if (giveAbsorption) {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 200, absorptionAmount - 1));
+            }
+            
+            // Очистка инвентаря
+            if (clearInventory) {
+                player.getInventory().clear();
+            }
+            
+            // Восстановление инвентаря
+            if (restoreInventory) {
+                restorePlayerInventory(player);
+            }
+            
+            return ExecutionResult.success("Игрок успешно обработан при входе");
+            
+        } catch (Exception e) {
+            return ExecutionResult.error("Ошибка обработки входа: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Отправка приветственного сообщения
+     */
+    private void sendWelcomeMessage(Player player) {
+        if (welcomeMessage.isEmpty()) {
+            return;
+        }
+        
+        String message = welcomeMessage
+            .replace("{player}", player.getName())
+            .replace("{online}", String.valueOf(Bukkit.getOnlinePlayers().size()))
+            .replace("{max}", String.valueOf(Bukkit.getMaxPlayers()));
+        
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+    }
+    
+    /**
+     * Телепортация на спавн
+     */
+    private void teleportToSpawn(Player player) {
+        Location spawnLocation = null;
+        
+        if (customSpawnLocation != null) {
+            spawnLocation = customSpawnLocation;
+        } else if (useWorldSpawn) {
+            spawnLocation = player.getWorld().getSpawnLocation();
+        }
+        
+        if (spawnLocation != null) {
+            if (randomSpawn) {
+                spawnLocation = getRandomSpawnLocation(spawnLocation, spawnRadius);
+            }
+            
+            // Проверяем безопасность локации
+            spawnLocation = findSafeLocation(spawnLocation);
+            
+            player.teleport(spawnLocation);
+        }
+    }
+    
+    /**
+     * Получение случайной локации спавна
+     */
+    private Location getRandomSpawnLocation(Location center, double radius) {
+        Random random = new Random();
+        double angle = random.nextDouble() * 2 * Math.PI;
+        double distance = random.nextDouble() * radius;
+        
+        double x = center.getX() + distance * Math.cos(angle);
+        double z = center.getZ() + distance * Math.sin(angle);
+        
+        World world = center.getWorld();
+        int y = world.getHighestBlockYAt((int) x, (int) z) + 1;
+        
+        return new Location(world, x, y, z);
+    }
+    
+    /**
+     * Поиск безопасной локации
+     */
+    private Location findSafeLocation(Location location) {
+        World world = location.getWorld();
+        int x = location.getBlockX();
+        int y = location.getBlockY();
+        int z = location.getBlockZ();
+        
+        // Ищем безопасное место сверху
+        for (int i = 0; i < 10; i++) {
+            Location testLocation = new Location(world, x, y + i, z);
+            if (isLocationSafe(testLocation)) {
+                return testLocation;
+            }
+        }
+        
+        // Ищем безопасное место снизу
+        for (int i = 1; i < 10; i++) {
+            Location testLocation = new Location(world, x, y - i, z);
+            if (isLocationSafe(testLocation)) {
+                return testLocation;
+            }
+        }
+        
+        return location;
+    }
+    
+    /**
+     * Проверка безопасности локации
+     */
+    private boolean isLocationSafe(Location location) {
+        Material blockType = location.getBlock().getType();
+        Material blockAbove = location.clone().add(0, 1, 0).getBlock().getType();
+        Material blockBelow = location.clone().subtract(0, 1, 0).getBlock().getType();
+        
+        return blockType == Material.AIR && 
+               blockAbove == Material.AIR && 
+               blockBelow != Material.AIR && 
+               blockBelow != Material.LAVA && 
+               blockBelow != Material.FIRE;
+    }
+    
+    /**
+     * Выдача стартовых предметов
+     */
+    private void giveStarterItems(Player player) {
+        if (starterItems.isEmpty()) {
+            return;
+        }
+        
+        for (ItemStack item : starterItems) {
+            HashMap<Integer, ItemStack> notAdded = player.getInventory().addItem(item.clone());
+            if (!notAdded.isEmpty()) {
+                // Если инвентарь заполнен, дропаем предметы
+                for (ItemStack droppedItem : notAdded.values()) {
+                    player.getWorld().dropItemNaturally(player.getLocation(), droppedItem);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Применение эффектов при входе
+     */
+    private void applyJoinEffects(Player player) {
+        if (joinEffects.isEmpty()) {
+            return;
+        }
+        
+        for (PotionEffect effect : joinEffects) {
+            player.addPotionEffect(effect);
+        }
+    }
+    
+    /**
+     * Удаление негативных эффектов
+     */
+    private void removeNegativeEffects(Player player) {
+        for (PotionEffect effect : player.getActivePotionEffects()) {
+            PotionEffectType type = effect.getType();
+            if (type == PotionEffectType.POISON || 
+                type == PotionEffectType.WITHER || 
+                type == PotionEffectType.CONFUSION || 
+                type == PotionEffectType.BLINDNESS || 
+                type == PotionEffectType.SLOW || 
+                type == PotionEffectType.WEAKNESS) {
+                player.removePotionEffect(type);
+            }
+        }
+    }
+    
+    /**
+     * Восстановление инвентаря игрока
+     */
+    private void restorePlayerInventory(Player player) {
+        // TODO: Реализовать восстановление инвентаря из сохранения
+        // Это может быть через плагин или собственное API
     }
     
     /**
@@ -302,443 +553,429 @@ public class PlayerJoinEventBlock extends CodeBlock implements Listener {
             return;
         }
         
-        if (!result.isSuccess()) {
+        if (result.isSuccess()) {
+            successfulJoins.incrementAndGet();
+            
+            // Добавляем в список недавно вошедших
+            recentlyJoinedPlayers.add(event.getPlayer().getUniqueId());
+            
+            // Удаляем через 5 минут
+            Bukkit.getScheduler().runTaskLater(OpenHousing.getInstance(), () -> {
+                recentlyJoinedPlayers.remove(event.getPlayer().getUniqueId());
+            }, 6000L); // 5 минут * 20 тиков
+            
+        } else {
             // Логируем ошибку
             OpenHousing.getInstance().getLogger().warning(
-                "PlayerJoinEventBlock execution failed for " + 
-                context.getVariable("playerName") + ": " + result.getMessage());
+                "Player join processing failed for " + event.getPlayer().getName() + 
+                ": " + result.getMessage());
         }
     }
     
     /**
      * Обновление статистики
      */
-    private void updateStatistics(Player player, ExecutionContext context) {
-        if (!getBooleanValue(trackStatisticsVar)) {
+    private void updateStatistics(Player player, ExecutionResult result) {
+        if (!collectStats) {
             return;
         }
         
-        String joinReason = context.getVariable("joinReason").toString();
-        String world = context.getVariable("world").toString();
-        
-        // Обновление статистики причин входа
-        joinReasonStats.merge(joinReason, 1, Integer::sum);
-        
-        // Обновление статистики по мирам
-        worldJoinStats.merge(world, 1, Integer::sum);
-        
-        // Обновление общей статистики
-        totalJoins.incrementAndGet();
+        // Обновление глобальной статистики
+        if (trackGlobalStats) {
+            joinStats.merge("TOTAL", 1, Integer::sum);
+            
+            if (result != null && result.isSuccess()) {
+                joinStats.merge("SUCCESS", 1, Integer::sum);
+            } else {
+                joinStats.merge("FAILED", 1, Integer::sum);
+            }
+        }
         
         // Обновление статистики игрока
-        PlayerJoinStats playerStats = this.playerStats.computeIfAbsent(
-            player.getUniqueId(), k -> new PlayerJoinStats());
-        playerStats.addJoin(joinReason, System.currentTimeMillis());
-        
-        // Запись времени входа
-        playerJoinTimes.put(player.getUniqueId(), System.currentTimeMillis());
-        
-        // Создание записи о входе
-        JoinRecord record = new JoinRecord(
-            player.getUniqueId(),
-            joinReason,
-            System.currentTimeMillis(),
-            world,
-            formatLocation(player.getLocation())
-        );
-        joinHistory.put(player.getUniqueId(), record);
+        if (trackPlayerStats) {
+            PlayerJoinStats playerStats = this.playerStats.computeIfAbsent(
+                player.getUniqueId(), k -> new PlayerJoinStats());
+            
+            playerStats.addJoin(System.currentTimeMillis());
+        }
     }
     
     /**
-     * Логирование события входа
+     * Логирование входа игрока
      */
-    private void logJoinEvent(Player player, ExecutionContext context) {
-        if (!getBooleanValue(logJoinEventVar)) {
+    private void logPlayerJoin(Player player, ExecutionResult result, ExecutionContext context) {
+        if (!logJoins) {
             return;
         }
         
-        String logMessage = String.format("[PlayerJoin] Player: %s, World: %s, Location: %s, Reason: %s, Online: %d/%d",
-            player.getName(),
-            context.getVariable("world"),
-            context.getVariable("location"),
-            context.getVariable("joinReason"),
-            context.getVariable("onlinePlayers"),
-            context.getVariable("maxPlayers"));
+        String logMessage = logFormat
+            .replace("{timestamp}", new java.util.Date().toString())
+            .replace("{player}", player.getName())
+            .replace("{ip}", context.getVariable("ip").toString())
+            .replace("{result}", result != null ? (result.isSuccess() ? "SUCCESS" : "FAILURE") : "UNKNOWN")
+            .replace("{world}", context.getVariable("world").toString())
+            .replace("{location}", context.getVariable("location").toString());
         
-        OpenHousing.getInstance().getLogger().info(logMessage);
+        // Логирование в консоль
+        if (logToConsole) {
+            if (result != null && !result.isSuccess()) {
+                OpenHousing.getInstance().getLogger().warning(logMessage);
+            } else {
+                OpenHousing.getInstance().getLogger().info(logMessage);
+            }
+        }
+        
+        // Сохранение в историю
+        saveToHistory(player.getUniqueId(), result, context);
     }
     
     /**
      * Отправка уведомлений
      */
-    private void sendNotifications(Player player, ExecutionContext context) {
-        // Приветственное сообщение
-        if (getBooleanValue(welcomeMessageVar)) {
-            String message = getStringValue(welcomeMessageVar)
-                .replace("%s", player.getName())
-                .replace("%player", player.getName())
-                .replace("%world", context.getVariable("world").toString())
-                .replace("%online", context.getVariable("onlinePlayers").toString())
-                .replace("%max", context.getVariable("maxPlayers").toString());
+    private void sendNotifications(Player player, ExecutionResult result, ExecutionContext context) {
+        // Уведомление администраторов
+        if (notifyAdmins) {
+            String adminMessage = adminNotificationFormat
+                .replace("{player}", player.getName())
+                .replace("{ip}", context.getVariable("ip").toString())
+                .replace("{world}", context.getVariable("world").toString())
+                .replace("{location}", context.getVariable("location").toString());
             
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+            Bukkit.getOnlinePlayers().stream()
+                .filter(p -> p.hasPermission("openhousing.admin.notify"))
+                .forEach(p -> p.sendMessage(ChatColor.translateAlternateColorCodes('&', adminMessage)));
         }
         
-        // Приветственный заголовок
-        if (getBooleanValue(showWelcomeTitleVar)) {
-            String title = "§aДобро пожаловать!";
-            String subtitle = "§e" + player.getName();
+        // Уведомление персонала
+        if (notifyStaff) {
+            String staffMessage = staffNotificationFormat
+                .replace("{player}", player.getName())
+                .replace("{world}", context.getVariable("world").toString());
             
-            player.sendTitle(title, subtitle, 10, 40, 10);
+            Bukkit.getOnlinePlayers().stream()
+                .filter(p -> p.hasPermission("openhousing.staff.notify"))
+                .forEach(p -> p.sendMessage(ChatColor.translateAlternateColorCodes('&', staffMessage)));
         }
         
-        // Уведомление игроков онлайн
-        if (getBooleanValue(notifyOnlinePlayersVar)) {
-            String notifyMessage = String.format("§e%s §7присоединился к серверу", player.getName());
-            Bukkit.getOnlinePlayers().forEach(p -> {
-                if (p != player) {
-                    p.sendMessage(notifyMessage);
-                }
-            });
-        }
-        
-        // Сообщение о количестве игроков
-        if (getBooleanValue(showOnlineCountVar)) {
-            int onlineCount = Bukkit.getOnlinePlayers().size();
-            int maxPlayers = Bukkit.getMaxPlayers();
+        // Информация о входе
+        if (showJoinInfo) {
+            String infoMessage = "§7Информация о входе:\n" +
+                "§7IP: §e" + context.getVariable("ip") + "\n" +
+                "§7Мир: §e" + context.getVariable("world") + "\n" +
+                "§7Локация: §e" + context.getVariable("location");
             
-            String onlineMessage = String.format("§7Игроков онлайн: §e%d§7/§e%d", onlineCount, maxPlayers);
-            Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage(onlineMessage));
+            player.sendMessage(infoMessage);
         }
     }
     
     /**
-     * Сохранение данных игрока
+     * Спавн эффектов при входе
      */
-    private void savePlayerData(Player player, ExecutionContext context) {
-        // Автосохранение
-        if (getBooleanValue(autoSaveEnabledVar)) {
-            // TODO: Реализовать автосохранение
+    private void spawnJoinEffects(Player player) {
+        Location location = player.getLocation();
+        
+        // Частицы
+        if (spawnJoinParticles) {
+            location.getWorld().spawnParticle(
+                joinParticle, 
+                location, 
+                particleCount, 
+                particleOffset, 
+                particleOffset, 
+                particleOffset, 
+                0.1
+            );
         }
         
-        // Отслеживание сессий
-        if (getBooleanValue(sessionTrackingVar)) {
-            // TODO: Реализовать отслеживание сессий
-        }
-    }
-    
-    /**
-     * Планирование отложенных действий
-     */
-    private void scheduleDelayedActions(Player player, ExecutionContext context) {
-        int delay = getIntegerValue(welcomeDelayVar);
-        
-        Bukkit.getScheduler().runTaskLater(OpenHousing.getInstance(), () -> {
-            // Звук входа
-            if (getBooleanValue(playJoinSoundVar)) {
-                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
-            }
-            
-            // Частицы
-            if (getBooleanValue(spawnParticlesVar)) {
-                // TODO: Реализовать создание частиц
-            }
-            
-            // Приветственные предметы
-            if (getBooleanValue(giveWelcomeItemsVar)) {
-                giveWelcomeItems(player);
-            }
-            
-            // Приветственные эффекты
-            if (getBooleanValue(setWelcomeEffectsVar)) {
-                setWelcomeEffects(player);
-            }
-            
-            // Телепортация на спавн
-            if (getBooleanValue(teleportToSpawnVar)) {
-                teleportToSpawn(player);
-            }
-            
-            // Выполнение команд
-            executeJoinCommands(player);
-            
-            // Бонус для новичков
-            if (getBooleanValue(firstTimeBonusVar) && isFirstTimePlayer(player)) {
-                giveFirstTimeBonus(player);
-            }
-            
-        }, delay / 50); // Конвертируем миллисекунды в тики
-    }
-    
-    /**
-     * Выдача приветственных предметов
-     */
-    private void giveWelcomeItems(Player player) {
-        List<String> items = getListValue(welcomeInventoryVar);
-        
-        for (String itemStr : items) {
-            try {
-                String[] parts = itemStr.split(":");
-                Material material = Material.valueOf(parts[0].toUpperCase());
-                int amount = parts.length > 1 ? Integer.parseInt(parts[1]) : 1;
-                
-                ItemStack item = new ItemStack(material, amount);
-                player.getInventory().addItem(item);
-                
-            } catch (Exception e) {
-                OpenHousing.getInstance().getLogger().warning(
-                    "Failed to give welcome item: " + itemStr + " to " + player.getName());
-            }
+        // Звук
+        if (playJoinSound) {
+            location.getWorld().playSound(
+                location, 
+                joinSound, 
+                soundVolume, 
+                soundPitch
+            );
         }
     }
     
     /**
-     * Установка приветственных эффектов
+     * Сохранение в историю
      */
-    private void setWelcomeEffects(Player player) {
-        // Эффект скорости на 30 секунд
-        PotionEffect speedEffect = new PotionEffect(PotionEffectType.SPEED, 600, 0);
-        player.addPotionEffect(speedEffect);
+    private void saveToHistory(UUID playerId, ExecutionResult result, ExecutionContext context) {
+        PlayerJoinRecord record = new PlayerJoinRecord(
+            playerId,
+            System.currentTimeMillis(),
+            result != null ? result.isSuccess() : false,
+            result != null ? result.getMessage() : null,
+            context.getVariable("ip").toString(),
+            context.getVariable("world").toString(),
+            context.getVariable("location").toString()
+        );
         
-        // Эффект ночного зрения на 1 минуту
-        PotionEffect nightVisionEffect = new PotionEffect(PotionEffectType.NIGHT_VISION, 1200, 0);
-        player.addPotionEffect(nightVisionEffect);
+        joinHistory.put(playerId, record);
     }
     
     /**
-     * Телепортация на спавн
+     * Форматирование локации
      */
-    private void teleportToSpawn(Player player) {
-        // TODO: Реализовать телепортацию на спавн
-        // Это может быть через WorldGuard API или собственные точки спавна
-    }
-    
-    /**
-     * Выполнение команд при входе
-     */
-    private void executeJoinCommands(Player player) {
-        List<String> commands = getListValue(joinCommandsVar);
-        
-        for (String command : commands) {
-            try {
-                String processedCommand = command
-                    .replace("%player%", player.getName())
-                    .replace("%uuid%", player.getUniqueId().toString())
-                    .replace("%world%", player.getWorld().getName());
-                
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), processedCommand);
-                
-            } catch (Exception e) {
-                OpenHousing.getInstance().getLogger().warning(
-                    "Failed to execute join command: " + command + " for " + player.getName());
-            }
+    private String formatLocation(Location location) {
+        if (location == null) {
+            return "null";
         }
-    }
-    
-    /**
-     * Выдача бонуса для новичков
-     */
-    private void giveFirstTimeBonus(Player player) {
-        // Дополнительные предметы для новичков
-        player.getInventory().addItem(new ItemStack(Material.DIAMOND, 3));
-        player.getInventory().addItem(new ItemStack(Material.EXPERIENCE_BOTTLE, 10));
         
-        // Сообщение о бонусе
-        player.sendMessage("§6§l🎁 Добро пожаловать на сервер!");
-        player.sendMessage("§eВы получили приветственный бонус для новичков!");
-        
-        // Звук получения бонуса
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 2.0f);
-    }
-    
-    @Override
-    public ExecutionResult execute(ExecutionContext context) {
-        try {
-            Player player = context.getPlayer();
-            if (player == null) {
-                return ExecutionResult.error("Игрок не найден в контексте");
-            }
-            
-            // Проверяем задержку
-            int welcomeDelay = getIntegerValue(welcomeDelayVar);
-            if (welcomeDelay > 0) {
-                try {
-                    Thread.sleep(welcomeDelay);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-            
-            // Проверяем производительность
-            if (getBooleanValue(performanceModeVar)) {
-                // Режим производительности - минимальные действия
-                return ExecutionResult.success("Вход обработан в режиме производительности");
-            }
-            
-            // Основная логика выполняется в scheduleDelayedActions
-            return ExecutionResult.success("Вход игрока обработан успешно");
-            
-        } catch (Exception e) {
-            return ExecutionResult.error("Ошибка выполнения блока входа игрока: " + e.getMessage());
-        }
+        return String.format("%.1f, %.1f, %.1f", 
+            location.getX(), location.getY(), location.getZ());
     }
     
     @Override
     public boolean validate() {
         // Проверяем базовые параметры
-        return getIntegerValue(welcomeDelayVar) >= 0;
+        if (resistanceDuration < 0) return false;
+        if (absorptionAmount < 0) return false;
+        if (spawnRadius < 0) return false;
+        if (particleCount < 0) return false;
+        if (particleOffset < 0) return false;
+        if (soundVolume < 0) return false;
+        if (soundPitch < 0) return false;
+        if (cacheSize < 1) return false;
+        if (cacheExpiry < 0) return false;
+        
+        return true;
     }
     
     @Override
     public List<String> getDescription() {
         List<String> description = new ArrayList<>();
         description.add("§6Блок события входа игрока");
-        description.add("§7Обрабатывает вход с детальным");
-        description.add("§7логированием и уведомлениями");
+        description.add("§7Обрабатывает вход с детальным контролем");
+        description.add("§7и расширенными возможностями");
         description.add("");
-        description.add("§eПеременные:");
-        description.add("§7• Приветствие: " + (getBooleanValue(showWelcomeTitleVar) ? "§aВключено" : "§cВыключено"));
-        description.add("§7• Звуки: " + (getBooleanValue(playJoinSoundVar) ? "§aВключены" : "§cВыключены"));
-        description.add("§7• Предметы: " + (getBooleanValue(giveWelcomeItemsVar) ? "§aВключены" : "§cВыключены"));
-        description.add("§7• Эффекты: " + (getBooleanValue(setWelcomeEffectsVar) ? "§aВключены" : "§cВыключены"));
-        description.add("§7• Задержка: " + getIntegerValue(welcomeDelayVar) + "мс");
-        description.add("§7• Анти-бот: " + (getBooleanValue(antiBotProtectionVar) ? "§aВключена" : "§cВыключена"));
+        description.add("§eНастройки:");
+        description.add("§7• Приветствие: " + (welcomeEnabled ? "§aВключено" : "§cВыключено"));
+        description.add("§7• Эффекты: " + (effectsEnabled ? "§aВключены" : "§cВыключены"));
+        description.add("§7• Предметы: " + (itemsEnabled ? "§aВключены" : "§cВыключены"));
+        description.add("§7• Телепортация: " + (teleportEnabled ? "§aВключена" : "§cВыключена"));
+        description.add("§7• Уведомления: " + (notificationsEnabled ? "§aВключены" : "§cВыключены"));
+        description.add("§7• Логирование: " + (loggingEnabled ? "§aВключено" : "§cВыключено"));
         
         return description;
     }
-    
-    // Вспомогательные методы для работы с переменными
-    private boolean getBooleanValue(BlockVariable variable) {
-        Object value = variable.getValue();
-        return value instanceof Boolean ? (Boolean) value : false;
+
+    /**
+     * Opens an enhanced configuration GUI for this block
+     */
+    public void openConfigurationGUI(Player player) {
+        new AnvilGUI.Builder()
+                .onClick((slot, state) -> {
+                    if (slot != AnvilGUI.Slot.OUTPUT) {
+                        return AnvilGUI.Response.text(state.getText());
+                    }
+                    String input = state.getText();
+                    if (input == null || input.trim().isEmpty()) {
+                        return AnvilGUI.Response.text(state.getText());
+                    }
+                    
+                    // Parse configuration from text
+                    parseConfiguration(input);
+                    Bukkit.getScheduler().runTask(OpenHousing.getInstance(), () -> 
+                        player.sendMessage("§aJoin configuration updated!")
+                    );
+                    return AnvilGUI.Response.close();
+                })
+                .onClose(player1 -> {
+                    Bukkit.getScheduler().runTask(OpenHousing.getInstance(), () -> 
+                        player.sendMessage("§cConfiguration cancelled"));
+                })
+                .text("Configure join settings")
+                .title("§6Join Block Config")
+                .plugin(OpenHousing.getInstance())
+                .open(player);
     }
-    
-    private int getIntegerValue(BlockVariable variable) {
-        Object value = variable.getValue();
-        if (value instanceof Integer) return (Integer) value;
-        if (value instanceof String) {
-            try { return Integer.parseInt((String) value); } catch (Exception e) { }
+
+    /**
+     * Shows current settings in chat
+     */
+    public void showSettings(Player player) {
+        player.sendMessage("§6=== Join Block Settings ===");
+        player.sendMessage("§eWelcome: " + (welcomeEnabled ? "§aON" : "§cOFF"));
+        player.sendMessage("§eEffects: " + (effectsEnabled ? "§aON" : "§cOFF"));
+        player.sendMessage("§eItems: " + (itemsEnabled ? "§aON" : "§cOFF"));
+        player.sendMessage("§eTeleport: " + (teleportEnabled ? "§aON" : "§cOFF"));
+        player.sendMessage("§eNotifications: " + (notificationsEnabled ? "§aON" : "§cOFF"));
+        player.sendMessage("§eLogging: " + (loggingEnabled ? "§aON" : "§cOFF"));
+        player.sendMessage("§7Use /configure to change settings");
+    }
+
+    /**
+     * Parse configuration from text input
+     */
+    private void parseConfiguration(String text) {
+        // Simple configuration parser
+        if (text.startsWith("welcome:")) {
+            welcomeEnabled = text.contains("true");
+        } else if (text.startsWith("effects:")) {
+            effectsEnabled = text.contains("true");
+        } else if (text.startsWith("items:")) {
+            itemsEnabled = text.contains("true");
+        } else if (text.startsWith("teleport:")) {
+            teleportEnabled = text.contains("true");
+        } else if (text.startsWith("notifications:")) {
+            notificationsEnabled = text.contains("true");
+        } else if (text.startsWith("logging:")) {
+            loggingEnabled = text.contains("true");
         }
-        return 0;
     }
     
-    private String getStringValue(BlockVariable variable) {
-        Object value = variable.getValue();
-        return value != null ? value.toString() : "";
-    }
+    // Геттеры и сеттеры для настройки блока
+    public void setWelcomeMessageEnabled(boolean welcomeMessageEnabled) { this.welcomeMessageEnabled = welcomeMessageEnabled; }
+    public void setWelcomeMessage(String welcomeMessage) { this.welcomeMessage = welcomeMessage; }
+    public void setBroadcastJoin(boolean broadcastJoin) { this.broadcastJoin = broadcastJoin; }
+    public void setBroadcastFormat(String broadcastFormat) { this.broadcastFormat = broadcastFormat; }
+    public void setPrivateJoin(boolean privateJoin) { this.privateJoin = privateJoin; }
+    public void setPrivateMessage(String privateMessage) { this.privateMessage = privateMessage; }
+    public void setTeleportToSpawn(boolean teleportToSpawn) { this.teleportToSpawn = teleportToSpawn; }
+    public void setCustomSpawnLocation(Location customSpawnLocation) { this.customSpawnLocation = customSpawnLocation; }
+    public void setUseWorldSpawn(boolean useWorldSpawn) { this.useWorldSpawn = useWorldSpawn; }
+    public void setRandomSpawn(boolean randomSpawn) { this.randomSpawn = randomSpawn; }
+    public void setSpawnRadius(double spawnRadius) { this.spawnRadius = spawnRadius; }
+    public void setSpawnJoinParticles(boolean spawnJoinParticles) { this.spawnJoinParticles = spawnJoinParticles; }
+    public void setJoinParticle(Particle joinParticle) { this.joinParticle = joinParticle; }
+    public void setParticleCount(int particleCount) { this.particleCount = particleCount; }
+    public void setParticleOffset(double particleOffset) { this.particleOffset = particleOffset; }
+    public void setPlayJoinSound(boolean playJoinSound) { this.playJoinSound = playJoinSound; }
+    public void setJoinSound(Sound joinSound) { this.joinSound = joinSound; }
+    public void setSoundVolume(float soundVolume) { this.soundVolume = soundVolume; }
+    public void setSoundPitch(float soundPitch) { this.soundPitch = soundPitch; }
+    public void setGiveStarterItems(boolean giveStarterItems) { this.giveStarterItems = giveStarterItems; }
+    public void setStarterItems(List<ItemStack> starterItems) { this.starterItems = starterItems; }
+    public void setClearInventory(boolean clearInventory) { this.clearInventory = clearInventory; }
+    public void setRestoreInventory(boolean restoreInventory) { this.restoreInventory = restoreInventory; }
+    public void setBackupInventory(boolean backupInventory) { this.backupInventory = backupInventory; }
+    public void setGiveJoinEffects(boolean giveJoinEffects) { this.giveJoinEffects = giveJoinEffects; }
+    public void setJoinEffects(List<PotionEffect> joinEffects) { this.joinEffects = joinEffects; }
+    public void setRemoveNegativeEffects(boolean removeNegativeEffects) { this.removeNegativeEffects = removeNegativeEffects; }
+    public void setGiveResistance(boolean giveResistance) { this.giveResistance = giveResistance; }
+    public void setResistanceDuration(int resistanceDuration) { this.resistanceDuration = resistanceDuration; }
+    public void setSetFullHealth(boolean setFullHealth) { this.setFullHealth = setFullHealth; }
+    public void setSetFullFood(boolean setFullFood) { this.setFullFood = setFullFood; }
+    public void setSetMaxExperience(boolean setMaxExperience) { this.setMaxExperience = setMaxExperience; }
+    public void setGiveAbsorption(boolean giveAbsorption) { this.giveAbsorption = giveAbsorption; }
+    public void setAbsorptionAmount(int absorptionAmount) { this.absorptionAmount = absorptionAmount; }
+    public void setRequirePermission(boolean requirePermission) { this.requirePermission = requirePermission; }
+    public void setRequiredPermission(String requiredPermission) { this.requiredPermission = requiredPermission; }
+    public void setCheckWhitelist(boolean checkWhitelist) { this.checkWhitelist = checkWhitelist; }
+    public void setCheckBan(boolean checkBan) { this.checkBan = checkBan; }
+    public void setCheckMaintenance(boolean checkMaintenance) { this.checkMaintenance = checkMaintenance; }
+    public void setNotifyAdmins(boolean notifyAdmins) { this.notifyAdmins = notifyAdmins; }
+    public void setAdminNotificationFormat(String adminNotificationFormat) { this.adminNotificationFormat = adminNotificationFormat; }
+    public void setNotifyStaff(boolean notifyStaff) { this.notifyStaff = notifyStaff; }
+    public void setStaffNotificationFormat(String staffNotificationFormat) { this.staffNotificationFormat = staffNotificationFormat; }
+    public void setShowJoinInfo(boolean showJoinInfo) { this.showJoinInfo = showJoinInfo; }
+    public void setLogJoins(boolean logJoins) { this.logJoins = logJoins; }
+    public void setLogToConsole(boolean logToConsole) { this.logToConsole = logToConsole; }
+    public void setLogToFile(boolean logToFile) { this.logToFile = logToFile; }
+    public void setLogFormat(String logFormat) { this.logFormat = logFormat; }
+    public void setLogLocation(boolean logLocation) { this.logLocation = logLocation; }
+    public void setLogWorld(boolean logWorld) { this.logWorld = logWorld; }
+    public void setCollectStats(boolean collectStats) { this.collectStats = collectStats; }
+    public void setTrackPlayerStats(boolean trackPlayerStats) { this.trackPlayerStats = trackPlayerStats; }
+    public void setTrackGlobalStats(boolean trackGlobalStats) { this.trackGlobalStats = trackGlobalStats; }
+    public void setExportStats(boolean exportStats) { this.exportStats = exportStats; }
+    public void setStatsExportPath(String statsExportPath) { this.statsExportPath = statsExportPath; }
+    public void setAsyncProcessing(boolean asyncProcessing) { this.asyncProcessing = asyncProcessing; }
+    public void setCacheResults(boolean cacheResults) { this.cacheResults = cacheResults; }
+    public void setCacheSize(int cacheSize) { this.cacheSize = cacheSize; }
+    public void setCacheExpiry(long cacheExpiry) { this.cacheExpiry = cacheExpiry; }
     
-    @SuppressWarnings("unchecked")
-    private List<String> getListValue(BlockVariable variable) {
-        Object value = variable.getValue();
-        if (value instanceof List) {
-            return (List<String>) value;
+    // Внутренние классы для кэширования и статистики
+    private static class CachedJoinResult {
+        private final ExecutionResult result;
+        private final long expiryTime;
+        
+        public CachedJoinResult(ExecutionResult result, long expiryTime) {
+            this.result = result;
+            this.expiryTime = expiryTime;
         }
-        return new ArrayList<>();
+        
+        public ExecutionResult getResult() { return result; }
+        public boolean isExpired() { return System.currentTimeMillis() > expiryTime; }
     }
     
-    // Геттеры для переменных (для внешнего доступа)
-    public BlockVariable getWelcomeMessageVar() { return welcomeMessageVar; }
-    public BlockVariable getShowWelcomeTitleVar() { return showWelcomeTitleVar; }
-    public BlockVariable getPlayJoinSoundVar() { return playJoinSoundVar; }
-    public BlockVariable getSpawnParticlesVar() { return spawnParticlesVar; }
-    public BlockVariable getGiveWelcomeItemsVar() { return giveWelcomeItemsVar; }
-    public BlockVariable getSetWelcomeEffectsVar() { return setWelcomeEffectsVar; }
-    public BlockVariable getTeleportToSpawnVar() { return teleportToSpawnVar; }
-    public BlockVariable getLogJoinEventVar() { return logJoinEventVar; }
-    public BlockVariable getTrackStatisticsVar() { return trackStatisticsVar; }
-    public BlockVariable getNotifyOnlinePlayersVar() { return notifyOnlinePlayersVar; }
-    public BlockVariable getShowOnlineCountVar() { return showOnlineCountVar; }
-    public BlockVariable getAutoSaveEnabledVar() { return autoSaveEnabledVar; }
-    public BlockVariable getWelcomeDelayVar() { return welcomeDelayVar; }
-    public BlockVariable getFirstTimeBonusVar() { return firstTimeBonusVar; }
-    public BlockVariable getJoinCommandsVar() { return joinCommandsVar; }
-    public BlockVariable getWelcomeInventoryVar() { return welcomeInventoryVar; }
-    public BlockVariable getJoinPermissionsVar() { return joinPermissionsVar; }
-    public BlockVariable getAntiBotProtectionVar() { return antiBotProtectionVar; }
-    public BlockVariable getSessionTrackingVar() { return sessionTrackingVar; }
-    public BlockVariable getPerformanceModeVar() { return performanceModeVar; }
-    
-    // Внутренние классы для статистики и кэширования
-    private static class JoinRecord {
+    private static class PlayerJoinRecord {
         private final UUID playerId;
-        private final String reason;
-        private final long timestamp;
+        private final long joinTime;
+        private final boolean success;
+        private final String message;
+        private final String ip;
         private final String world;
         private final String location;
         
-        public JoinRecord(UUID playerId, String reason, long timestamp, String world, String location) {
+        public PlayerJoinRecord(UUID playerId, long joinTime, boolean success, 
+                              String message, String ip, String world, String location) {
             this.playerId = playerId;
-            this.reason = reason;
-            this.timestamp = timestamp;
+            this.joinTime = joinTime;
+            this.success = success;
+            this.message = message;
+            this.ip = ip;
             this.world = world;
             this.location = location;
         }
         
         // Геттеры
         public UUID getPlayerId() { return playerId; }
-        public String getReason() { return reason; }
-        public long getTimestamp() { return timestamp; }
+        public long getJoinTime() { return joinTime; }
+        public boolean isSuccess() { return success; }
+        public String getMessage() { return message; }
+        public String getIp() { return ip; }
         public String getWorld() { return world; }
         public String getLocation() { return location; }
     }
     
     private static class PlayerJoinStats {
-        private final List<JoinRecord> joins = new ArrayList<>();
+        private final List<Long> joinTimes = new ArrayList<>();
         private long lastJoinTime = 0;
-        private long totalOnlineTime = 0;
         
-        public void addJoin(String reason, long timestamp) {
-            joins.add(new JoinRecord(null, reason, timestamp, "", ""));
+        public void addJoin(long timestamp) {
+            joinTimes.add(timestamp);
             lastJoinTime = timestamp;
         }
         
         public void setLastJoinTime(long time) { this.lastJoinTime = time; }
         public long getLastJoinTime() { return lastJoinTime; }
-        public List<JoinRecord> getJoins() { return joins; }
+        public List<Long> getJoinTimes() { return joinTimes; }
     }
     
     private static class GlobalJoinStats {
         private int totalJoins = 0;
-        private int normalJoins = 0;
-        private int firstTimeJoins = 0;
-        private int returningJoins = 0;
-        private int vipJoins = 0;
-        private int staffJoins = 0;
-        private int botJoins = 0;
+        private int successfulJoins = 0;
+        private int failedJoins = 0;
         private long totalProcessingTime = 0;
         
-        public void addJoin(String reason, long processingTime) {
+        public void addJoin(boolean success, long processingTime) {
             totalJoins++;
-            totalProcessingTime += processingTime;
-            
-            switch (reason.toUpperCase()) {
-                case "NORMAL": normalJoins++; break;
-                case "FIRST_TIME": firstTimeJoins++; break;
-                case "RETURNING": returningJoins++; break;
-                case "VIP": vipJoins++; break;
-                case "STAFF": staffJoins++; break;
-                case "BOT": botJoins++; break;
+            if (success) {
+                successfulJoins++;
+            } else {
+                failedJoins++;
             }
+            totalProcessingTime += processingTime;
         }
         
         // Геттеры
         public int getTotalJoins() { return totalJoins; }
-        public int getNormalJoins() { return normalJoins; }
-        public int getFirstTimeJoins() { return firstTimeJoins; }
-        public int getReturningJoins() { return returningJoins; }
-        public int getVipJoins() { return vipJoins; }
-        public int getStaffJoins() { return staffJoins; }
-        public int getBotJoins() { return botJoins; }
+        public int getSuccessfulJoins() { return successfulJoins; }
+        public int getFailedJoins() { return failedJoins; }
         public long getTotalProcessingTime() { return totalProcessingTime; }
+        public double getSuccessRate() { return totalJoins > 0 ? (double) successfulJoins / totalJoins : 0.0; }
         public double getAverageProcessingTime() { return totalJoins > 0 ? (double) totalProcessingTime / totalJoins : 0.0; }
     }
     
-    private static class JoinEventRequest {
+    private static class JoinRequest {
         private final UUID playerId;
         private final long requestTime;
         private final boolean priority;
         
-        public JoinEventRequest(UUID playerId, long requestTime, boolean priority) {
+        public JoinRequest(UUID playerId, long requestTime, boolean priority) {
             this.playerId = playerId;
             this.requestTime = requestTime;
             this.priority = priority;
