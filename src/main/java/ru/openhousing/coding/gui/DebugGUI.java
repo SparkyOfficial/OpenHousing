@@ -229,34 +229,5 @@ public class DebugGUI implements IBlockConfigurationGUI {
         player.sendMessage("§aДанные обновлены");
     }
     
-    // Геттеры для доступа к переменным (для совместимости с новым ExecutionContext)
-    private Map<String, Object> getLocalVariables() {
-        try {
-            return (Map<String, Object>) context.getClass()
-                .getMethod("getLocalVariables")
-                .invoke(context);
-        } catch (Exception e) {
-            return Map.of(); // Fallback
-        }
-    }
-    
-    private Map<String, Object> getGlobalVariables() {
-        try {
-            return (Map<String, Object>) context.getClass()
-                .getMethod("getGlobalVariables")
-                .invoke(context);
-        } catch (Exception e) {
-            return Map.of(); // Fallback
-        }
-    }
-    
-    private Map<String, Object> getSystemVariables() {
-        try {
-            return (Map<String, Object>) context.getClass()
-                .getMethod("getSystemVariables")
-                .invoke(context);
-        } catch (Exception e) {
-            return Map.of(); // Fallback
-        }
-    }
+
 }
