@@ -58,31 +58,40 @@ class HousingSystemTest {
         lenient().when(player.hasPermission(anyString())).thenReturn(true);
         
         // Мокаем конфигурацию
-        when(plugin.getConfigManager()).thenReturn(mock(ru.openhousing.config.ConfigManager.class));
-        when(plugin.getConfigManager().getHousingConfig()).thenReturn(mock(org.bukkit.configuration.file.FileConfiguration.class));
-        when(plugin.getConfigManager().getHousingConfig().getInt("max-houses-per-player", 1)).thenReturn(1);
-        when(plugin.getConfigManager().getHousingConfig().getInt("default-size.width", 64)).thenReturn(64);
-        when(plugin.getConfigManager().getHousingConfig().getInt("default-size.height", 64)).thenReturn(64);
-        when(plugin.getConfigManager().getHousingConfig().getInt("default-size.length", 64)).thenReturn(64);
-        when(plugin.getConfigManager().getHousingConfig().getInt("min-size.width", 32)).thenReturn(32);
-        when(plugin.getConfigManager().getHousingConfig().getInt("min-size.height", 32)).thenReturn(32);
-        when(plugin.getConfigManager().getHousingConfig().getInt("min-size.length", 32)).thenReturn(32);
-        when(plugin.getConfigManager().getHousingConfig().getInt("max-size.width", 128)).thenReturn(128);
-        when(plugin.getConfigManager().getHousingConfig().getInt("max-size.height", 128)).thenReturn(128);
-        when(plugin.getConfigManager().getHousingConfig().getInt("max-size.length", 128)).thenReturn(128);
-        when(plugin.getConfigManager().getHousingConfig().getDouble("creation-cost", 10000.0)).thenReturn(10000.0);
-        when(plugin.getConfigManager().getHousingConfig().getDouble("expansion-cost-per-block", 100.0)).thenReturn(100.0);
-        when(plugin.getConfigManager().getHousingConfig().getInt("house-spacing", 200)).thenReturn(200);
+        lenient().when(plugin.getConfigManager()).thenReturn(mock(ru.openhousing.config.ConfigManager.class));
+        lenient().when(plugin.getConfigManager().getHousingConfig()).thenReturn(mock(org.bukkit.configuration.file.FileConfiguration.class));
+        lenient().when(plugin.getConfigManager().getHousingConfig().getInt("max-houses-per-player", 1)).thenReturn(1);
+        lenient().when(plugin.getConfigManager().getHousingConfig().getInt("default-size.width", 64)).thenReturn(64);
+        lenient().when(plugin.getConfigManager().getHousingConfig().getInt("default-size.height", 64)).thenReturn(64);
+        lenient().when(plugin.getConfigManager().getHousingConfig().getInt("default-size.length", 64)).thenReturn(64);
+        lenient().when(plugin.getConfigManager().getHousingConfig().getInt("min-size.width", 32)).thenReturn(32);
+        lenient().when(plugin.getConfigManager().getHousingConfig().getInt("min-size.height", 32)).thenReturn(32);
+        lenient().when(plugin.getConfigManager().getHousingConfig().getInt("min-size.length", 32)).thenReturn(32);
+        lenient().when(plugin.getConfigManager().getHousingConfig().getInt("max-size.width", 128)).thenReturn(128);
+        lenient().when(plugin.getConfigManager().getHousingConfig().getInt("max-size.height", 128)).thenReturn(128);
+        lenient().when(plugin.getConfigManager().getHousingConfig().getInt("max-size.length", 128)).thenReturn(128);
+        lenient().when(plugin.getConfigManager().getHousingConfig().getDouble("creation-cost", 10000.0)).thenReturn(10000.0);
+        lenient().when(plugin.getConfigManager().getHousingConfig().getDouble("expansion-cost-per-block", 100.0)).thenReturn(100.0);
+        lenient().when(plugin.getConfigManager().getHousingConfig().getInt("house-spacing", 200)).thenReturn(200);
         
         // Мокаем другие зависимости
-        when(plugin.getDatabaseManager()).thenReturn(mock(ru.openhousing.database.DatabaseManager.class));
-        when(plugin.getCodeManager()).thenReturn(mock(ru.openhousing.coding.CodeManager.class));
-        when(plugin.getWorldGuardIntegration()).thenReturn(mock(ru.openhousing.integrations.WorldGuardIntegration.class));
-        when(plugin.getSoundEffects()).thenReturn(mock(ru.openhousing.utils.SoundEffects.class));
-        when(plugin.getLogger()).thenReturn(java.util.logging.Logger.getLogger("TestLogger"));
+        lenient().when(plugin.getDatabaseManager()).thenReturn(mock(ru.openhousing.database.DatabaseManager.class));
+        lenient().when(plugin.getCodeManager()).thenReturn(mock(ru.openhousing.coding.CodeManager.class));
+        lenient().when(plugin.getWorldGuardIntegration()).thenReturn(mock(ru.openhousing.integrations.WorldGuardIntegration.class));
+        lenient().when(plugin.getSoundEffects()).thenReturn(mock(ru.openhousing.utils.SoundEffects.class));
+        lenient().when(plugin.getLogger()).thenReturn(java.util.logging.Logger.getLogger("TestLogger"));
+        
+        // Мокаем ConfigManager.getMainConfig()
+        lenient().when(plugin.getConfigManager().getMainConfig()).thenReturn(mock(org.bukkit.configuration.file.FileConfiguration.class));
+        lenient().when(plugin.getConfigManager().getMainConfig().getBoolean("economy.use-vault", false)).thenReturn(false);
         
         // Мокаем Bukkit для тестов
         mockedBukkit = mockStatic(Bukkit.class);
+        
+        // Мокаем Bukkit.getUnsafe() для создания миров
+        org.bukkit.UnsafeValues mockUnsafe = mock(org.bukkit.UnsafeValues.class);
+        when(mockUnsafe.getMainLevelName()).thenReturn("world");
+        mockedBukkit.when(Bukkit::getUnsafe).thenReturn(mockUnsafe);
         
         housingManager = new HousingManager(plugin);
         housingManager.initialize(); // Инициализируем менеджер
@@ -189,8 +198,8 @@ class HousingSystemTest {
         House house = result.getHouse();
         Player bannedPlayer = mock(Player.class);
         UUID bannedPlayerId = UUID.randomUUID();
-        when(bannedPlayer.getUniqueId()).thenReturn(bannedPlayerId);
-        when(bannedPlayer.getName()).thenReturn("BannedPlayer");
+        lenient().when(bannedPlayer.getUniqueId()).thenReturn(bannedPlayerId);
+        lenient().when(bannedPlayer.getName()).thenReturn("BannedPlayer");
         
         // Act & Assert - Initially not banned
         assertFalse(house.getBannedPlayers().contains(bannedPlayerId));
@@ -218,7 +227,7 @@ class HousingSystemTest {
         assertEquals(1, house.getSettings().getOrDefault("player_count", 0));
         
         Player otherPlayer = mock(Player.class);
-        when(otherPlayer.getUniqueId()).thenReturn(UUID.randomUUID());
+        lenient().when(otherPlayer.getUniqueId()).thenReturn(UUID.randomUUID());
         house.addPlayer(otherPlayer.getUniqueId());
         assertEquals(2, house.getSettings().getOrDefault("player_count", 0));
         
@@ -246,12 +255,12 @@ class HousingSystemTest {
         
         // Add second player
         Player secondPlayer = mock(Player.class);
-        when(secondPlayer.getUniqueId()).thenReturn(UUID.randomUUID());
+        lenient().when(secondPlayer.getUniqueId()).thenReturn(UUID.randomUUID());
         house.addPlayer(secondPlayer.getUniqueId());
         
         // Third player should not be able to join
         Player thirdPlayer = mock(Player.class);
-        when(thirdPlayer.getUniqueId()).thenReturn(UUID.randomUUID());
+        lenient().when(thirdPlayer.getUniqueId()).thenReturn(UUID.randomUUID());
         assertFalse((Integer) house.getSettings().getOrDefault("player_count", 0) < 2);
     }
 

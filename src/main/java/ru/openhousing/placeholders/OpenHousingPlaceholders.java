@@ -48,6 +48,11 @@ public class OpenHousingPlaceholders extends PlaceholderExpansion {
             return "";
         }
         
+        // Проверяем, что params не null
+        if (params == null) {
+            return "";
+        }
+        
         CodeScript script = plugin.getCodeManager().getScript(player);
         List<House> playerHouses = plugin.getHousingManager().getPlayerHouses(player.getUniqueId());
         House currentHouse = plugin.getHousingManager().getHouseAt(player.getLocation());
