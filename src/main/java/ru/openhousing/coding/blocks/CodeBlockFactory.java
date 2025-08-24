@@ -41,8 +41,12 @@ public class CodeBlockFactory {
                 return new PlayerMoveEventBlock();
             case PLAYER_INTERACT:
                 return new PlayerInteractEventBlock();
-            case PLAYER_QUIT:
-                return new PlayerQuitEventBlock();
+                    case PLAYER_QUIT:
+            return new PlayerQuitEventBlock();
+        case PLAYER_GIVE_ITEM:
+            return new ItemManagementBlock();
+        case PLAYER_TELEPORT_ACTION:
+            return new WorldManagementBlock();
             case PLAYER_COMMAND:
                 return new PlayerCommandEventBlock();
             case PLAYER_TELEPORT:
@@ -160,8 +164,6 @@ public class CodeBlockFactory {
             case PLAYER_SEND_MESSAGE:
             case PLAYER_SEND_TITLE:
             case PLAYER_SEND_ACTIONBAR:
-            case PLAYER_TELEPORT_ACTION:
-            case PLAYER_GIVE_ITEM:
             case PLAYER_REMOVE_ITEM:
             case PLAYER_CLEAR_INVENTORY:
             case PLAYER_SET_HEALTH:
@@ -210,7 +212,6 @@ public class CodeBlockFactory {
             case GAME_SET_WEATHER:
             case GAME_SET_DIFFICULTY:
             case GAME_BROADCAST:
-            case GAME_EXECUTE_COMMAND:
             case GAME_STOP_SERVER:
             case GAME_RESTART_SERVER:
             case GAME_SAVE_WORLD:
@@ -222,6 +223,9 @@ public class CodeBlockFactory {
             case GAME_BREAK_BLOCK:
             case GAME_SEND_PACKET:
                 return new WorldActionBlock();
+                
+            case GAME_EXECUTE_COMMAND:
+                return new CommandManagementBlock();
                 
             // Функции
             case FUNCTION:
