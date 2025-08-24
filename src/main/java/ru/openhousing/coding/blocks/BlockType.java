@@ -84,6 +84,7 @@ public enum BlockType {
     IF_VARIABLE_EXISTS("Если переменная существует", Material.BOOK, BlockCategory.CONDITION, "Проверяет существует ли переменная"),
     IF_VARIABLE_SAVED("Если переменная сохранена", Material.BOOKSHELF, BlockCategory.CONDITION, "Проверяет сохранена ли переменная"),
     IF_VARIABLE_TYPE("Если тип переменной", Material.KNOWLEDGE_BOOK, BlockCategory.CONDITION, "Проверяет тип переменной"),
+    IF_PLAYER_HAS_ITEM("Если у игрока есть предмет", Material.CHEST, BlockCategory.CONDITION, "Проверяет наличие предметов у игрока"),
     
     // Условия игры (5 условий)
     IF_GAME_TIME("Если время", Material.CLOCK, BlockCategory.CONDITION, "Проверяет время в мире"),

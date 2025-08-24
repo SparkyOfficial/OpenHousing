@@ -1,1351 +1,849 @@
 package ru.openhousing.coding.blocks.actions;
 
-import org.bukkit.*;
-import org.bukkit.block.Block;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import ru.openhousing.coding.blocks.BlockType;
 import ru.openhousing.coding.blocks.CodeBlock;
-import ru.openhousing.OpenHousing;
+import ru.openhousing.coding.blocks.CodeBlock.ExecutionContext;
+import ru.openhousing.coding.blocks.CodeBlock.ExecutionResult;
 
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
- * Блок действий мира
+ * Блок действий с миром
+ * Выполняет различные действия с миром: изменение блоков, создание взрывов, спавн существ
  */
 public class WorldActionBlock extends CodeBlock {
-    
+
+    /**
+     * Типы действий с миром
+     */
     public enum WorldActionType {
-        SET_BLOCK("Установить блок", "Устанавливает блок в указанной позиции"),
-        BREAK_BLOCK("Разрушить блок", "Разрушает блок в указанной позиции"),
+        SET_BLOCK("Установить блок", "Устанавливает блок в указанном месте"),
+        BREAK_BLOCK("Сломать блок", "Ломает блок в указанном месте"),
         FILL_AREA("Заполнить область", "Заполняет область блоками"),
-        REPLACE_BLOCKS("Заменить блоки", "Заменяет блоки в области"),
-        
+        REPLACE_BLOCKS("Заменить блоки", "Заменяет блоки одного типа на другой"),
         SET_TIME("Установить время", "Устанавливает время в мире"),
         ADD_TIME("Добавить время", "Добавляет время к текущему"),
-        SET_WEATHER("Установить погоду", "Устанавливает погоду"),
-        SET_STORM("Установить грозу", "Включает/выключает грозу"),
-        STRIKE_LIGHTNING("Ударить молнией", "Ударяет молнией в точку"),
-        
-        PLAY_SOUND("Воспроизвести звук", "Воспроизводит звук в мире"),
-        PLAY_SOUND_ALL("Звук для всех", "Воспроизводит звук для всех игроков"),
+        SET_WEATHER("Установить погоду", "Устанавливает погоду в мире"),
+        SET_STORM("Установить шторм", "Устанавливает шторм в мире"),
+        STRIKE_LIGHTNING("Удар молнии", "Создает удар молнии"),
+        PLAY_SOUND("Воспроизвести звук", "Воспроизводит звук в точке"),
+        PLAY_SOUND_ALL("Воспроизвести звук всем", "Воспроизводит звук всем игрокам"),
         STOP_SOUND("Остановить звук", "Останавливает воспроизведение звука"),
-        
         SPAWN_PARTICLE("Создать частицы", "Создает частицы в точке"),
-        SPAWN_PARTICLE_LINE("Линия частиц", "Создает линию из частиц"),
-        SPAWN_PARTICLE_CIRCLE("Круг частиц", "Создает круг из частиц"),
-        SPAWN_PARTICLE_SPHERE("Сфера частиц", "Создает сферу из частиц"),
-        
+        SPAWN_PARTICLE_LINE("Частицы линией", "Создает частицы по линии"),
+        SPAWN_PARTICLE_CIRCLE("Частицы кругом", "Создает частицы по кругу"),
+        SPAWN_PARTICLE_SPHERE("Частицы сферой", "Создает частицы в форме сферы"),
         CREATE_EXPLOSION("Создать взрыв", "Создает взрыв в точке"),
-        
         SEND_MESSAGE("Отправить сообщение", "Отправляет сообщение игроку"),
-        SEND_MESSAGE_ALL("Сообщение всем", "Отправляет сообщение всем игрокам"),
-        SEND_TITLE("Отправить титул", "Отправляет титул игроку"),
-        SEND_ACTIONBAR("Отправить actionbar", "Отправляет actionbar сообщение"),
-        
-        TELEPORT_PLAYER("Телепорт игрока", "Телепортирует игрока"),
-        HEAL_PLAYER("Лечить игрока", "Восстанавливает здоровье игрока"),
+        SEND_MESSAGE_ALL("Отправить всем", "Отправляет сообщение всем игрокам"),
+        SEND_TITLE("Отправить заголовок", "Отправляет заголовок игроку"),
+        SEND_ACTIONBAR("Отправить в actionbar", "Отправляет сообщение в actionbar"),
+        TELEPORT_PLAYER("Телепортировать игрока", "Телепортирует игрока"),
+        HEAL_PLAYER("Исцелить игрока", "Восстанавливает здоровье игрока"),
         FEED_PLAYER("Накормить игрока", "Восстанавливает голод игрока"),
         GIVE_ITEM("Дать предмет", "Дает предмет игроку"),
         TAKE_ITEM("Забрать предмет", "Забирает предмет у игрока"),
         CLEAR_INVENTORY("Очистить инвентарь", "Очищает инвентарь игрока"),
-        
-        SET_GAMEMODE("Установить режим", "Устанавливает игровой режим"),
+        SET_GAMEMODE("Установить режим", "Устанавливает режим игры"),
         SET_FLY("Установить полет", "Включает/выключает полет"),
-        SET_GOD_MODE("Режим бога", "Включает/выключает неуязвимость"),
-        
+        SET_GOD_MODE("Режим бога", "Включает/выключает режим бога"),
         KICK_PLAYER("Кикнуть игрока", "Кикает игрока с сервера"),
-        BAN_PLAYER("Забанить игрока", "Банит игрока"),
-        
+        BAN_PLAYER("Забанить игрока", "Банит игрока на сервере"),
         RUN_COMMAND("Выполнить команду", "Выполняет команду от имени игрока"),
         RUN_COMMAND_CONSOLE("Команда консоли", "Выполняет команду от имени консоли"),
-        
-        SET_SPAWN("Установить спавн", "Устанавливает точку спавна мира"),
-        LOAD_CHUNK("Загрузить чанк", "Загружает чанк"),
-        UNLOAD_CHUNK("Выгрузить чанк", "Выгружает чанк"),
-        
-        SAVE_WORLD("Сохранить мир", "Сохраняет мир"),
-        
+        SET_SPAWN("Установить спавн", "Устанавливает точку спавна"),
+        LOAD_CHUNK("Загрузить чанк", "Загружает чанк в память"),
+        UNLOAD_CHUNK("Выгрузить чанк", "Выгружает чанк из памяти"),
+        SAVE_WORLD("Сохранить мир", "Сохраняет мир на диск"),
         SET_DIFFICULTY("Установить сложность", "Устанавливает сложность мира"),
-        SET_GAME_RULE("Установить правило", "Устанавливает игровое правило"),
-        
-        CREATE_FIREWORK("Создать фейерверк", "Запускает фейерверк"),
-        
+        SET_GAME_RULE("Установить правило", "Устанавливает правило игры"),
+        CREATE_FIREWORK("Создать фейерверк", "Создает фейерверк"),
         FREEZE_PLAYER("Заморозить игрока", "Замораживает игрока"),
         UNFREEZE_PLAYER("Разморозить игрока", "Размораживает игрока"),
-        
-        SET_WALKSPEED("Скорость ходьбы", "Устанавливает скорость ходьбы"),
-        SET_FLYSPEED("Скорость полета", "Устанавливает скорость полета"),
-        
-        PUSH_PLAYER("Толкнуть игрока", "Толкает игрока в направлении"),
+        SET_WALKSPEED("Установить скорость ходьбы", "Устанавливает скорость ходьбы"),
+        SET_FLYSPEED("Установить скорость полета", "Устанавливает скорость полета"),
+        PUSH_PLAYER("Толкнуть игрока", "Толкает игрока в указанном направлении"),
         LAUNCH_PLAYER("Запустить игрока", "Запускает игрока в воздух"),
-        
         HIDE_PLAYER("Скрыть игрока", "Скрывает игрока от других"),
-        SHOW_PLAYER("Показать игрока", "Показывает скрытого игрока"),
-        
+        SHOW_PLAYER("Показать игрока", "Показывает игрока другим"),
         SET_EXPERIENCE("Установить опыт", "Устанавливает уровень опыта"),
         GIVE_EXPERIENCE("Дать опыт", "Дает опыт игроку"),
         TAKE_EXPERIENCE("Забрать опыт", "Забирает опыт у игрока"),
-        
-        WAIT("Ждать", "Приостанавливает выполнение на время"),
-        
+        WAIT("Ожидание", "Ожидает указанное время"),
         SEND_TO_SERVER("Отправить на сервер", "Отправляет игрока на другой сервер");
-        
+
         private final String displayName;
         private final String description;
-        
+
         WorldActionType(String displayName, String description) {
             this.displayName = displayName;
             this.description = description;
         }
-        
+
         public String getDisplayName() {
             return displayName;
         }
-        
+
         public String getDescription() {
             return description;
         }
     }
-    
+
     public WorldActionBlock() {
-        super(BlockType.GAME_SET_TIME); // Используем любое действие мира как базовое
-        setParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE, WorldActionType.SET_BLOCK);
-        setParameter(ru.openhousing.coding.constants.BlockParams.VALUE, "");
-        setParameter(ru.openhousing.coding.constants.BlockParams.LOCATION, "");
-        setParameter(ru.openhousing.coding.constants.BlockParams.EXTRA, "");
+        super(BlockType.GAME_SET_BLOCK);
+        initializeDefaultParameters();
     }
-    
+
+    private void initializeDefaultParameters() {
+        setParameter("enabled", true);
+        setParameter("actionType", "SET_BLOCK");
+        
+        // Действия с блоками
+        setParameter("setBlock", false);
+        setParameter("blockType", "STONE");
+        setParameter("blockX", "0");
+        setParameter("blockY", "64");
+        setParameter("blockZ", "0");
+        setParameter("blockWorld", "world");
+        setParameter("breakBlock", false);
+        setParameter("breakX", "0");
+        setParameter("breakY", "64");
+        setParameter("breakZ", "0");
+        setParameter("breakWorld", "world");
+        setParameter("dropItems", true);
+        
+        // Действия с существами
+        setParameter("spawnEntity", false);
+        setParameter("entityType", "ZOMBIE");
+        setParameter("entityX", "0");
+        setParameter("entityY", "64");
+        setParameter("entityZ", "0");
+        setParameter("entityWorld", "world");
+        setParameter("entityCount", "1");
+        setParameter("entityName", "");
+        setParameter("entityCustomName", false);
+        setParameter("entityInvulnerable", false);
+        setParameter("entitySilent", false);
+        setParameter("entityGlowing", false);
+        setParameter("entityGravity", true);
+        setParameter("entityAI", true);
+        
+        setParameter("removeEntity", false);
+        setParameter("removeEntityType", "ZOMBIE");
+        setParameter("removeRadius", "10");
+        setParameter("removeAllEntities", false);
+        
+        // Действия с взрывами
+        setParameter("createExplosion", false);
+        setParameter("explosionX", "0");
+        setParameter("explosionY", "64");
+        setParameter("explosionZ", "0");
+        setParameter("explosionWorld", "world");
+        setParameter("explosionPower", "4.0");
+        setParameter("explosionFire", false);
+        setParameter("explosionBreakBlocks", true);
+        
+        // Действия с частицами
+        setParameter("spawnParticles", false);
+        setParameter("particleType", "CLOUD");
+        setParameter("particleX", "0");
+        setParameter("particleY", "64");
+        setParameter("particleZ", "0");
+        setParameter("particleWorld", "world");
+        setParameter("particleCount", "10");
+        setParameter("particleOffsetX", "0.5");
+        setParameter("particleOffsetY", "0.5");
+        setParameter("particleOffsetZ", "0.5");
+        setParameter("particleSpeed", "0.1");
+        
+        // Действия со звуками
+        setParameter("playSound", false);
+        setParameter("soundType", "ENTITY_PLAYER_LEVELUP");
+        setParameter("soundX", "0");
+        setParameter("soundY", "64");
+        setParameter("soundZ", "0");
+        setParameter("soundWorld", "world");
+        setParameter("soundVolume", "1.0");
+        setParameter("soundPitch", "1.0");
+        
+        // Действия с погодой
+        setParameter("setWeather", false);
+        setParameter("weatherType", "CLEAR");
+        setParameter("weatherDuration", "6000");
+        
+        // Действия со временем
+        setParameter("setTime", false);
+        setParameter("timeValue", "0");
+        setParameter("timeType", "TICKS");
+        
+        // Действия с молнией
+        setParameter("strikeLightning", false);
+        setParameter("lightningX", "0");
+        setParameter("lightningY", "64");
+        setParameter("lightningZ", "0");
+        setParameter("lightningWorld", "world");
+        setParameter("lightningNoFire", true);
+        
+        // Действия с телепортацией
+        setParameter("teleportEntity", false);
+        setParameter("entityToTeleport", "NEAREST_PLAYER");
+        setParameter("teleportX", "0");
+        setParameter("teleportY", "64");
+        setParameter("teleportZ", "0");
+        setParameter("teleportWorld", "world");
+        
+        // Действия с эффектами
+        setParameter("addEffectToNearby", false);
+        setParameter("effectType", "SPEED");
+        setParameter("effectDuration", "60");
+        setParameter("effectAmplifier", "1");
+        setParameter("effectRadius", "10");
+        setParameter("effectTargetPlayers", true);
+        setParameter("effectTargetEntities", false);
+        
+        // Действия с сообщениями
+        setParameter("broadcastMessage", false);
+        setParameter("broadcastText", "Мир изменился!");
+        setParameter("broadcastToWorld", false);
+        setParameter("broadcastToNearby", false);
+        setParameter("broadcastRadius", "50");
+        
+        // Логирование
+        setParameter("logAction", false);
+        setParameter("logFormat", "[{time}] World action executed: {action} at {location}");
+    }
+
     @Override
     public ExecutionResult execute(ExecutionContext context) {
-        WorldActionType actionType = (WorldActionType) getParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE);
-        String value = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE), context);
-        String location = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.LOCATION), context);
-        String extra = replaceVariables((String) getParameter(ru.openhousing.coding.constants.BlockParams.EXTRA), context);
-        
-        if (actionType == null) {
-            return ExecutionResult.error("Не указан тип действия");
+        Player player = context.getPlayer();
+        if (player == null) {
+            return ExecutionResult.error("Игрок не найден");
         }
-        
+
         try {
-            executeWorldAction(context, actionType, value, location, extra);
+            // Получаем параметры
+            boolean enabled = (Boolean) getParameter("enabled");
+            if (!enabled) {
+                return ExecutionResult.success();
+            }
+
+            String actionType = (String) getParameter("actionType");
+            
+            // Выполняем действия в зависимости от типа
+            switch (actionType) {
+                case "SET_BLOCK":
+                    if ((Boolean) getParameter("setBlock")) {
+                        executeSetBlock(context);
+                    }
+                    break;
+                case "BREAK_BLOCK":
+                    if ((Boolean) getParameter("breakBlock")) {
+                        executeBreakBlock(context);
+                    }
+                    break;
+                case "SPAWN_ENTITY":
+                    if ((Boolean) getParameter("spawnEntity")) {
+                        executeSpawnEntity(context);
+                    }
+                    break;
+                case "REMOVE_ENTITY":
+                    if ((Boolean) getParameter("removeEntity")) {
+                        executeRemoveEntity(context);
+                    }
+                    break;
+                case "CREATE_EXPLOSION":
+                    if ((Boolean) getParameter("createExplosion")) {
+                        executeCreateExplosion(context);
+                    }
+                    break;
+                case "SPAWN_PARTICLES":
+                    if ((Boolean) getParameter("spawnParticles")) {
+                        executeSpawnParticles(context);
+                    }
+                    break;
+                case "PLAY_SOUND":
+                    if ((Boolean) getParameter("playSound")) {
+                        executePlaySound(context);
+                    }
+                    break;
+                case "SET_WEATHER":
+                    if ((Boolean) getParameter("setWeather")) {
+                        executeSetWeather(context);
+                    }
+                    break;
+                case "SET_TIME":
+                    if ((Boolean) getParameter("setTime")) {
+                        executeSetTime(context);
+                    }
+                    break;
+                case "STRIKE_LIGHTNING":
+                    if ((Boolean) getParameter("strikeLightning")) {
+                        executeStrikeLightning(context);
+                    }
+                    break;
+                case "TELEPORT_ENTITY":
+                    if ((Boolean) getParameter("teleportEntity")) {
+                        executeTeleportEntity(context);
+                    }
+                    break;
+                case "ADD_EFFECT":
+                    if ((Boolean) getParameter("addEffectToNearby")) {
+                        executeAddEffectToNearby(context);
+                    }
+                    break;
+                case "BROADCAST":
+                    if ((Boolean) getParameter("broadcastMessage")) {
+                        executeBroadcastMessage(context);
+                    }
+                    break;
+            }
+
+            // Логируем действие
+            if ((Boolean) getParameter("logAction")) {
+                logAction(context, actionType);
+            }
+
             return ExecutionResult.success();
         } catch (Exception e) {
-            return ExecutionResult.error("Ошибка выполнения действия: " + e.getMessage());
+            return ExecutionResult.error("Ошибка выполнения WorldActionBlock: " + e.getMessage());
         }
     }
-    
-    private void executeWorldAction(ExecutionContext context, WorldActionType actionType,
-                                  String value, String location, String extra) {
-        
-        Player player = context.getPlayer();
-        World world = player != null ? player.getWorld() : null;
-        
-        switch (actionType) {
-            case SET_BLOCK:
-                setBlock(world, location, value);
-                break;
-                
-            case BREAK_BLOCK:
-                breakBlock(world, location);
-                break;
-                
-            case FILL_AREA:
-                fillArea(world, location, value, extra);
-                break;
-                
-            case SET_TIME:
-                if (world != null) {
-                    try {
-                        long time = parseTime(value);
-                        world.setTime(time);
-                    } catch (NumberFormatException e) {
-                        // Игнорируем ошибку
-                    }
-                }
-                break;
-                
-            case ADD_TIME:
-                if (world != null) {
-                    try {
-                        long addTime = Long.parseLong(value);
-                        world.setTime(world.getTime() + addTime);
-                    } catch (NumberFormatException e) {
-                        // Игнорируем ошибку
-                    }
-                }
-                break;
-                
-            case SET_WEATHER:
-                if (world != null) {
-                    boolean storm = value.equalsIgnoreCase("storm") || 
-                                  value.equalsIgnoreCase("rain") || 
-                                  Boolean.parseBoolean(value);
-                    world.setStorm(storm);
-                }
-                break;
-                
-            case SET_STORM:
-                if (world != null) {
-                    world.setThundering(Boolean.parseBoolean(value));
-                }
-                break;
-                
-            case STRIKE_LIGHTNING:
-                strikeLightning(world, location, Boolean.parseBoolean(extra));
-                break;
-                
-            case PLAY_SOUND:
-                playSound(player, value, location, extra);
-                break;
-                
-            case PLAY_SOUND_ALL:
-                playSoundAll(world, value, location, extra);
-                break;
-                
-            case SPAWN_PARTICLE:
-                spawnParticle(world, location, value, extra);
-                break;
-                
-            case SPAWN_PARTICLE_LINE:
-                spawnParticleLine(world, location, extra, value);
-                break;
-                
-            case SPAWN_PARTICLE_CIRCLE:
-                spawnParticleCircle(world, location, value, extra);
-                break;
-                
-            case CREATE_EXPLOSION:
-                createExplosion(world, location, value, extra);
-                break;
-                
-            case SEND_MESSAGE:
-                if (player != null) {
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', value));
-                }
-                break;
-                
-            case SEND_MESSAGE_ALL:
-                if (world != null) {
-                    String message = ChatColor.translateAlternateColorCodes('&', value);
-                    for (Player p : world.getPlayers()) {
-                        p.sendMessage(message);
-                    }
-                }
-                break;
-                
-            case SEND_TITLE:
-                sendTitle(player, value, extra);
-                break;
-                
-            case SEND_ACTIONBAR:
-                sendActionBar(player, value);
-                break;
-                
-            case TELEPORT_PLAYER:
-                teleportPlayer(player, location);
-                break;
-                
-            case HEAL_PLAYER:
-                healPlayer(player, value);
-                break;
-                
-            case FEED_PLAYER:
-                if (player != null) {
-                    player.setFoodLevel(20);
-                    player.setSaturation(20);
-                }
-                break;
-                
-            case GIVE_ITEM:
-                giveItem(player, value, extra, null); // name is not used in this case
-                break;
-                
-            case CLEAR_INVENTORY:
-                if (player != null) {
-                    player.getInventory().clear();
-                }
-                break;
-                
-            case SET_GAMEMODE:
-                setGameMode(player, value);
-                break;
-                
-            case SET_FLY:
-                if (player != null) {
-                    boolean canFly = Boolean.parseBoolean(value);
-                    player.setAllowFlight(canFly);
-                    player.setFlying(canFly);
-                }
-                break;
-                
-            case SET_GOD_MODE:
-                if (player != null) {
-                    player.setInvulnerable(Boolean.parseBoolean(value));
-                }
-                break;
-                
-            case RUN_COMMAND:
-                if (player != null) {
-                    if (player.hasPermission("openhousing.code.admin.playercommand")) {
-                        player.performCommand(value);
-                    } else {
-                        player.sendMessage("§c[OpenHousing] У вас нет прав на выполнение команд от лица игрока.");
-                    }
-                }
-                break;
-                
-            case RUN_COMMAND_CONSOLE:
-                if (player != null && !player.hasPermission("openhousing.code.admin.consolecommand")) {
-                    player.sendMessage("§c[OpenHousing] У вас нет прав на выполнение консольных команд.");
-                } else {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), value);
-                }
-                break;
-                
-            case SET_SPAWN:
-                setSpawn(world, location);
-                break;
-                
-            case SAVE_WORLD:
-                if (world != null) {
-                    world.save();
-                }
-                break;
-                
-            case SET_DIFFICULTY:
-                setDifficulty(world, value);
-                break;
-                
-            case SET_GAME_RULE:
-                setGameRule(world, value, extra);
-                break;
-                
-            case CREATE_FIREWORK:
-                createFirework(world, location, value);
-                break;
-                
-            case SET_WALKSPEED:
-                if (player != null) {
-                    try {
-                        float speed = Float.parseFloat(value);
-                        player.setWalkSpeed(Math.max(-1.0f, Math.min(1.0f, speed)));
-                    } catch (NumberFormatException e) {
-                        // Игнорируем ошибку
-                    }
-                }
-                break;
-                
-            case SET_FLYSPEED:
-                if (player != null) {
-                    try {
-                        float speed = Float.parseFloat(value);
-                        player.setFlySpeed(Math.max(-1.0f, Math.min(1.0f, speed)));
-                    } catch (NumberFormatException e) {
-                        // Игнорируем ошибку
-                    }
-                }
-                break;
-                
-            case PUSH_PLAYER:
-                pushPlayer(player, value, extra);
-                break;
-                
-            case LAUNCH_PLAYER:
-                if (player != null) {
-                    try {
-                        double power = Double.parseDouble(value);
-                        player.setVelocity(new Vector(0, power, 0));
-                    } catch (NumberFormatException e) {
-                        player.setVelocity(new Vector(0, 1.0, 0));
-                        player.sendMessage("§c[OpenHousing] Неверная сила запуска: '" + value + "'. Используется значение по умолчанию: 1.0");
-                    }
-                }
-                break;
-                
-            case SET_EXPERIENCE:
-                setExperience(player, value);
-                break;
-                
-            case GIVE_EXPERIENCE:
-                if (player != null) {
-                    try {
-                        int exp = Integer.parseInt(value);
-                        player.giveExp(exp);
-                    } catch (NumberFormatException e) {
-                        player.sendMessage("§c[OpenHousing] Неверное количество опыта: '" + value + "'. Опыт не выдан.");
-                    }
-                }
-                break;
-                
-            case WAIT:
-                // Реализация ожидания через планировщик
-                waitAction(context, value);
-                break;
-                
-            case REPLACE_BLOCKS:
-                // Реализована логика замены блоков
-                if (world != null && !value.isEmpty() && !extra.isEmpty()) {
-                    try {
-                        Material oldMaterial = Material.valueOf(value.toUpperCase());
-                        Material newMaterial = Material.valueOf(extra.toUpperCase());
-                        
-                        // Заменяем блоки в радиусе 10 блоков от локации
-                        Location center = parseLocation(location, world);
-                        if (center != null) {
-                            int replaced = 0;
-                            for (int x = -10; x <= 10; x++) {
-                                for (int y = -10; y <= 10; y++) {
-                                    for (int z = -10; z <= 10; z++) {
-                                        Location blockLoc = center.clone().add(x, y, z);
-                                        if (blockLoc.getBlock().getType() == oldMaterial) {
-                                            blockLoc.getBlock().setType(newMaterial);
-                                            replaced++;
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            if (context.getPlayer() != null) {
-                                context.getPlayer().sendMessage("§a[OpenHousing] Заменено " + replaced + " блоков " + oldMaterial.toString() + " на " + newMaterial.toString());
-                            }
-                        }
-                    } catch (IllegalArgumentException e) {
-                        if (context.getPlayer() != null) {
-                            context.getPlayer().sendMessage("§c[OpenHousing] Неверный тип блока: '" + value + "' или '" + extra + "'");
-                        }
-                    }
-                }
-                break;
-                
-            case STOP_SOUND:
-                // Реализована логика остановки звука
-                if (world != null && !value.isEmpty()) {
-                    try {
-                        Sound sound = Sound.valueOf(value.toUpperCase());
-                        // Останавливаем звук для всех игроков в мире
-                        for (Player worldPlayer : world.getPlayers()) {
-                            worldPlayer.stopSound(sound);
-                        }
-                        
-                        if (context.getPlayer() != null) {
-                            context.getPlayer().sendMessage("§a[OpenHousing] Звук " + sound.toString() + " остановлен для всех игроков!");
-                        }
-                    } catch (IllegalArgumentException e) {
-                        if (context.getPlayer() != null) {
-                            context.getPlayer().sendMessage("§c[OpenHousing] Неверное имя звука: '" + value + "'");
-                        }
-                    }
-                }
-                break;
-                
-            case SPAWN_PARTICLE_SPHERE:
-                // Реализована логика создания сферы из частиц
-                if (world != null && !value.isEmpty()) {
-                    try {
-                        Particle particle = Particle.valueOf(value.toUpperCase());
-                        Location center = parseLocation(location, world);
-                        if (center != null) {
-                            double radius = 3.0; // Радиус по умолчанию
-                            if (!extra.isEmpty()) {
-                                try {
-                                    radius = Double.parseDouble(extra);
-                                    if (radius < 0.5 || radius > 10.0) {
-                                        radius = 3.0;
-                                        if (context.getPlayer() != null) {
-                                            context.getPlayer().sendMessage("§c[OpenHousing] Радиус должен быть от 0.5 до 10.0. Используется 3.0");
-                                        }
-                                    }
-                                } catch (NumberFormatException e) {
-                                    if (context.getPlayer() != null) {
-                                        context.getPlayer().sendMessage("§c[OpenHousing] Неверный радиус: '" + extra + "'. Используется 3.0");
-                                    }
-                                }
-                            }
-                            
-                            // Создаем сферу из частиц
-                            for (double phi = 0; phi <= Math.PI; phi += Math.PI / 15) {
-                                for (double theta = 0; theta <= 2 * Math.PI; theta += Math.PI / 30) {
-                                    double x = radius * Math.cos(theta) * Math.sin(phi);
-                                    double y = radius * Math.cos(phi);
-                                    double z = radius * Math.sin(theta) * Math.sin(phi);
-                                    
-                                    Location particleLoc = center.clone().add(x, y, z);
-                                    world.spawnParticle(particle, particleLoc, 1);
-                                }
-                            }
-                            
-                            if (context.getPlayer() != null) {
-                                context.getPlayer().sendMessage("§a[OpenHousing] Создана сфера из частиц " + particle.toString() + " радиусом " + radius);
-                            }
-                        }
-                    } catch (IllegalArgumentException e) {
-                        if (context.getPlayer() != null) {
-                            context.getPlayer().sendMessage("§c[OpenHousing] Неверное имя частицы: '" + value + "'");
-                        }
-                    }
-                }
-                break;
-                
-            case TAKE_ITEM:
-                // Реализована логика забора предмета
-                if (player != null && !value.isEmpty()) {
-                    try {
-                        String[] itemParts = value.split(":");
-                        Material material = Material.valueOf(itemParts[0].toUpperCase());
-                        int amount = 1;
-                        
-                        if (itemParts.length > 1) {
-                            try {
-                                amount = Integer.parseInt(itemParts[1]);
-                            } catch (NumberFormatException e) {
-                                if (context.getPlayer() != null) {
-                                    context.getPlayer().sendMessage("§c[OpenHousing] Неверное количество: '" + itemParts[1] + "'. Используется 1");
-                                }
-                            }
-                        }
-                        
-                        if (amount < 1) amount = 1;
-                        if (amount > 64) amount = 64;
-                        
-                        // Забираем предметы из инвентаря игрока
-                        org.bukkit.inventory.ItemStack[] contents = player.getInventory().getContents();
-                        int taken = 0;
-                        
-                        for (int i = 0; i < contents.length && taken < amount; i++) {
-                            if (contents[i] != null && contents[i].getType() == material) {
-                                int toTake = Math.min(contents[i].getAmount(), amount - taken);
-                                if (contents[i].getAmount() <= toTake) {
-                                    player.getInventory().setItem(i, null);
-                                } else {
-                                    contents[i].setAmount(contents[i].getAmount() - toTake);
-                                }
-                                taken += toTake;
-                            }
-                        }
-                        
-                        if (taken > 0) {
-                            player.sendMessage("§a[OpenHousing] Забрано " + taken + " предметов " + material.toString());
-                        } else {
-                            player.sendMessage("§c[OpenHousing] Предметы " + material.toString() + " не найдены в инвентаре!");
-                        }
-                    } catch (IllegalArgumentException e) {
-                        player.sendMessage("§c[OpenHousing] Неверный тип предмета: '" + value + "'");
-                    }
-                }
-                break;
-                
-            case KICK_PLAYER:
-                if (player != null && !value.isEmpty()) {
-                    if (context.getPlayer() == null || context.getPlayer().hasPermission("openhousing.code.admin.kick")) {
-                        String reason = extra.isEmpty() ? "Кикнут администратором" : extra;
-                        player.kickPlayer(ChatColor.translateAlternateColorCodes('&', reason));
-                        if (context.getPlayer() != null) {
-                            context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " кикнут с сервера!");
-                        }
-                    } else {
-                        context.getPlayer().sendMessage("§c[OpenHousing] У вас нет прав на кик игроков.");
-                    }
-                }
-                break;
-                
-            case BAN_PLAYER:
-                if (player != null && !value.isEmpty()) {
-                    if (context.getPlayer() == null || context.getPlayer().hasPermission("openhousing.code.admin.ban")) {
-                        String reason = extra.isEmpty() ? "Забанен администратором" : extra;
-                        player.banPlayer(ChatColor.translateAlternateColorCodes('&', reason));
-                        if (context.getPlayer() != null) {
-                            context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " забанен на сервере!");
-                        }
-                    } else {
-                        context.getPlayer().sendMessage("§c[OpenHousing] У вас нет прав на бан игроков.");
-                    }
-                }
-                break;
-                
-            case LOAD_CHUNK:
-                // Реализована логика загрузки чанка
-                if (world != null) {
-                    Location center = parseLocation(location, world);
-                    if (center != null) {
-                        int chunkX = center.getBlockX() >> 4;
-                        int chunkZ = center.getBlockZ() >> 4;
-                        
-                        if (world.isChunkLoaded(chunkX, chunkZ)) {
-                            if (context.getPlayer() != null) {
-                                context.getPlayer().sendMessage("§a[OpenHousing] Чанк уже загружен!");
-                            }
-                        } else {
-                            world.loadChunk(chunkX, chunkZ);
-                            if (context.getPlayer() != null) {
-                                context.getPlayer().sendMessage("§a[OpenHousing] Чанк загружен: " + chunkX + ", " + chunkZ);
-                            }
-                        }
-                    }
-                }
-                break;
-                
-            case UNLOAD_CHUNK:
-                // Реализована логика выгрузки чанка
-                if (world != null) {
-                    Location center = parseLocation(location, world);
-                    if (center != null) {
-                        int chunkX = center.getBlockX() >> 4;
-                        int chunkZ = center.getBlockZ() >> 4;
-                        
-                        if (!world.isChunkLoaded(chunkX, chunkZ)) {
-                            if (context.getPlayer() != null) {
-                                context.getPlayer().sendMessage("§a[OpenHousing] Чанк уже выгружен!");
-                            }
-                        } else {
-                            world.unloadChunk(chunkX, chunkZ);
-                            if (context.getPlayer() != null) {
-                                context.getPlayer().sendMessage("§a[OpenHousing] Чанк выгружен: " + chunkX + ", " + chunkZ);
-                            }
-                        }
-                    }
-                }
-                break;
-                
-            case FREEZE_PLAYER:
-                // Реализована логика заморозки игрока
-                if (player != null) {
-                    player.setFreezeTicks(Integer.MAX_VALUE);
-                    player.sendMessage("§c[OpenHousing] Вы заморожены!");
-                    
-                    if (context.getPlayer() != null) {
-                        context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " заморожен!");
-                    }
-                }
-                break;
-                
-            case UNFREEZE_PLAYER:
-                // Реализована логика разморозки игрока
-                if (player != null) {
-                    player.setFreezeTicks(0);
-                    player.sendMessage("§a[OpenHousing] Вы разморожены!");
-                    
-                    if (context.getPlayer() != null) {
-                        context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " разморожен!");
-                    }
-                }
-                break;
-                
-            case HIDE_PLAYER:
-                // Реализована логика скрытия игрока
-                if (player != null && context.getPlayer() != null) {
-                    context.getPlayer().hidePlayer(OpenHousing.getInstance(), player);
-                    context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " скрыт от вас!");
-                }
-                break;
-                
-            case SHOW_PLAYER:
-                // Реализована логика показа игрока
-                if (player != null && context.getPlayer() != null) {
-                    context.getPlayer().showPlayer(OpenHousing.getInstance(), player);
-                    context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " снова видим для вас!");
-                }
-                break;
-                
-            case TAKE_EXPERIENCE:
-                // Реализована логика забора опыта
-                if (player != null && !value.isEmpty()) {
-                    try {
-                        int expToTake = Integer.parseInt(value);
-                        if (expToTake < 0) {
-                            if (context.getPlayer() != null) {
-                                context.getPlayer().sendMessage("§c[OpenHousing] Количество опыта не может быть отрицательным!");
-                            }
-                            return;
-                        }
-                        
-                        int currentExp = player.getTotalExperience();
-                        int newExp = Math.max(0, currentExp - expToTake);
-                        
-                        player.setTotalExperience(0);
-                        player.setLevel(0);
-                        player.setExp(0);
-                        
-                        if (newExp > 0) {
-                            player.giveExp(newExp);
-                        }
-                        
-                        if (context.getPlayer() != null) {
-                            context.getPlayer().sendMessage("§a[OpenHousing] У игрока " + player.getName() + " забрано " + expToTake + " опыта!");
-                        }
-                    } catch (NumberFormatException e) {
-                        if (context.getPlayer() != null) {
-                            context.getPlayer().sendMessage("§c[OpenHousing] Неверное количество опыта: '" + value + "'");
-                        }
-                    }
-                }
-                break;
-                
-            case SEND_TO_SERVER:
-                // Реализована логика отправки на другой сервер (BungeeCord)
-                if (player != null && !value.isEmpty()) {
-                    try {
-                        // Проверяем, поддерживается ли BungeeCord
-                        if (player.getClass().getMethod("sendPluginMessage", String.class, byte[].class) != null) {
-                            // Отправляем команду на BungeeCord
-                            String command = "connect " + value;
-                            player.performCommand(command);
-                            
-                            if (context.getPlayer() != null) {
-                                context.getPlayer().sendMessage("§a[OpenHousing] Игрок " + player.getName() + " отправлен на сервер: " + value);
-                            }
-                        } else {
-                            if (context.getPlayer() != null) {
-                                context.getPlayer().sendMessage("§c[OpenHousing] BungeeCord не поддерживается на этом сервере!");
-                            }
-                        }
-                    } catch (Exception e) {
-                        if (context.getPlayer() != null) {
-                            context.getPlayer().sendMessage("§c[OpenHousing] Ошибка при отправке на сервер: " + e.getMessage());
-                        }
-                    }
-                }
-                break;
-        }
-    }
-    
-    /**
-     * Установка блока
-     */
-    private void setBlock(World world, String location, String blockType) {
-        if (world == null) return;
-        
-        Location loc = parseLocation(location, world);
-        if (loc != null) {
-            try {
-                Material material = Material.valueOf(blockType.toUpperCase());
-                loc.getBlock().setType(material);
-            } catch (IllegalArgumentException e) {
-                // Неверный тип блока - логируем для администраторов
-                if (OpenHousing.getInstance() != null) {
-                    OpenHousing.getInstance().getLogger().warning("Неверный тип блока: " + blockType + " в локации " + location);
-                }
-                // Отправляем сообщение игроку, если он в мире
-                for (Player player : world.getPlayers()) {
-                    if (player.getLocation().distance(loc) < 50) { // В радиусе 50 блоков
-                        player.sendMessage("§c[OpenHousing] Неверный тип блока: '" + blockType + "'. Примеры: STONE, DIAMOND_ORE, GLASS");
-                    }
-                }
-            }
-        }
-    }
-    
-    /**
-     * Разрушение блока
-     */
-    private void breakBlock(World world, String location) {
-        if (world == null) return;
-        
-        Location loc = parseLocation(location, world);
-        if (loc != null) {
-            Block block = loc.getBlock();
-            block.breakNaturally();
-        }
-    }
-    
-    /**
-     * Заполнение области
-     */
-    private void fillArea(World world, String location, String blockType, String size) {
-        if (world == null) return;
-        
-        Location loc = parseLocation(location, world);
-        if (loc == null) return;
-        
-        try {
-            Material material = Material.valueOf(blockType.toUpperCase());
-            String[] sizeParts = size.split(",");
-            
-            int sizeX = 3, sizeY = 3, sizeZ = 3;
-            if (sizeParts.length >= 3) {
-                try {
-                    sizeX = Integer.parseInt(sizeParts[0].trim());
-                    sizeY = Integer.parseInt(sizeParts[1].trim());
-                    sizeZ = Integer.parseInt(sizeParts[2].trim());
-                    
-                    // Проверяем разумность размеров
-                    if (sizeX > 50 || sizeY > 50 || sizeZ > 50) {
-                        for (Player player : world.getPlayers()) {
-                            if (player.getLocation().distance(loc) < 100) {
-                                player.sendMessage("§c[OpenHousing] Слишком большие размеры области: " + sizeX + "x" + sizeY + "x" + sizeZ + ". Максимум: 50x50x50");
-                            }
-                        }
-                        return;
-                    }
-                } catch (NumberFormatException e) {
-                    // Используем значения по умолчанию
-                    if (OpenHousing.getInstance() != null) {
-                        OpenHousing.getInstance().getLogger().warning("Неверные размеры области: " + size + ". Используются значения по умолчанию: 3x3x3");
-                    }
-                    for (Player player : world.getPlayers()) {
-                        if (player.getLocation().distance(loc) < 100) {
-                            player.sendMessage("§c[OpenHousing] Неверные размеры области: '" + size + "'. Используются значения по умолчанию: 3x3x3");
-                        }
-                    }
-                }
-            }
-            
-            for (int x = 0; x < sizeX; x++) {
-                for (int y = 0; y < sizeY; y++) {
-                    for (int z = 0; z < sizeZ; z++) {
-                        Block block = world.getBlockAt(loc.getBlockX() + x, 
-                                                     loc.getBlockY() + y, 
-                                                     loc.getBlockZ() + z);
-                        block.setType(material);
-                    }
-                }
-            }
-        } catch (IllegalArgumentException e) {
-            // Неверный тип блока
-            for (Player player : world.getPlayers()) {
-                if (player.getLocation().distance(loc) < 100) {
-                    player.sendMessage("§c[OpenHousing] Неверный тип блока: '" + blockType + "'. Примеры: STONE, DIAMOND_ORE, GLASS");
-                }
-            }
-        } catch (Exception e) {
-            // Игнорируем ошибки
-        }
-    }
-    
-    /**
-     * Удар молнии
-     */
-    private void strikeLightning(World world, String location, boolean effect) {
-        if (world == null) return;
-        
-        Location loc = parseLocation(location, world);
-        if (loc != null) {
-            if (effect) {
-                world.strikeLightningEffect(loc);
-            } else {
-                world.strikeLightning(loc);
-            }
-        }
-    }
-    
-    /**
-     * Воспроизведение звука
-     */
-    private void playSound(Player player, String soundName, String location, String volume) {
-        if (player == null) return;
-        
-        try {
-            Sound sound = Sound.valueOf(soundName.toUpperCase());
-            float vol = 1.0f;
-            float pitch = 1.0f;
-            
-            try {
-                vol = Float.parseFloat(volume);
-                if (vol < 0.0f || vol > 10.0f) {
-                    player.sendMessage("§c[OpenHousing] Громкость звука должна быть от 0.0 до 10.0. Используется значение по умолчанию: 1.0");
-                    vol = 1.0f;
-                }
-            } catch (NumberFormatException e) {
-                // Используем значение по умолчанию
-                player.sendMessage("§c[OpenHousing] Неверная громкость звука: '" + volume + "'. Используется значение по умолчанию: 1.0");
-            }
-            
-            if (location.isEmpty()) {
-                player.playSound(player.getLocation(), sound, vol, pitch);
-            } else {
-                Location loc = parseLocation(location, player.getWorld());
-                if (loc != null) {
-                    player.playSound(loc, sound, vol, pitch);
-                } else {
-                    player.sendMessage("§c[OpenHousing] Неверная локация для звука: '" + location + "'. Формат: x,y,z или world,x,y,z");
-                }
-            }
-        } catch (IllegalArgumentException e) {
-            // Неверное имя звука
-            player.sendMessage("§c[OpenHousing] Неверное имя звука: '" + soundName + "'. Примеры: BLOCK_STONE_BREAK, ENTITY_PLAYER_LEVELUP, MUSIC_DISC_13");
-        }
-    }
-    
-    /**
-     * Воспроизведение звука для всех
-     */
-    private void playSoundAll(World world, String soundName, String location, String volume) {
-        if (world == null) return;
-        
-        for (Player player : world.getPlayers()) {
-            playSound(player, soundName, location, volume);
-        }
-    }
-    
-    /**
-     * Создание частиц
-     */
-    private void spawnParticle(World world, String location, String particleName, String count) {
-        if (world == null) return;
-        
-        Location loc = parseLocation(location, world);
-        if (loc == null) return;
-        
-        try {
-            Particle particle = Particle.valueOf(particleName.toUpperCase());
-            int particleCount = 10;
-            
-            try {
-                particleCount = Integer.parseInt(count);
-                if (particleCount < 1 || particleCount > 1000) {
-                    for (Player player : world.getPlayers()) {
-                        if (player.getLocation().distance(loc) < 100) {
-                            player.sendMessage("§c[OpenHousing] Количество частиц должно быть от 1 до 1000. Используется значение по умолчанию: 10");
-                        }
-                    }
-                    particleCount = 10;
-                }
-            } catch (NumberFormatException e) {
-                // Используем значение по умолчанию
-                for (Player player : world.getPlayers()) {
-                    if (player.getLocation().distance(loc) < 100) {
-                        player.sendMessage("§c[OpenHousing] Неверное количество частиц: '" + count + "'. Используется значение по умолчанию: 10");
-                    }
-                }
-            }
-            
-            world.spawnParticle(particle, loc, particleCount, 0.5, 0.5, 0.5);
-        } catch (IllegalArgumentException e) {
-            // Неверное имя частицы
-            for (Player player : world.getPlayers()) {
-                if (player.getLocation().distance(loc) < 100) {
-                    player.sendMessage("§c[OpenHousing] Неверное имя частицы: '" + particleName + "'. Примеры: EXPLOSION_NORMAL, FLAME, HEART, NOTE");
-                }
-            }
-        }
-    }
-    
-    /**
-     * Линия частиц
-     */
-    private void spawnParticleLine(World world, String startLoc, String endLoc, String particleName) {
-        if (world == null) return;
-        
-        Location start = parseLocation(startLoc, world);
-        Location end = parseLocation(endLoc, world);
-        
-        if (start == null || end == null) return;
-        
-        try {
-            Particle particle = Particle.valueOf(particleName.toUpperCase());
-            Vector direction = end.toVector().subtract(start.toVector());
-            double distance = direction.length();
-            direction.normalize();
-            
-            for (double i = 0; i < distance; i += 0.5) {
-                Location particleLoc = start.clone().add(direction.clone().multiply(i));
-                world.spawnParticle(particle, particleLoc, 1, 0, 0, 0);
-            }
-        } catch (IllegalArgumentException e) {
-            // Неверное имя частицы
-        }
-    }
-    
-    /**
-     * Круг частиц
-     */
-    private void spawnParticleCircle(World world, String location, String particleName, String radius) {
-        if (world == null) return;
-        
-        Location center = parseLocation(location, world);
-        if (center == null) return;
-        
-        try {
-            Particle particle = Particle.valueOf(particleName.toUpperCase());
-            double r = 3.0;
-            
-            try {
-                r = Double.parseDouble(radius);
-            } catch (NumberFormatException e) {
-                // Используем значение по умолчанию
-            }
-            
-            for (int i = 0; i < 360; i += 10) {
-                double angle = Math.toRadians(i);
-                double x = center.getX() + r * Math.cos(angle);
-                double z = center.getZ() + r * Math.sin(angle);
-                Location particleLoc = new Location(world, x, center.getY(), z);
-                world.spawnParticle(particle, particleLoc, 1, 0, 0, 0);
-            }
-        } catch (IllegalArgumentException e) {
-            // Неверное имя частицы
-        }
-    }
-    
-    /**
-     * Создание взрыва
-     */
-    private void createExplosion(World world, String location, String power, String breakBlocks) {
-        if (world == null) return;
-        
-        Location loc = parseLocation(location, world);
-        if (loc == null) return;
-        
-        float explosionPower = 4.0f;
-        boolean setFire = false;
-        boolean destroyBlocks = Boolean.parseBoolean(breakBlocks);
-        
-        try {
-            explosionPower = Float.parseFloat(power);
-        } catch (NumberFormatException e) {
-            // Используем значение по умолчанию
-        }
-        
-        world.createExplosion(loc, explosionPower, setFire, destroyBlocks);
-    }
-    
-    /**
-     * Отправка титула
-     */
-    private void sendTitle(Player player, String title, String subtitle) {
-        if (player == null) return;
-        
-        String titleText = ChatColor.translateAlternateColorCodes('&', title);
-        String subtitleText = subtitle != null ? ChatColor.translateAlternateColorCodes('&', subtitle) : "";
-        
-        player.sendTitle(titleText, subtitleText, 20, 60, 20);
-    }
-    
-    /**
-     * Отправка action bar
-     */
-    private void sendActionBar(Player player, String message) {
-        if (player == null) return;
-        
-        String text = ChatColor.translateAlternateColorCodes('&', message);
-        player.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR,
-                                  new net.md_5.bungee.api.chat.TextComponent(text));
-    }
-    
-    /**
-     * Телепортация игрока
-     */
-    private void teleportPlayer(Player player, String location) {
-        if (player == null) return;
-        
-        Location loc = parseLocation(location, player.getWorld());
-        if (loc != null) {
-            player.teleport(loc);
-        }
-    }
-    
-    /**
-     * Лечение игрока
-     */
-    private void healPlayer(Player player, String amount) {
-        if (player == null) return;
-        
-        try {
-            if (amount.isEmpty()) {
-                player.setHealth(player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue());
-            } else {
-                double healAmount = Double.parseDouble(amount);
-                if (healAmount < 0) {
-                    player.sendMessage("§c[OpenHousing] Количество здоровья не может быть отрицательным. Используется полное исцеление.");
-                    healAmount = player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue();
-                }
-                double newHealth = Math.min(player.getHealth() + healAmount,
-                                          player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue());
-                player.setHealth(newHealth);
-            }
-        } catch (NumberFormatException e) {
-            // Полное исцеление при ошибке
-            player.sendMessage("§c[OpenHousing] Неверное количество здоровья: '" + amount + "'. Используется полное исцеление.");
-            player.setHealth(player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue());
-        }
-    }
-    
-    /**
-     * Выдача предмета
-     */
-    private void giveItem(Player player, String itemType, String amount, String name) {
-        if (player == null) return;
-        
-        try {
-            Material material = Material.valueOf(itemType.toUpperCase());
-            int itemAmount = 1;
-            
-            try {
-                itemAmount = Integer.parseInt(amount);
-                if (itemAmount < 1) {
-                    player.sendMessage("§c[OpenHousing] Количество предметов должно быть больше 0. Используется значение по умолчанию: 1");
-                    itemAmount = 1;
-                } else if (itemAmount > 64) {
-                    player.sendMessage("§c[OpenHousing] Количество предметов не может быть больше 64. Используется значение по умолчанию: 1");
-                    itemAmount = 1;
-                }
-            } catch (NumberFormatException e) {
-                // Используем значение по умолчанию
-                player.sendMessage("§c[OpenHousing] Неверное количество предметов: '" + amount + "'. Используется значение по умолчанию: 1");
-            }
-            
-            org.bukkit.inventory.ItemStack item = new org.bukkit.inventory.ItemStack(material, itemAmount);
-            
-            if (name != null && !name.isEmpty()) {
-                org.bukkit.inventory.meta.ItemMeta meta = item.getItemMeta();
-                if (meta != null) {
-                    meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-                    item.setItemMeta(meta);
-                }
-            }
-            
-            player.getInventory().addItem(item);
-        } catch (IllegalArgumentException e) {
-            // Неверный тип предмета
-            player.sendMessage("§c[OpenHousing] Неверный тип предмета: '" + itemType + "'. Примеры: DIAMOND, STONE, APPLE, IRON_SWORD");
-        }
-    }
-    
-    /**
-     * Установка игрового режима
-     */
-    private void setGameMode(Player player, String mode) {
-        if (player == null) return;
-        
-        try {
-            GameMode gameMode = GameMode.valueOf(mode.toUpperCase());
-            player.setGameMode(gameMode);
-        } catch (IllegalArgumentException e) {
-            // Неверный режим игры
-            player.sendMessage("§c[OpenHousing] Неверный режим игры: '" + mode + "'. Доступные: SURVIVAL, CREATIVE, ADVENTURE, SPECTATOR");
-        }
-    }
-    
-    /**
-     * Установка спавна
-     */
-    private void setSpawn(World world, String location) {
-        if (world == null) return;
-        
-        Location loc = parseLocation(location, world);
-        if (loc != null) {
-            world.setSpawnLocation(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-        }
-    }
-    
-    /**
-     * Установка сложности
-     */
-    private void setDifficulty(World world, String difficulty) {
-        if (world == null) return;
-        
-        try {
-            Difficulty diff = Difficulty.valueOf(difficulty.toUpperCase());
-            world.setDifficulty(diff);
-        } catch (IllegalArgumentException e) {
-            // Неверная сложность
-            for (Player player : world.getPlayers()) {
-                player.sendMessage("§c[OpenHousing] Неверная сложность: '" + difficulty + "'. Доступные: PEACEFUL, EASY, NORMAL, HARD");
-            }
-        }
-    }
-    
-    /**
-     * Установка игрового правила
-     */
-    private void setGameRule(World world, String ruleName, String value) {
-        if (world == null) return;
-        
-        try {
-            GameRule<?> gameRule = GameRule.getByName(ruleName);
-            if (gameRule != null) {
-                if (gameRule.getType() == Boolean.class) {
-                    @SuppressWarnings("unchecked")
-                    GameRule<Boolean> boolRule = (GameRule<Boolean>) gameRule;
-                    world.setGameRule(boolRule, Boolean.parseBoolean(value));
-                } else if (gameRule.getType() == Integer.class) {
-                    @SuppressWarnings("unchecked")
-                    GameRule<Integer> intRule = (GameRule<Integer>) gameRule;
-                    world.setGameRule(intRule, Integer.parseInt(value));
-                }
-            } else {
-                for (Player player : world.getPlayers()) {
-                    player.sendMessage("§c[OpenHousing] Неверное игровое правило: '" + ruleName + "'. Примеры: doDaylightCycle, keepInventory, naturalRegeneration");
-                }
-            }
-        } catch (Exception e) {
-            // Ошибка в значении правила
-            for (Player player : world.getPlayers()) {
-                player.sendMessage("§c[OpenHousing] Неверное значение для правила '" + ruleName + "': '" + value + "'");
-            }
-        }
-    }
-    
-    /**
-     * Создание фейерверка
-     */
-    private void createFirework(World world, String location, String colors) {
-        if (world == null) return;
-        
-        Location loc = parseLocation(location, world);
-        if (loc != null) {
-            org.bukkit.entity.Firework firework = world.spawn(loc, org.bukkit.entity.Firework.class);
-            org.bukkit.inventory.meta.FireworkMeta meta = firework.getFireworkMeta();
-            
-            org.bukkit.FireworkEffect.Builder effectBuilder = org.bukkit.FireworkEffect.builder();
-            effectBuilder.with(org.bukkit.FireworkEffect.Type.BALL);
-            effectBuilder.withColor(org.bukkit.Color.RED, org.bukkit.Color.BLUE, org.bukkit.Color.GREEN);
-            effectBuilder.withFade(org.bukkit.Color.YELLOW);
-            
-            meta.addEffect(effectBuilder.build());
-            meta.setPower(1);
-            firework.setFireworkMeta(meta);
-        }
-    }
-    
-    /**
-     * Толчок игрока
-     */
-    private void pushPlayer(Player player, String direction, String force) {
-        if (player == null) return;
-        
-        double pushForce = 1.0;
-        try {
-            pushForce = Double.parseDouble(force);
-            if (pushForce < 0.1 || pushForce > 10.0) {
-                player.sendMessage("§c[OpenHousing] Сила толчка должна быть от 0.1 до 10.0. Используется значение по умолчанию: 1.0");
-                pushForce = 1.0;
-            }
-        } catch (NumberFormatException e) {
-            // Используем значение по умолчанию
-            player.sendMessage("§c[OpenHousing] Неверная сила толчка: '" + force + "'. Используется значение по умолчанию: 1.0");
-        }
-        
-        Vector pushVector = new Vector(0, 0, 0);
-        
-        switch (direction.toLowerCase()) {
-            case "forward":
-                pushVector = player.getLocation().getDirection().multiply(pushForce);
-                break;
-            case "backward":
-                pushVector = player.getLocation().getDirection().multiply(-pushForce);
-                break;
-            case "up":
-                pushVector = new Vector(0, pushForce, 0);
-                break;
-            case "down":
-                pushVector = new Vector(0, -pushForce, 0);
-                break;
-            case "left":
-                pushVector = player.getLocation().getDirection().rotateAroundY(Math.PI/2).multiply(pushForce);
-                break;
-            case "right":
-                pushVector = player.getLocation().getDirection().rotateAroundY(-Math.PI/2).multiply(pushForce);
-                break;
-            default:
-                player.sendMessage("§c[OpenHousing] Неверное направление толчка: '" + direction + "'. Доступные: forward, backward, up, down, left, right");
-                return;
-        }
-        
-        player.setVelocity(pushVector);
-    }
-    
-    /**
-     * Установка опыта
-     */
-    private void setExperience(Player player, String value) {
-        if (player == null) return;
-        
-        try {
-            int level = Integer.parseInt(value);
-            if (level < 0) {
-                player.sendMessage("§c[OpenHousing] Уровень опыта не может быть отрицательным. Устанавливается 0.");
-                level = 0;
-            } else if (level > 1000) {
-                player.sendMessage("§c[OpenHousing] Уровень опыта слишком высокий: " + level + ". Максимум: 1000");
-                level = 1000;
-            }
-            player.setLevel(level);
-            player.setExp(0);
-        } catch (NumberFormatException e) {
-            // Игнорируем ошибку
-            player.sendMessage("§c[OpenHousing] Неверный уровень опыта: '" + value + "'. Ожидается число от 0 до 1000");
-        }
-    }
-    
-    /**
-     * Ожидание
-     */
-    private void waitAction(ExecutionContext context, String seconds) {
-        try {
-            int delay = Integer.parseInt(seconds);
-            if (delay < 1) {
-                if (context.getPlayer() != null) {
-                    context.getPlayer().sendMessage("§c[OpenHousing] Время ожидания должно быть больше 0. Используется 1 секунда.");
-                }
-                delay = 1;
-            } else if (delay > 300) {
-                if (context.getPlayer() != null) {
-                    context.getPlayer().sendMessage("§c[OpenHousing] Время ожидания слишком большое: " + delay + " сек. Максимум: 300 сек (5 мин)");
-                }
-                delay = 300;
-            }
-            // Используем Bukkit Scheduler вместо Thread.sleep
-            org.bukkit.Bukkit.getScheduler().runTaskLater(
-                ru.openhousing.OpenHousing.getInstance(),
-                () -> {
-                    // Здесь можно добавить логику, которая должна выполниться после задержки
-                    if (context.getPlayer() != null) {
-                        context.getPlayer().sendMessage("§aОжидание завершено!");
-                    }
-                },
-                delay * 20L // Конвертируем секунды в тики (20 тиков = 1 секунда)
-            );
-        } catch (NumberFormatException e) {
-            // Игнорируем ошибки
-            if (context.getPlayer() != null) {
-                context.getPlayer().sendMessage("§c[OpenHousing] Неверное время ожидания: '" + seconds + "'. Ожидается число от 1 до 300");
-            }
-        }
-    }
-    
-    /**
-     * Парсинг времени
-     */
-    private long parseTime(String timeString) {
-        switch (timeString.toLowerCase()) {
-            case "dawn":
-            case "sunrise":
-                return 0;
-            case "day":
-            case "noon":
-                return 6000;
-            case "dusk":
-            case "sunset":
-                return 12000;
-            case "night":
-            case "midnight":
-                return 18000;
-            default:
-                return Long.parseLong(timeString);
-        }
-    }
-    
-    /**
-     * Парсинг локации
-     */
-    private Location parseLocation(String locationString, World world) {
-        return ru.openhousing.utils.CodeBlockUtils.parseLocation(locationString, world);
-    }
-    
-    /**
-     * Замена переменных в строке
-     */
 
-    
+    private void executeSetBlock(ExecutionContext context) {
+        try {
+            String blockType = (String) getParameter("blockType");
+            double x = Double.parseDouble((String) getParameter("blockX"));
+            double y = Double.parseDouble((String) getParameter("blockY"));
+            double z = Double.parseDouble((String) getParameter("blockZ"));
+            String worldName = (String) getParameter("blockWorld");
+            
+            World world = context.getPlayer().getServer().getWorld(worldName);
+            if (world != null) {
+                Location location = new Location(world, x, y, z);
+                Material material = Material.valueOf(blockType);
+                location.getBlock().setType(material);
+            }
+        } catch (Exception e) {
+            // Игнорируем ошибки установки блока
+        }
+    }
+
+    private void executeBreakBlock(ExecutionContext context) {
+        try {
+            double x = Double.parseDouble((String) getParameter("breakX"));
+            double y = Double.parseDouble((String) getParameter("breakY"));
+            double z = Double.parseDouble((String) getParameter("breakZ"));
+            String worldName = (String) getParameter("breakWorld");
+            boolean dropItems = (Boolean) getParameter("dropItems");
+            
+            World world = context.getPlayer().getServer().getWorld(worldName);
+            if (world != null) {
+                Location location = new Location(world, x, y, z);
+                if (dropItems) {
+                    location.getBlock().breakNaturally();
+                } else {
+                    location.getBlock().setType(Material.AIR);
+                }
+            }
+        } catch (Exception e) {
+            // Игнорируем ошибки ломания блока
+        }
+    }
+
+    private void executeSpawnEntity(ExecutionContext context) {
+        try {
+            String entityType = (String) getParameter("entityType");
+            double x = Double.parseDouble((String) getParameter("entityX"));
+            double y = Double.parseDouble((String) getParameter("entityY"));
+            double z = Double.parseDouble((String) getParameter("entityZ"));
+            String worldName = (String) getParameter("entityWorld");
+            int count = Integer.parseInt((String) getParameter("entityCount"));
+            String name = (String) getParameter("entityName");
+            boolean customName = (Boolean) getParameter("entityCustomName");
+            boolean invulnerable = (Boolean) getParameter("entityInvulnerable");
+            boolean silent = (Boolean) getParameter("entitySilent");
+            boolean glowing = (Boolean) getParameter("entityGlowing");
+            boolean gravity = (Boolean) getParameter("entityGravity");
+            boolean ai = (Boolean) getParameter("entityAI");
+            
+            World world = context.getPlayer().getServer().getWorld(worldName);
+            if (world != null) {
+                Location location = new Location(world, x, y, z);
+                EntityType type = EntityType.valueOf(entityType);
+                
+                for (int i = 0; i < count; i++) {
+                    Entity entity = world.spawnEntity(location, type);
+                    
+                    if (customName && !name.isEmpty()) {
+                        entity.setCustomName(name);
+                        entity.setCustomNameVisible(true);
+                    }
+                    
+                    entity.setInvulnerable(invulnerable);
+                    entity.setSilent(silent);
+                    entity.setGlowing(glowing);
+                    entity.setGravity(gravity);
+                    
+                    if (entity instanceof org.bukkit.entity.Mob) {
+                        org.bukkit.entity.Mob mob = (org.bukkit.entity.Mob) entity;
+                        mob.setAI(ai);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Игнорируем ошибки спавна существ
+        }
+    }
+
+    private void executeRemoveEntity(ExecutionContext context) {
+        try {
+            if ((Boolean) getParameter("removeAllEntities")) {
+                double x = Double.parseDouble((String) getParameter("entityX"));
+                double y = Double.parseDouble((String) getParameter("entityY"));
+                double z = Double.parseDouble((String) getParameter("entityZ"));
+                String worldName = (String) getParameter("entityWorld");
+                double radius = Double.parseDouble((String) getParameter("removeRadius"));
+                
+                World world = context.getPlayer().getServer().getWorld(worldName);
+                if (world != null) {
+                    Location center = new Location(world, x, y, z);
+                    for (Entity entity : world.getEntities()) {
+                        if (entity.getLocation().distance(center) <= radius) {
+                            entity.remove();
+                        }
+                    }
+                }
+            } else {
+                String entityType = (String) getParameter("removeEntityType");
+                double x = Double.parseDouble((String) getParameter("entityX"));
+                double y = Double.parseDouble((String) getParameter("entityY"));
+                double z = Double.parseDouble((String) getParameter("entityZ"));
+                String worldName = (String) getParameter("entityWorld");
+                double radius = Double.parseDouble((String) getParameter("removeRadius"));
+                
+                World world = context.getPlayer().getServer().getWorld(worldName);
+                if (world != null) {
+                    Location center = new Location(world, x, y, z);
+                    EntityType type = EntityType.valueOf(entityType);
+                    
+                    for (Entity entity : world.getEntities()) {
+                        if (entity.getType() == type && entity.getLocation().distance(center) <= radius) {
+                            entity.remove();
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Игнорируем ошибки удаления существ
+        }
+    }
+
+    private void executeCreateExplosion(ExecutionContext context) {
+        try {
+            double x = Double.parseDouble((String) getParameter("explosionX"));
+            double y = Double.parseDouble((String) getParameter("explosionY"));
+            double z = Double.parseDouble((String) getParameter("explosionZ"));
+            String worldName = (String) getParameter("explosionWorld");
+            float power = Float.parseFloat((String) getParameter("explosionPower"));
+            boolean fire = (Boolean) getParameter("explosionFire");
+            boolean breakBlocks = (Boolean) getParameter("explosionBreakBlocks");
+            
+            World world = context.getPlayer().getServer().getWorld(worldName);
+            if (world != null) {
+                Location location = new Location(world, x, y, z);
+                world.createExplosion(location, power, fire, breakBlocks);
+            }
+        } catch (Exception e) {
+            // Игнорируем ошибки создания взрыва
+        }
+    }
+
+    private void executeSpawnParticles(ExecutionContext context) {
+        try {
+            String particleType = (String) getParameter("particleType");
+            double x = Double.parseDouble((String) getParameter("particleX"));
+            double y = Double.parseDouble((String) getParameter("particleY"));
+            double z = Double.parseDouble((String) getParameter("particleZ"));
+            String worldName = (String) getParameter("particleWorld");
+            int count = Integer.parseInt((String) getParameter("particleCount"));
+            double offsetX = Double.parseDouble((String) getParameter("particleOffsetX"));
+            double offsetY = Double.parseDouble((String) getParameter("particleOffsetY"));
+            double offsetZ = Double.parseDouble((String) getParameter("particleOffsetZ"));
+            double speed = Double.parseDouble((String) getParameter("particleSpeed"));
+            
+            World world = context.getPlayer().getServer().getWorld(worldName);
+            if (world != null) {
+                Location location = new Location(world, x, y, z);
+                org.bukkit.Particle particle = org.bukkit.Particle.valueOf(particleType);
+                world.spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, speed);
+            }
+        } catch (Exception e) {
+            // Игнорируем ошибки создания частиц
+        }
+    }
+
+    private void executePlaySound(ExecutionContext context) {
+        try {
+            String soundType = (String) getParameter("soundType");
+            double x = Double.parseDouble((String) getParameter("soundX"));
+            double y = Double.parseDouble((String) getParameter("soundY"));
+            double z = Double.parseDouble((String) getParameter("soundZ"));
+            String worldName = (String) getParameter("soundWorld");
+            float volume = Float.parseFloat((String) getParameter("soundVolume"));
+            float pitch = Float.parseFloat((String) getParameter("soundPitch"));
+            
+            World world = context.getPlayer().getServer().getWorld(worldName);
+            if (world != null) {
+                Location location = new Location(world, x, y, z);
+                Sound sound = Sound.valueOf(soundType);
+                world.playSound(location, sound, volume, pitch);
+            }
+        } catch (Exception e) {
+            // Игнорируем ошибки воспроизведения звука
+        }
+    }
+
+    private void executeSetWeather(ExecutionContext context) {
+        try {
+            String weatherType = (String) getParameter("weatherType");
+            int duration = Integer.parseInt((String) getParameter("weatherDuration"));
+            String worldName = (String) getParameter("entityWorld");
+            
+            World world = context.getPlayer().getServer().getWorld(worldName);
+            if (world != null) {
+                switch (weatherType) {
+                    case "CLEAR":
+                        world.setStorm(false);
+                        world.setThundering(false);
+                        break;
+                    case "RAIN":
+                        world.setStorm(true);
+                        world.setThundering(false);
+                        break;
+                    case "THUNDER":
+                        world.setStorm(true);
+                        world.setThundering(true);
+                        break;
+                }
+                
+                if (duration > 0) {
+                    // Устанавливаем длительность погоды
+                    world.setWeatherDuration(duration);
+                }
+            }
+        } catch (Exception e) {
+            // Игнорируем ошибки установки погоды
+        }
+    }
+
+    private void executeSetTime(ExecutionContext context) {
+        try {
+            String timeValue = (String) getParameter("timeValue");
+            String timeType = (String) getParameter("timeType");
+            String worldName = (String) getParameter("entityWorld");
+            
+            World world = context.getPlayer().getServer().getWorld(worldName);
+            if (world != null) {
+                long time;
+                if (timeType.equals("TICKS")) {
+                    time = Long.parseLong(timeValue);
+                } else {
+                    // Предполагаем, что это время дня (0-24000)
+                    time = Long.parseLong(timeValue);
+                }
+                world.setTime(time);
+            }
+        } catch (Exception e) {
+            // Игнорируем ошибки установки времени
+        }
+    }
+
+    private void executeStrikeLightning(ExecutionContext context) {
+        try {
+            double x = Double.parseDouble((String) getParameter("lightningX"));
+            double y = Double.parseDouble((String) getParameter("lightningY"));
+            double z = Double.parseDouble((String) getParameter("lightningZ"));
+            String worldName = (String) getParameter("lightningWorld");
+            boolean noFire = (Boolean) getParameter("lightningNoFire");
+            
+            World world = context.getPlayer().getServer().getWorld(worldName);
+            if (world != null) {
+                Location location = new Location(world, x, y, z);
+                if (noFire) {
+                    world.strikeLightningEffect(location);
+                } else {
+                    world.strikeLightning(location);
+                }
+            }
+        } catch (Exception e) {
+            // Игнорируем ошибки удара молнии
+        }
+    }
+
+    private void executeTeleportEntity(ExecutionContext context) {
+        try {
+            String entityToTeleport = (String) getParameter("entityToTeleport");
+            double x = Double.parseDouble((String) getParameter("teleportX"));
+            double y = Double.parseDouble((String) getParameter("teleportY"));
+            double z = Double.parseDouble((String) getParameter("teleportZ"));
+            String worldName = (String) getParameter("teleportWorld");
+            
+            World world = context.getPlayer().getServer().getWorld(worldName);
+            if (world != null) {
+                Location destination = new Location(world, x, y, z);
+                
+                if (entityToTeleport.equals("NEAREST_PLAYER")) {
+                    Player nearestPlayer = null;
+                    double minDistance = Double.MAX_VALUE;
+                    
+                    for (Player player : world.getPlayers()) {
+                        double distance = player.getLocation().distance(context.getPlayer().getLocation());
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            nearestPlayer = player;
+                        }
+                    }
+                    
+                    if (nearestPlayer != null) {
+                        nearestPlayer.teleport(destination);
+                    }
+                } else {
+                    // Телепортируем всех игроков в мире
+                    for (Player player : world.getPlayers()) {
+                        player.teleport(destination);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Игнорируем ошибки телепортации
+        }
+    }
+
+    private void executeAddEffectToNearby(ExecutionContext context) {
+        try {
+            String effectType = (String) getParameter("effectType");
+            int duration = Integer.parseInt((String) getParameter("effectDuration"));
+            int amplifier = Integer.parseInt((String) getParameter("effectAmplifier"));
+            double radius = Double.parseDouble((String) getParameter("effectRadius"));
+            boolean targetPlayers = (Boolean) getParameter("effectTargetPlayers");
+            boolean targetEntities = (Boolean) getParameter("effectTargetEntities");
+            
+            Location center = context.getPlayer().getLocation();
+            PotionEffectType type = PotionEffectType.getByName(effectType);
+            
+            if (type != null) {
+                PotionEffect effect = new PotionEffect(type, duration, amplifier);
+                
+                if (targetPlayers) {
+                    for (Player player : center.getWorld().getPlayers()) {
+                        if (player.getLocation().distance(center) <= radius) {
+                            player.addPotionEffect(effect);
+                        }
+                    }
+                }
+                
+                if (targetEntities) {
+                    for (Entity entity : center.getWorld().getEntities()) {
+                        if (entity.getLocation().distance(center) <= radius && entity instanceof Player) {
+                            ((Player) entity).addPotionEffect(effect);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Игнорируем ошибки добавления эффектов
+        }
+    }
+
+    private void executeBroadcastMessage(ExecutionContext context) {
+        try {
+            String message = (String) getParameter("broadcastText");
+            boolean toWorld = (Boolean) getParameter("broadcastToWorld");
+            boolean toNearby = (Boolean) getParameter("broadcastToNearby");
+            double radius = Double.parseDouble((String) getParameter("broadcastRadius"));
+            
+            message = replacePlaceholders(message, context.getPlayer(), context);
+            
+            if (toWorld) {
+                String worldName = (String) getParameter("entityWorld");
+                World world = context.getPlayer().getServer().getWorld(worldName);
+                if (world != null) {
+                    for (Player player : world.getPlayers()) {
+                        player.sendMessage(message);
+                    }
+                }
+            } else if (toNearby) {
+                Location center = context.getPlayer().getLocation();
+                for (Player player : center.getWorld().getPlayers()) {
+                    if (player.getLocation().distance(center) <= radius) {
+                        player.sendMessage(message);
+                    }
+                }
+            } else {
+                // Отправляем всем игрокам на сервере
+                context.getPlayer().getServer().broadcastMessage(message);
+            }
+        } catch (Exception e) {
+            // Игнорируем ошибки отправки сообщений
+        }
+    }
+
+    private void logAction(ExecutionContext context, String actionType) {
+        try {
+            String format = (String) getParameter("logFormat");
+            String log = replacePlaceholders(format, context.getPlayer(), context)
+                .replace("{action}", actionType);
+            // TODO: Записать в лог
+        } catch (Exception e) {
+            // Игнорируем ошибки логирования
+        }
+    }
+
+    private String replacePlaceholders(String text, Player player, ExecutionContext context) {
+        if (text == null) return "";
+        
+        return text
+            .replace("{player}", player.getName())
+            .replace("{uuid}", player.getUniqueId().toString())
+            .replace("{world}", player.getWorld().getName())
+            .replace("{x}", String.valueOf(player.getLocation().getBlockX()))
+            .replace("{y}", String.valueOf(player.getLocation().getBlockY()))
+            .replace("{z}", String.valueOf(player.getLocation().getBlockZ()))
+            .replace("{time}", String.valueOf(System.currentTimeMillis()))
+            .replace("{location}", String.format("%.1f,%.1f,%.1f", 
+                player.getLocation().getX(), 
+                player.getLocation().getY(), 
+                player.getLocation().getZ()));
+    }
+
+    @Override
+    public Map<String, Object> getParameters() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("enabled", getParameter("enabled"));
+        params.put("actionType", getParameter("actionType"));
+        params.put("setBlock", getParameter("setBlock"));
+        params.put("blockType", getParameter("blockType"));
+        params.put("blockX", getParameter("blockX"));
+        params.put("blockY", getParameter("blockY"));
+        params.put("blockZ", getParameter("blockZ"));
+        params.put("blockWorld", getParameter("blockWorld"));
+        params.put("breakBlock", getParameter("breakBlock"));
+        params.put("breakX", getParameter("breakX"));
+        params.put("breakY", getParameter("breakY"));
+        params.put("breakZ", getParameter("breakZ"));
+        params.put("breakWorld", getParameter("breakWorld"));
+        params.put("dropItems", getParameter("dropItems"));
+        params.put("spawnEntity", getParameter("spawnEntity"));
+        params.put("entityType", getParameter("entityType"));
+        params.put("entityX", getParameter("entityX"));
+        params.put("entityY", getParameter("entityY"));
+        params.put("entityZ", getParameter("entityZ"));
+        params.put("entityWorld", getParameter("entityWorld"));
+        params.put("entityCount", getParameter("entityCount"));
+        params.put("entityName", getParameter("entityName"));
+        params.put("entityCustomName", getParameter("entityCustomName"));
+        params.put("entityInvulnerable", getParameter("entityInvulnerable"));
+        params.put("entitySilent", getParameter("entitySilent"));
+        params.put("entityGlowing", getParameter("entityGlowing"));
+        params.put("entityGravity", getParameter("entityGravity"));
+        params.put("entityAI", getParameter("entityAI"));
+        params.put("removeEntity", getParameter("removeEntity"));
+        params.put("removeEntityType", getParameter("removeEntityType"));
+        params.put("removeRadius", getParameter("removeRadius"));
+        params.put("removeAllEntities", getParameter("removeAllEntities"));
+        params.put("createExplosion", getParameter("createExplosion"));
+        params.put("explosionX", getParameter("explosionX"));
+        params.put("explosionY", getParameter("explosionY"));
+        params.put("explosionZ", getParameter("explosionZ"));
+        params.put("explosionWorld", getParameter("explosionWorld"));
+        params.put("explosionPower", getParameter("explosionPower"));
+        params.put("explosionFire", getParameter("explosionFire"));
+        params.put("explosionBreakBlocks", getParameter("explosionBreakBlocks"));
+        params.put("spawnParticles", getParameter("spawnParticles"));
+        params.put("particleType", getParameter("particleType"));
+        params.put("particleX", getParameter("particleX"));
+        params.put("particleY", getParameter("particleY"));
+        params.put("particleZ", getParameter("particleZ"));
+        params.put("particleWorld", getParameter("particleWorld"));
+        params.put("particleCount", getParameter("particleCount"));
+        params.put("particleOffsetX", getParameter("particleOffsetX"));
+        params.put("particleOffsetY", getParameter("particleOffsetY"));
+        params.put("particleOffsetZ", getParameter("particleOffsetZ"));
+        params.put("particleSpeed", getParameter("particleSpeed"));
+        params.put("playSound", getParameter("playSound"));
+        params.put("soundType", getParameter("soundType"));
+        params.put("soundX", getParameter("soundX"));
+        params.put("soundY", getParameter("soundY"));
+        params.put("soundZ", getParameter("soundZ"));
+        params.put("soundWorld", getParameter("soundWorld"));
+        params.put("soundVolume", getParameter("soundVolume"));
+        params.put("soundPitch", getParameter("soundPitch"));
+        params.put("setWeather", getParameter("setWeather"));
+        params.put("weatherType", getParameter("weatherType"));
+        params.put("weatherDuration", getParameter("weatherDuration"));
+        params.put("setTime", getParameter("setTime"));
+        params.put("timeValue", getParameter("timeValue"));
+        params.put("timeType", getParameter("timeType"));
+        params.put("strikeLightning", getParameter("strikeLightning"));
+        params.put("lightningX", getParameter("lightningX"));
+        params.put("lightningY", getParameter("lightningY"));
+        params.put("lightningZ", getParameter("lightningZ"));
+        params.put("lightningWorld", getParameter("lightningWorld"));
+        params.put("lightningNoFire", getParameter("lightningNoFire"));
+        params.put("teleportEntity", getParameter("teleportEntity"));
+        params.put("entityToTeleport", getParameter("entityToTeleport"));
+        params.put("teleportX", getParameter("teleportX"));
+        params.put("teleportY", getParameter("teleportY"));
+        params.put("teleportZ", getParameter("teleportZ"));
+        params.put("teleportWorld", getParameter("teleportWorld"));
+        params.put("addEffectToNearby", getParameter("addEffectToNearby"));
+        params.put("effectType", getParameter("effectType"));
+        params.put("effectDuration", getParameter("effectDuration"));
+        params.put("effectAmplifier", getParameter("effectAmplifier"));
+        params.put("effectRadius", getParameter("effectRadius"));
+        params.put("effectTargetPlayers", getParameter("effectTargetPlayers"));
+        params.put("effectTargetEntities", getParameter("effectTargetEntities"));
+        params.put("broadcastMessage", getParameter("broadcastMessage"));
+        params.put("broadcastText", getParameter("broadcastText"));
+        params.put("broadcastToWorld", getParameter("broadcastToWorld"));
+        params.put("broadcastToNearby", getParameter("broadcastToNearby"));
+        params.put("broadcastRadius", getParameter("broadcastRadius"));
+        params.put("logAction", getParameter("logAction"));
+        params.put("logFormat", getParameter("logFormat"));
+        return params;
+    }
+
     @Override
     public boolean validate() {
-        return getParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE) != null;
+        return true; // Базовая валидация
     }
-    
+
     @Override
     public List<String> getDescription() {
+        List<String> description = new ArrayList<>();
+        description.add("Блок действий с миром");
+        description.add("Выполняет различные действия:");
+        description.add("- Установка и ломание блоков");
+        description.add("- Спавн и удаление существ");
+        description.add("- Создание взрывов и молний");
+        description.add("- Создание частиц и звуков");
+        description.add("- Изменение погоды и времени");
+        description.add("- Телепортация существ");
+        description.add("- Добавление эффектов");
+        description.add("- Отправка сообщений");
         WorldActionType actionType = (WorldActionType) getParameter(ru.openhousing.coding.constants.BlockParams.ACTION_TYPE);
         String value = (String) getParameter(ru.openhousing.coding.constants.BlockParams.VALUE);
         String location = (String) getParameter(ru.openhousing.coding.constants.BlockParams.LOCATION);

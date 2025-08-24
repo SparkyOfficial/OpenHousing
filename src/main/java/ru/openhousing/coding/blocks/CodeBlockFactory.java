@@ -37,9 +37,12 @@ public class CodeBlockFactory {
                 return new PlayerChatEventBlock();
             case PLAYER_BLOCK_BREAK:
                 return new PlayerBlockBreakEventBlock();
+            case PLAYER_MOVE:
+                return new PlayerMoveEventBlock();
+            case PLAYER_INTERACT:
+                return new PlayerInteractEventBlock();
             case PLAYER_QUIT:
             case PLAYER_COMMAND:
-            case PLAYER_MOVE:
             case PLAYER_TELEPORT:
             case PLAYER_RESPAWN:
             case PLAYER_DAMAGE:
@@ -53,7 +56,6 @@ public class CodeBlockFactory {
             case PLAYER_ITEM_CONSUME:
             case PLAYER_ITEM_BREAK:
             case PLAYER_BLOCK_PLACE:
-            case PLAYER_INTERACT:
             case PLAYER_INTERACT_ENTITY:
             case PLAYER_FISH:
             case PLAYER_ENCHANT:
@@ -113,6 +115,8 @@ public class CodeBlockFactory {
             // Условия переменных
             case IF_VARIABLE:
                 return new IfVariableConditionBlock();
+            case IF_PLAYER_HAS_ITEM:
+                return new IfPlayerHasItemConditionBlock();
             case IF_VARIABLE_EQUALS:
             case IF_VARIABLE_GREATER:
             case IF_VARIABLE_LESS:
