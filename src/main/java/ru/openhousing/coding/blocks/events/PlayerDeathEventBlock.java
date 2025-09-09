@@ -8,10 +8,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -32,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author OpenHousing Team
  * @version 1.0.0
  */
-public class PlayerDeathEventBlock extends CodeBlock implements Listener {
+public class PlayerDeathEventBlock extends CodeBlock {
     
     // Статические поля для глобального управления
     private static final Map<UUID, PlayerDeathRecord> deathHistory = new ConcurrentHashMap<>();
@@ -122,7 +118,7 @@ public class PlayerDeathEventBlock extends CodeBlock implements Listener {
     public PlayerDeathEventBlock() {
         super(BlockType.PLAYER_DEATH);
         initializeDefaultSettings();
-        registerListener();
+        // Removed registerListener() call - now handled by OptimizedEventManager
     }
     
     /**
@@ -172,27 +168,9 @@ public class PlayerDeathEventBlock extends CodeBlock implements Listener {
     }
     
     /**
-     * Регистрация листенера
-     */
-    private void registerListener() {
-        try {
-            OpenHousing plugin = OpenHousing.getInstance();
-            if (plugin != null && plugin.isEnabled()) {
-                Bukkit.getPluginManager().registerEvents(this, plugin);
-            }
-        } catch (Exception e) {
-            System.err.println("Failed to register PlayerDeathEventBlock listener: " + e.getMessage());
-        }
-    }
-    
-    /**
      * Обработка события смерти игрока
      */
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        Player player = event.getEntity();
-        Player killer = player.getKiller();
-        
+    public void processDeathEvent(Player player, Player killer, Map<String, Object> eventData) {
         if (player == null) {
             return;
         }
@@ -209,7 +187,7 @@ public class PlayerDeathEventBlock extends CodeBlock implements Listener {
         context.setVariable("playerUUID", player.getUniqueId().toString());
         context.setVariable("killerName", killer != null ? killer.getName() : "none");
         context.setVariable("killerUUID", killer != null ? killer.getUniqueId().toString() : "none");
-        context.setVariable("cause", event.getDeathMessage() != null ? event.getDeathMessage() : "unknown");
+        context.setVariable("cause", eventData.get("cause") != null ? eventData.get("cause").toString() : "unknown");
         context.setVariable("world", player.getWorld().getName());
         context.setVariable("location", formatLocation(player.getLocation()));
         context.setVariable("deathTime", System.currentTimeMillis());
@@ -220,16 +198,16 @@ public class PlayerDeathEventBlock extends CodeBlock implements Listener {
         ExecutionResult result = execute(context);
         
         // Обработка результата
-        handleExecutionResult(event, result, context);
+        handleExecutionResult(player, result, context);
         
         // Обновление статистики
         updateStatistics(player, result);
         
         // Логирование
-        logPlayerDeath(player, event, result, context);
+        logPlayerDeath(player, eventData, result, context);
         
         // Уведомления
-        sendNotifications(player, event, result, context);
+        sendNotifications(player, eventData, result, context);
         
         // Эффекты
         if (result != null && result.isSuccess()) {
@@ -413,7 +391,7 @@ public class PlayerDeathEventBlock extends CodeBlock implements Listener {
     /**
      * Обработка результата выполнения
      */
-    private void handleExecutionResult(PlayerDeathEvent event, ExecutionResult result, ExecutionContext context) {
+    private void handleExecutionResult(Player player, ExecutionResult result, ExecutionContext context) {
         if (result == null) {
             return;
         }
@@ -422,31 +400,20 @@ public class PlayerDeathEventBlock extends CodeBlock implements Listener {
             successfulDeaths.incrementAndGet();
             
             // Добавляем в список недавно умерших
-            recentlyDiedPlayers.add(event.getEntity().getUniqueId());
+            recentlyDiedPlayers.add(player.getUniqueId());
             
             // Удаляем через 1 минуту
             Bukkit.getScheduler().runTaskLater(OpenHousing.getInstance(), () -> {
-                recentlyDiedPlayers.remove(event.getEntity().getUniqueId());
+                recentlyDiedPlayers.remove(player.getUniqueId());
             }, 1200L); // 1 минута * 20 тиков
             
-            // Настройка дропа предметов
-            if (keepInventory) {
-                event.setKeepInventory(true);
-            }
-            
-            if (keepExperience) {
-                event.setKeepLevel(true);
-            }
-            
-            // Настройка дропа денег
-            if (dropMoney && moneyDropAmount > 0) {
-                // TODO: Реализовать дроп денег
-            }
+            // Note: We can't set keepInventory or keepLevel here anymore since we don't have access to the event
+            // These settings should be handled by the OptimizedEventManager when processing the event
             
         } else {
             // Логируем ошибку
             OpenHousing.getInstance().getLogger().warning(
-                "Player death processing failed for " + event.getEntity().getName() + 
+                "Player death processing failed for " + player.getName() + 
                 ": " + result.getMessage());
         }
     }
@@ -482,7 +449,7 @@ public class PlayerDeathEventBlock extends CodeBlock implements Listener {
     /**
      * Логирование смерти игрока
      */
-    private void logPlayerDeath(Player player, PlayerDeathEvent event, ExecutionResult result, ExecutionContext context) {
+    private void logPlayerDeath(Player player, Map<String, Object> eventData, ExecutionResult result, ExecutionContext context) {
         if (!logDeaths) {
             return;
         }
@@ -505,13 +472,13 @@ public class PlayerDeathEventBlock extends CodeBlock implements Listener {
         }
         
         // Сохранение в историю
-        saveToHistory(player.getUniqueId(), event, result, context);
+        saveToHistory(player.getUniqueId(), eventData, result, context);
     }
     
     /**
      * Отправка уведомлений
      */
-    private void sendNotifications(Player player, PlayerDeathEvent event, ExecutionResult result, ExecutionContext context) {
+    private void sendNotifications(Player player, Map<String, Object> eventData, ExecutionResult result, ExecutionContext context) {
         // Уведомление администраторов
         if (notifyAdmins) {
             String adminMessage = adminNotificationFormat
@@ -647,7 +614,7 @@ public class PlayerDeathEventBlock extends CodeBlock implements Listener {
     /**
      * Сохранение в историю
      */
-    private void saveToHistory(UUID playerId, PlayerDeathEvent event, ExecutionResult result, ExecutionContext context) {
+    private void saveToHistory(UUID playerId, Map<String, Object> eventData, ExecutionResult result, ExecutionContext context) {
         PlayerDeathRecord record = new PlayerDeathRecord(
             playerId,
             System.currentTimeMillis(),

@@ -4,10 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.BlockType;
@@ -27,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author OpenHousing Team
  * @version 1.0.0
  */
-public class PlayerQuitEventBlock extends CodeBlock implements Listener {
+public class PlayerQuitEventBlock extends CodeBlock {
     
     // Статические поля для глобального управления
     private static final Map<UUID, QuitRecord> quitHistory = new ConcurrentHashMap<>();
@@ -61,7 +57,6 @@ public class PlayerQuitEventBlock extends CodeBlock implements Listener {
     public PlayerQuitEventBlock() {
         super(BlockType.PLAYER_QUIT);
         initializeDefaultSettings();
-        registerListener();
     }
     
     /**
@@ -110,26 +105,9 @@ public class PlayerQuitEventBlock extends CodeBlock implements Listener {
     }
     
     /**
-     * Регистрация листенера
-     */
-    private void registerListener() {
-        try {
-            OpenHousing plugin = OpenHousing.getInstance();
-            if (plugin != null && plugin.isEnabled()) {
-                Bukkit.getPluginManager().registerEvents(this, plugin);
-            }
-        } catch (Exception e) {
-            System.err.println("Failed to register PlayerQuitEventBlock listener: " + e.getMessage());
-        }
-    }
-    
-    /**
      * Обработка события выхода игрока
      */
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
-        
+    public void processQuitEvent(Player player, Map<String, Object> eventData) {
         if (player == null) {
             return;
         }
@@ -139,17 +117,25 @@ public class PlayerQuitEventBlock extends CodeBlock implements Listener {
         context.setVariable("playerName", player.getName());
         context.setVariable("playerUUID", player.getUniqueId().toString());
         context.setVariable("world", player.getWorld().getName());
-        context.setVariable("location", formatLocation(player.getLocation()));
         context.setVariable("timestamp", System.currentTimeMillis());
-        context.setVariable("quitReason", detectQuitReason(event));
-        context.setVariable("onlinePlayers", Bukkit.getOnlinePlayers().size() - 1);
-        context.setVariable("maxPlayers", Bukkit.getMaxPlayers());
+        
+        // Добавляем данные события из eventData
+        if (eventData != null) {
+            context.getVariables().putAll(eventData);
+            // Если location не передан в eventData, получаем его из игрока
+            if (!context.getVariables().containsKey("location")) {
+                context.setVariable("location", formatLocation(player.getLocation()));
+            }
+        } else {
+            // Если eventData null, получаем location из игрока
+            context.setVariable("location", formatLocation(player.getLocation()));
+        }
         
         // Выполнение блока
         ExecutionResult result = execute(context);
         
         // Обработка результата
-        handleExecutionResult(event, result, context);
+        handleExecutionResult(player, result, context);
         
         // Обновление статистики
         updateStatistics(player, context);
@@ -165,30 +151,9 @@ public class PlayerQuitEventBlock extends CodeBlock implements Listener {
     }
     
     /**
-     * Определение причины выхода
-     */
-    private String detectQuitReason(PlayerQuitEvent event) {
-        // TODO: Реализовать определение причины выхода
-        // Это может быть через API плагина или собственное отслеживание
-        return "NORMAL";
-    }
-    
-    /**
-     * Форматирование локации
-     */
-    private String formatLocation(org.bukkit.Location location) {
-        if (location == null) {
-            return "null";
-        }
-        
-        return String.format("%.1f, %.1f, %.1f", 
-            location.getX(), location.getY(), location.getZ());
-    }
-    
-    /**
      * Обработка результата выполнения
      */
-    private void handleExecutionResult(PlayerQuitEvent event, ExecutionResult result, ExecutionContext context) {
+    private void handleExecutionResult(Player player, ExecutionResult result, ExecutionContext context) {
         if (result == null) {
             return;
         }
@@ -361,6 +326,27 @@ public class PlayerQuitEventBlock extends CodeBlock implements Listener {
         description.add("§7• Задержка: " + getIntegerValue(quitDelayVar) + "мс");
         
         return description;
+    }
+    
+    /**
+     * Определение причины выхода
+     */
+    private String detectQuitReason(Map<String, Object> eventData) {
+        // TODO: Реализовать определение причины выхода
+        // Это может быть через API плагина или собственное отслеживание
+        return "NORMAL";
+    }
+    
+    /**
+     * Форматирование локации
+     */
+    private String formatLocation(org.bukkit.Location location) {
+        if (location == null) {
+            return "null";
+        }
+        
+        return String.format("%.1f, %.1f, %.1f", 
+            location.getX(), location.getY(), location.getZ());
     }
     
     // Вспомогательные методы для работы с переменными
