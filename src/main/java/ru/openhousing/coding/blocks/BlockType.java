@@ -7,7 +7,8 @@ import org.bukkit.Material;
  */
 public enum BlockType {
     
-    // События игрока (28 событий)
+    // События игрока (29 событий)
+    GAME_START("Начало игры", Material.EMERALD_BLOCK, BlockCategory.EVENT, "Срабатывает при запуске игры командой /play"),
     PLAYER_JOIN("Игрок зашел", Material.PLAYER_HEAD, BlockCategory.EVENT, "Игрок присоединился к серверу"),
     PLAYER_QUIT("Игрок вышел", Material.SKELETON_SKULL, BlockCategory.EVENT, "Игрок покинул сервер"),
     PLAYER_CHAT("Игрок написал", Material.WRITABLE_BOOK, BlockCategory.EVENT, "Игрок отправил сообщение в чат"),
