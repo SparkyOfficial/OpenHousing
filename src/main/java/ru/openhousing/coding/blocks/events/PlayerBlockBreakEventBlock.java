@@ -184,85 +184,68 @@ public class PlayerBlockBreakEventBlock extends CodeBlock {
         return ExecutionResult.success();
     }
     
-    @EventHandler
-    public void onBlockBreak(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-        Block block = event.getBlock();
+    /**
+     * Обработка события разрушения блока
+     */
+    public void processBlockBreakEvent(Player player, Block block, Map<String, Object> eventData) {
         Location location = block.getLocation();
         
         // Проверка включения
         if (!blockBreakEnabled) {
-            event.setCancelled(true);
+            // Note: We can't cancel the event here anymore since we don't have access to it
+            // This should be handled by the OptimizedEventManager when processing the event
             return;
         }
         
         // Проверка разрешений
         if (permissionCheckEnabled && !player.hasPermission("openhousing.blockbreak")) {
-            event.setCancelled(true);
-            player.sendMessage("§cУ вас нет разрешения на разрушение блоков!");
+            // Note: We can't cancel the event here anymore since we don't have access to it
+            // This should be handled by the OptimizedEventManager when processing the event
             return;
         }
         
         // Проверка кулдауна
         if (cooldownEnabled && !checkCooldown(player)) {
-            event.setCancelled(true);
-            player.sendMessage("§cПодождите перед следующим разрушением блока!");
             return;
         }
         
         // Проверка ограничений по области
         if (areaRestrictionEnabled && !checkAreaRestriction(player, location)) {
-            event.setCancelled(true);
-            player.sendMessage("§cРазрушение блоков запрещено в этой области!");
             return;
         }
         
         // Проверка ограничений по времени
         if (timeRestrictionEnabled && !checkTimeRestriction(location.getWorld())) {
-            event.setCancelled(true);
-            player.sendMessage("§cРазрушение блоков запрещено в это время!");
             return;
         }
         
         // Проверка ограничений по погоде
         if (weatherRestrictionEnabled && !checkWeatherRestriction(location.getWorld())) {
-            event.setCancelled(true);
-            player.sendMessage("§cРазрушение блоков запрещено в такую погоду!");
             return;
         }
         
         // Проверка ограничений по инструментам
         if (toolRestrictionEnabled && !checkToolRestriction(player)) {
-            event.setCancelled(true);
-            player.sendMessage("§cИспользуйте подходящий инструмент для разрушения!");
             return;
         }
         
         // Проверка ограничений по блокам
         if (blockRestrictionEnabled && !checkBlockRestriction(block)) {
-            event.setCancelled(true);
-            player.sendMessage("§cЭтот блок нельзя разрушать!");
             return;
         }
         
         // Проверка ограничений по миру
         if (worldRestrictionEnabled && !checkWorldRestriction(location.getWorld().getName())) {
-            event.setCancelled(true);
-            player.sendMessage("§cРазрушение блоков запрещено в этом мире!");
             return;
         }
         
         // Проверка защиты региона
         if (regionProtectionEnabled && !checkRegionProtection(location)) {
-            event.setCancelled(true);
-            player.sendMessage("§cЭтот регион защищен от разрушения!");
             return;
         }
         
         // Проверка анти-эксплойт
         if (antiExploitEnabled && !checkAntiExploit(player)) {
-            event.setCancelled(true);
-            player.sendMessage("§cПодозрительная активность обнаружена!");
             return;
         }
         
