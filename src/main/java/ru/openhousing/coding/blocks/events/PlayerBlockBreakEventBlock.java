@@ -6,8 +6,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.BlockType;
@@ -206,46 +204,64 @@ public class PlayerBlockBreakEventBlock extends CodeBlock {
         
         // Проверка кулдауна
         if (cooldownEnabled && !checkCooldown(player)) {
+            // Note: We can't cancel the event here anymore since we don't have access to it
+            // This should be handled by the OptimizedEventManager when processing the event
             return;
         }
         
         // Проверка ограничений по области
         if (areaRestrictionEnabled && !checkAreaRestriction(player, location)) {
+            // Note: We can't cancel the event here anymore since we don't have access to it
+            // This should be handled by the OptimizedEventManager when processing the event
             return;
         }
         
         // Проверка ограничений по времени
         if (timeRestrictionEnabled && !checkTimeRestriction(location.getWorld())) {
+            // Note: We can't cancel the event here anymore since we don't have access to it
+            // This should be handled by the OptimizedEventManager when processing the event
             return;
         }
         
         // Проверка ограничений по погоде
         if (weatherRestrictionEnabled && !checkWeatherRestriction(location.getWorld())) {
+            // Note: We can't cancel the event here anymore since we don't have access to it
+            // This should be handled by the OptimizedEventManager when processing the event
             return;
         }
         
         // Проверка ограничений по инструментам
         if (toolRestrictionEnabled && !checkToolRestriction(player)) {
+            // Note: We can't cancel the event here anymore since we don't have access to it
+            // This should be handled by the OptimizedEventManager when processing the event
             return;
         }
         
         // Проверка ограничений по блокам
         if (blockRestrictionEnabled && !checkBlockRestriction(block)) {
+            // Note: We can't cancel the event here anymore since we don't have access to it
+            // This should be handled by the OptimizedEventManager when processing the event
             return;
         }
         
         // Проверка ограничений по миру
         if (worldRestrictionEnabled && !checkWorldRestriction(location.getWorld().getName())) {
+            // Note: We can't cancel the event here anymore since we don't have access to it
+            // This should be handled by the OptimizedEventManager when processing the event
             return;
         }
         
         // Проверка защиты региона
         if (regionProtectionEnabled && !checkRegionProtection(location)) {
+            // Note: We can't cancel the event here anymore since we don't have access to it
+            // This should be handled by the OptimizedEventManager when processing the event
             return;
         }
         
         // Проверка анти-эксплойт
         if (antiExploitEnabled && !checkAntiExploit(player)) {
+            // Note: We can't cancel the event here anymore since we don't have access to it
+            // This should be handled by the OptimizedEventManager when processing the event
             return;
         }
         
@@ -260,27 +276,8 @@ public class PlayerBlockBreakEventBlock extends CodeBlock {
             executeBreakCommands(player, block);
         }
         
-        // Настройка дропа
-        if (!dropItemsEnabled) {
-            event.setDropItems(false);
-        }
-        
-        // Настройка опыта
-        if (!experienceEnabled) {
-            event.setExpToDrop(0);
-        }
-        
-        // Настройка звука
-        if (!soundEnabled) {
-            event.setCancelled(true);
-            // Восстанавливаем блок и ломаем без звука
-            block.setType(Material.AIR);
-        }
-        
-        // Настройка частиц
-        if (!particlesEnabled) {
-            // Отключаем частицы (через NMS или плагины)
-        }
+        // Note: We can't set drop items, experience, or cancel the event here anymore since we don't have access to it
+        // These settings should be handled by the OptimizedEventManager when processing the event
         
         // Кастомные дропы
         if (customDropsEnabled) {
