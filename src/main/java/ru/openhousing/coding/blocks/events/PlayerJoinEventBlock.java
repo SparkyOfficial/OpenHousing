@@ -8,9 +8,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -34,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author OpenHousing Team
  * @version 1.0.0
  */
-public class PlayerJoinEventBlock extends CodeBlock implements Listener {
+public class PlayerJoinEventBlock extends CodeBlock {
     
     // Статические поля для глобального управления
     private static final Map<UUID, PlayerJoinRecord> joinHistory = new ConcurrentHashMap<>();
@@ -141,7 +138,6 @@ public class PlayerJoinEventBlock extends CodeBlock implements Listener {
     public PlayerJoinEventBlock() {
         super(BlockType.PLAYER_JOIN);
         initializeDefaultSettings();
-        registerListener();
     }
     
     /**
@@ -179,94 +175,6 @@ public class PlayerJoinEventBlock extends CodeBlock implements Listener {
         teleportEnabled = true;
         notificationsEnabled = true;
         loggingEnabled = true;
-    }
-    
-    /**
-     * Регистрация листенера
-     */
-    private void registerListener() {
-        try {
-            OpenHousing plugin = OpenHousing.getInstance();
-            if (plugin != null && plugin.isEnabled()) {
-                Bukkit.getPluginManager().registerEvents(this, plugin);
-            }
-        } catch (Exception e) {
-            System.err.println("Failed to register PlayerJoinEventBlock listener: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Обработка события входа игрока
-     */
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        
-        if (player == null) {
-            return;
-        }
-        
-        // Проверка базовых условий
-        if (!shouldProcessJoin(player)) {
-            return;
-        }
-        
-        // Создание контекста выполнения
-        ExecutionContext context = new ExecutionContext(player);
-        context.setVariable("timestamp", System.currentTimeMillis());
-        context.setVariable("playerName", player.getName());
-        context.setVariable("playerUUID", player.getUniqueId().toString());
-        context.setVariable("ip", player.getAddress() != null ? player.getAddress().getAddress().getHostAddress() : "unknown");
-        context.setVariable("world", player.getWorld().getName());
-        context.setVariable("location", formatLocation(player.getLocation()));
-        context.setVariable("joinTime", System.currentTimeMillis());
-        
-        // Выполнение блока
-        ExecutionResult result = execute(context);
-        
-        // Обработка результата
-        handleExecutionResult(event, result, context);
-        
-        // Обновление статистики
-        updateStatistics(player, result);
-        
-        // Логирование
-        logPlayerJoin(player, result, context);
-        
-        // Уведомления
-        sendNotifications(player, result, context);
-        
-        // Эффекты
-        if (result != null && result.isSuccess()) {
-            spawnJoinEffects(player);
-        }
-    }
-    
-    /**
-     * Проверка, следует ли обрабатывать вход
-     */
-    private boolean shouldProcessJoin(Player player) {
-        // Проверка разрешений
-        if (requirePermission && !player.hasPermission(requiredPermission)) {
-            return false;
-        }
-        
-        // Проверка whitelist
-        if (checkWhitelist && !player.isWhitelisted()) {
-            return false;
-        }
-        
-        // Проверка бана
-        if (checkBan && player.isBanned()) {
-            return false;
-        }
-        
-        // Проверка maintenance
-        if (checkMaintenance && !player.hasPermission("openhousing.maintenance.bypass")) {
-            return false;
-        }
-        
-        return true;
     }
     
     @Override

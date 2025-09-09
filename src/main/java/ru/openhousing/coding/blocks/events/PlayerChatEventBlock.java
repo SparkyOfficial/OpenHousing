@@ -4,10 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import ru.openhousing.OpenHousing;
 import ru.openhousing.coding.blocks.BlockType;
 import ru.openhousing.coding.blocks.CodeBlock;
@@ -27,7 +23,7 @@ import org.bukkit.Location;
  * @author OpenHousing Team
  * @version 1.0.0
  */
-public class PlayerChatEventBlock extends CodeBlock implements Listener {
+public class PlayerChatEventBlock extends CodeBlock {
     
     // Статические поля для глобального управления
     private static final Map<UUID, ChatHistory> chatHistory = new ConcurrentHashMap<>();
@@ -114,7 +110,6 @@ public class PlayerChatEventBlock extends CodeBlock implements Listener {
     public PlayerChatEventBlock() {
         super(BlockType.PLAYER_CHAT);
         initializeDefaultSettings();
-        registerListener();
     }
     
     /**
@@ -150,27 +145,9 @@ public class PlayerChatEventBlock extends CodeBlock implements Listener {
     }
     
     /**
-     * Регистрация листенера
-     */
-    private void registerListener() {
-        try {
-            OpenHousing plugin = OpenHousing.getInstance();
-            if (plugin != null && plugin.isEnabled()) {
-                Bukkit.getPluginManager().registerEvents(this, plugin);
-            }
-        } catch (Exception e) {
-            System.err.println("Failed to register PlayerChatEventBlock listener: " + e.getMessage());
-        }
-    }
-    
-    /**
      * Обработка события чата
      */
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerChat(AsyncPlayerChatEvent event) {
-        Player player = event.getPlayer();
-        String message = event.getMessage();
-        
+    public void processChatEvent(Player player, String message, Map<String, Object> eventData) {
         if (player == null || message == null || message.trim().isEmpty()) {
             return;
         }
@@ -189,13 +166,17 @@ public class PlayerChatEventBlock extends CodeBlock implements Listener {
         context.setVariable("world", player.getWorld().getName());
         context.setVariable("location", formatLocation(player.getLocation()));
         context.setVariable("chatTime", System.currentTimeMillis());
-        context.setVariable("recipients", event.getRecipients().size());
+        
+        // Добавляем данные события из eventData
+        if (eventData != null) {
+            context.getVariables().putAll(eventData);
+        }
         
         // Выполнение блока
         ExecutionResult result = execute(context);
         
         // Обработка результата
-        handleExecutionResult(event, result, context);
+        handleExecutionResult(player, message, result, context);
         
         // Обновление статистики
         updateStatistics(player, message, result);
@@ -614,23 +595,18 @@ public class PlayerChatEventBlock extends CodeBlock implements Listener {
     /**
      * Обработка результата выполнения
      */
-    private void handleExecutionResult(AsyncPlayerChatEvent event, ExecutionResult result, ExecutionContext context) {
+    private void handleExecutionResult(Player player, String message, ExecutionResult result, ExecutionContext context) {
         if (result == null) {
             return;
         }
         
         if (!result.isSuccess()) {
-            // Отменяем сообщение при ошибке
-            event.setCancelled(true);
-            
             // Отправляем сообщение об ошибке
-            Player player = event.getPlayer();
             if (player != null && player.isOnline()) {
                 player.sendMessage("§c" + result.getMessage());
             }
         } else {
             // Сообщение обработано успешно
-            Player player = event.getPlayer();
             if (player != null) {
                 // Обновляем время последнего сообщения
                 PlayerChatStats stats = playerStats.computeIfAbsent(

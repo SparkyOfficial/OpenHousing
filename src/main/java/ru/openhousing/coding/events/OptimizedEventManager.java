@@ -3,6 +3,7 @@ package ru.openhousing.coding.events;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -60,6 +61,179 @@ public class OptimizedEventManager implements Listener {
         
         // Регистрируем слушатель
         Bukkit.getPluginManager().registerEvents(this, plugin);
+    }
+    
+    /**
+     * Обработчик события входа игрока
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        processEvent(event, player);
+    }
+    
+    /**
+     * Обработчик события выхода игрока
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        processEvent(event, player);
+    }
+    
+    /**
+     * Обработчик события чата игрока
+     */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onPlayerChat(AsyncPlayerChatEvent event) {
+        Player player = event.getPlayer();
+        processEvent(event, player);
+    }
+    
+    /**
+     * Обработчик события движения игрока
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerMove(PlayerMoveEvent event) {
+        Player player = event.getPlayer();
+        // Оптимизация: обрабатываем только значительные движения
+        if (event.getFrom().getBlockX() != event.getTo().getBlockX() ||
+            event.getFrom().getBlockY() != event.getTo().getBlockY() ||
+            event.getFrom().getBlockZ() != event.getTo().getBlockZ()) {
+            processEvent(event, player);
+        }
+    }
+    
+    /**
+     * Обработчик события взаимодействия игрока
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        processEvent(event, player);
+    }
+    
+    /**
+     * Обработчик события взаимодействия игрока с сущностью
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        Player player = event.getPlayer();
+        processEvent(event, player);
+    }
+    
+    /**
+     * Обработчик события урона игрока
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEntityDamage(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
+            processEvent(event, player);
+        }
+    }
+    
+    /**
+     * Обработчик события смерти игрока
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        processEvent(event, player);
+    }
+    
+    /**
+     * Обработчик события возрождения игрока
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        processEvent(event, player);
+    }
+    
+    /**
+     * Обработчик события выбрасывания предмета игроком
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
+        Player player = event.getPlayer();
+        processEvent(event, player);
+    }
+    
+    /**
+     * Обработчик события подбора предмета игроком
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEntityPickupItem(EntityPickupItemEvent event) {
+        if (event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
+            processEvent(event, player);
+        }
+    }
+    
+    /**
+     * Обработчик события клика в инвентаре
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (event.getWhoClicked() instanceof Player) {
+            Player player = (Player) event.getWhoClicked();
+            processEvent(event, player);
+        }
+    }
+    
+    /**
+     * Обработчик события команды игрока
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
+        Player player = event.getPlayer();
+        processEvent(event, player);
+    }
+    
+    /**
+     * Обработчик события телепортации игрока
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        Player player = event.getPlayer();
+        processEvent(event, player);
+    }
+    
+    /**
+     * Обработчик события смены мира игроком
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
+        Player player = event.getPlayer();
+        processEvent(event, player);
+    }
+    
+    /**
+     * Обработчик события приседания игрока
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
+        Player player = event.getPlayer();
+        processEvent(event, player);
+    }
+    
+    /**
+     * Обработчик события разрушения блока игроком
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        processEvent(event, player);
+    }
+    
+    /**
+     * Обработчик события размещения блока игроком
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockPlace(BlockPlaceEvent event) {
+        Player player = event.getPlayer();
+        processEvent(event, player);
     }
     
     /**
